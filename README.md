@@ -10,13 +10,12 @@
 
 ## 화면 구성
 
-0. **우측 상단 유튜브·밴드 배지** — `스텝백 STEPBACK` 제목 오른쪽에 위에서부터 `▶ YouTube 구독 ↗` · `B BAND 바로가기 ↗` 두 배지가 세로로 쌓입니다. 아래 내용은 README 하단 배지 설명 참고.
+0. **우측 상단 유튜브·밴드 배지** — `스텝백 STEPBACK` 제목 오른쪽에 위에서부터 `▶ YouTube 구독 ↗` · `B 스텝백 밴드로 바로가기 ↗` 두 배지가 세로로 쌓입니다. 아래 내용은 README 하단 배지 설명 참고.
    - **안드로이드**: `intent://www.youtube.com/@stepback_basketball?sub_confirmation=1#Intent;scheme=https;package=com.google.android.youtube;…;S.browser_fallback_url=…;end` 로 유튜브 앱을 바로 엽니다(앱이 없거나 막힌 브라우저는 `browser_fallback_url`/1.5초 뒤 웹 구독 페이지로 대체).
    - **아이폰(iOS)**: `youtube://www.youtube.com/@stepback_basketball` 스킴으로 앱 호출을 시도하고, 700ms 뒤에도 페이지가 그대로면(`!document.hidden`) 구독 URL 로 넘어갑니다.
-   - **PC·기타**: 기본 https 링크를 새 탭으로 엽니다. 390px 에서도 제목과 겹치지 않게 좌우 flex 배치·폰트 미세 조정.
+   - **PC·기타**: 기본 https 링크를 새 탭으로 엽니다. 390px 에서도 제목과 겹치지 않게 좌우 flex 배치·폰트 미세 조정(밴드 문구는 한 줄 고정, 좌측 구장 배지는 `word-break:keep-all` 로 낱말 중간에서 끊기지 않습니다).
    - **밴드**: `https://band.us/band/63120390` (새 탭·noopener). 안드로이드는 `intent://band.us/band/63120390#Intent;scheme=https;package=com.nhn.android.band;S.browser_fallback_url=https%3A%2F%2Fband.us%2Fband%2F63120390;end`, 아이폰은 `bandapp://band/63120390` → 700ms 뒤 페이지가 그대로면 `https://band.us/band/63120390` fallback.
 0. **구장 배지 → 길찾기 시트** — 상단 `🏀 SUNDAY · 시흥 SH스포츠센터` 를 누르면 바텀시트가 열립니다: 구장명 `시흥 SH스포츠센터` · 주소 `경기도 시흥시 대야동 500-2` + `주소 복사` · **네이버지도 · 카카오맵 · 티맵** 3종 길찾기(앱 딥링크 → 실패/PC 시 웹 지도·스토어 fallback).
-0. **경기일(일요일) 예보 배지** — 히어로 우측 `YouTube 구독`·`BAND 바로가기` 아래에 작은 카드로 `🌤️ MM/DD(일) 경기일` · 날씨·최저~최고·강수확률 · 오전 07~10시 경기 시간대 기온을 표시합니다(Open-Meteo `daily`+`hourly`, 열 때 10분 캐시). 네트워크 실패 시 `예보 불러오기 실패` 한 줄로만 바뀌고 레이아웃은 그대로입니다.
 0. **상단 요약 카드 4개** — `정규` / `경기` / `게스트` / `최고 승률`. 탭하면 각각 최종 승률 섹션 · 주간 결과 전체 · 게스트 명단(자동 펼침) · 1위 선수 개인 카드로 이동합니다(고정 바에 가리지 않게 `scroll-margin-top` 보정).
 1. **주차 선택 바(상단 고정)** — `‹` / 날짜 드롭다운(45회차) / `›` / `최신`. 과거 날짜를 고르면 그 회차 경기 결과와 **그 회차까지의 누적 승률·순위·게스트**로 화면 전체가 바뀝니다.
 2. **경기 결과** — 팀 성적(승·무·패, 득실)·스코어·팀 명단(게스트는 `G`)·특이사항. 2026-02-15처럼 기록지가 2장인 날은 기록지별로 나눠 보여줍니다.

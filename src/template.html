@@ -83,7 +83,7 @@ body.locked .wrap{display:none}
   text-transform:uppercase;color:var(--acc);font-weight:800;
   background:rgba(51,224,196,.10);border:1px solid rgba(51,224,196,.28);
   padding:4px 9px;border-radius:999px;
-  appearance:none;-webkit-appearance:none;font-family:inherit;cursor:pointer;text-align:left}
+  appearance:none;-webkit-appearance:none;font-family:inherit;cursor:pointer;text-align:left;word-break:keep-all}
 .eyebrow .gnav{font-size:9.5px;letter-spacing:.02em;text-transform:none;color:var(--acc);opacity:.9;
   border-left:1px solid rgba(51,224,196,.35);padding-left:6px;margin-left:1px;white-space:nowrap}
 .eyebrow:active{transform:scale(.98)}
@@ -560,17 +560,6 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .nvgym .addrstat{font-size:10.5px;font-weight:800;color:var(--green);margin-top:7px;min-height:0;line-height:1.4}
 .nvgym .addrstat:empty{display:none}
 .nvgym .addrstat.wr{color:var(--amber)}
-/* ---------- 히어로 경기일(일요일) 예보 배지 (Open-Meteo) ---------- */
-.hxwx{width:100%;max-width:134px;margin:0;padding:6px 8px;border-radius:11px;text-align:left;
-  background:linear-gradient(150deg,#16253c 0%,#101a2b 60%,#0a121e 100%);
-  border:1px solid rgba(91,156,255,.32);box-shadow:0 4px 12px rgba(0,0,0,.35);line-height:1.3}
-.hxwx[hidden]{display:none}
-.hxwx .hxh{font-size:9px;font-weight:900;color:#dce9ff;white-space:nowrap;letter-spacing:-.01em}
-.hxwx .hxl{font-size:9.5px;font-weight:900;color:#eaf2ff;margin-top:2px;white-space:nowrap;font-variant-numeric:tabular-nums}
-.hxwx .hxs{font-size:8.5px;font-weight:800;color:#9fb6d8;margin-top:1px;white-space:nowrap;font-variant-numeric:tabular-nums}
-.hxwx.wr .hxh{color:var(--amber)}
-.hxwx.wr .hxl{color:var(--amber);font-size:8.5px;font-weight:800;white-space:normal;margin-top:1px}
-.hxwx.wr .hxs{display:none}
 .navpick{display:grid;gap:7px}
 .navpick button{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:9px;
   width:100%;padding:10px 12px;border-radius:13px;border:1px solid var(--line2);background:rgba(255,255,255,.05);
@@ -778,10 +767,9 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
       <a class="bandbadge" href="https://band.us/band/63120390" target="_blank" rel="noopener noreferrer"
          data-band-intent="intent://band.us/band/63120390#Intent;scheme=https;package=com.nhn.android.band;S.browser_fallback_url=https%3A%2F%2Fband.us%2Fband%2F63120390;end"
          data-band-ios="bandapp://band/63120390"
-         aria-label="네이버 밴드 STEPBACK 바로가기 (새 창·앱)">
-        <span class="bandico" aria-hidden="true">B</span><span class="bandtx">BAND 바로가기</span><span class="ytarrow" aria-hidden="true">↗</span>
+         aria-label="스텝백 밴드로 바로가기 (새 창·앱)">
+        <span class="bandico" aria-hidden="true">B</span><span class="bandtx">스텝백 밴드로 바로가기</span><span class="ytarrow" aria-hidden="true">↗</span>
       </a>
-      <div class="hxwx" id="heroWx" hidden aria-live="polite" title="시흥 대야동 경기일(일요일) 예보"></div>
     </div>
     </div>
     <div class="stats" id="heroStats" role="group" aria-label="시즌 요약 — 탭하면 해당 섹션으로 이동"></div>
@@ -1022,7 +1010,6 @@ function start(data) {
   $('#lock').hidden = true;
   if (!BOUND) { bind(); BOUND = true; }
   renderAll();
-  loadWeather();
   window.scrollTo(0, 0);
 }
 
@@ -1947,80 +1934,6 @@ function openNav() {
   m.hidden = false;
   document.body.style.overflow = 'hidden';
   const x = $('#navModal .x'); if (x) x.focus();
-}
-/* ---------- 경기일(일요일) 날씨 예보 (Open-Meteo · 키 불필요 · CORS 허용) ---------- */
-const WX_URL = 'https://api.open-meteo.com/v1/forecast?latitude=37.4419&longitude=126.7873'
-  + '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max'
-  + '&hourly=temperature_2m,weather_code,precipitation_probability'
-  + '&timezone=Asia%2FSeoul&forecast_days=8';
-const WX_LABEL = {0: '맑음', 1: '대체로 맑음', 2: '구름 조금', 3: '구름많음', 45: '안개', 48: '안개',
-  51: '이슬비', 53: '이슬비', 55: '이슬비', 56: '어는 이슬비', 57: '어는 이슬비',
-  61: '비', 63: '비', 65: '비', 66: '어는 비', 67: '어는 비', 71: '눈', 73: '눈', 75: '눈', 77: '눈알갱이',
-  80: '소나기', 81: '소나기', 82: '소나기', 85: '소낙눈', 86: '소낙눈', 95: '뇌우', 96: '뇌우', 99: '뇌우'};
-const WX_EMOJI = {0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '🌫️', 51: '🌦️', 53: '🌦️', 55: '🌦️',
-  56: '🌧️', 57: '🌧️', 61: '🌧️', 63: '🌧️', 65: '🌧️', 66: '🌨️', 67: '🌨️', 71: '🌨️', 73: '🌨️', 75: '❄️',
-  77: '❄️', 80: '🌦️', 81: '🌧️', 82: '⛈️', 85: '🌨️', 86: '🌨️', 95: '⛈️', 96: '⛈️', 99: '⛈️'};
-const WX_ERR = '예보 불러오기 실패';
-let WX_AT = 0;
-function wxLabel(code) { return WX_LABEL[code] || '–'; }
-function wxIcon(code) { return WX_EMOJI[code] || '🌡️'; }
-/* 히어로 우측 배지 — 다가오는 일요일(경기일) 예보. 10분 캐시, 실패해도 레이아웃 유지 */
-function loadWeather(force) {
-  const box = $('#heroWx');
-  if (!box) return;
-  if (!force && WX_AT && (Date.now() - WX_AT) < 600000) return;
-  let ctrl = null, timer = null;
-  try {
-    if (typeof AbortController === 'function') {
-      ctrl = new AbortController();
-      timer = setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 8000);
-    }
-    fetch(WX_URL, ctrl ? { signal: ctrl.signal } : {}).then(r => {
-      if (!r.ok) throw new Error('http ' + r.status);
-      return r.json();
-    }).then(d => {
-      const day = (d && d.daily) || {}, hr = (d && d.hourly) || {};
-      if (!Array.isArray(day.time) || !day.time.length) throw new Error('bad payload');
-      /* 다가오는 일요일(경기일) — 오늘이 일요일이면 오늘 */
-      const i = day.time.findIndex(ds => new Date(ds + 'T00:00:00').getDay() === 0);
-      if (i < 0) throw new Error('no sunday');
-      const ds = day.time[i], mmdd = ds.slice(5, 7) + '/' + ds.slice(8, 10);
-      const code = day.weather_code ? day.weather_code[i] : null;
-      const lo = Math.round(day.temperature_2m_min[i]), hi = Math.round(day.temperature_2m_max[i]);
-      const pp = day.precipitation_probability_max ? day.precipitation_probability_max[i] : null;
-      /* 오전 07~10시 — 경기 시간대 기온 */
-      const temps = [];
-      if (Array.isArray(hr.time)) {
-        [7, 8, 9, 10].forEach(h => {
-          const k = hr.time.indexOf(ds + 'T' + (h < 10 ? '0' + h : h) + ':00');
-          if (k >= 0 && hr.temperature_2m && hr.temperature_2m[k] != null) {
-            temps.push({ h: h, t: Math.round(hr.temperature_2m[k]) });
-          }
-        });
-      }
-      const sub = [];
-      if (pp != null) sub.push('강수 ' + Math.round(pp) + '%');
-      if (temps.length) sub.push('오전 ' + temps.map(x => x.t + '°').join('·'));
-      box.className = 'hxwx ok';
-      box.title = '시흥 대야동 · ' + mmdd + '(일) 경기일 예보 — ' + wxLabel(code) + ' ' + lo + '~' + hi + '°C'
-        + (pp == null ? '' : ' · 강수확률 ' + Math.round(pp) + '%')
-        + (temps.length ? ' · ' + temps.map(x => (x.h < 10 ? '0' + x.h : x.h) + '시 ' + x.t + '°').join(' · ') : '');
-      box.innerHTML = '<div class="hxh">' + wxIcon(code) + ' ' + mmdd + '(일) 경기일</div>'
-        + '<div class="hxl">' + wxLabel(code) + ' ' + lo + '~' + hi + '°C</div>'
-        + (sub.length ? '<div class="hxs">' + sub.join(' · ') + '</div>' : '');
-      box.hidden = false;
-      WX_AT = Date.now();
-    }).catch(() => {
-      box.className = 'hxwx wr';
-      box.title = '시흥 대야동 경기일 예보를 불러오지 못했습니다.';
-      box.innerHTML = '<div class="hxh">🌡️ 경기일 예보</div><div class="hxl">' + WX_ERR + '</div>';
-      box.hidden = false;
-    }).then(() => { if (timer) clearTimeout(timer); });
-  } catch (e) {
-    box.className = 'hxwx wr';
-    box.innerHTML = '<div class="hxh">🌡️ 경기일 예보</div><div class="hxl">' + WX_ERR + '</div>';
-    box.hidden = false;
-  }
 }
 function closeNav() {
   const m = $('#navModal');

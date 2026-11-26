@@ -17,29 +17,6 @@ ASSOC = [r['name'] for r in DATA['roster'] if r.get('role') == '준회원']
 REG_N = sum(1 for r in DATA['roster'] if r.get('role') == '정회원')
 REB_LEAD = max(DATA['stats']['career']['rows'], key=lambda r: r['reb'])
 
-# ---- 경기일(일요일) 날씨 예보 픽스처 (Open-Meteo 응답 대체) ----
-import datetime, math
-TZ = datetime.timezone(datetime.timedelta(hours=9))
-WX_DATES = [(datetime.datetime.now(TZ).date() + datetime.timedelta(days=i)) for i in range(8)]
-WX_SUN = next(d for d in WX_DATES if d.weekday() == 6)
-WX_IDX = WX_DATES.index(WX_SUN)
-WX_TS = [f"{WX_SUN.isoformat()}T{h:02d}:00" for h in range(24)]
-WX_TEMP = [3 + h * 0.7 for h in range(24)]
-WX_PAYLOAD = {
-    "daily": {"time": [d.isoformat() for d in WX_DATES], "weather_code": [1] * 8,
-              "temperature_2m_max": [10 + i for i in range(8)],
-              "temperature_2m_min": [1 + i for i in range(8)],
-              "precipitation_probability_max": [10 + i for i in range(8)]},
-    "hourly": {"time": WX_TS, "temperature_2m": WX_TEMP, "weather_code": [1] * 24,
-               "precipitation_probability": [5] * 24},
-}
-js_round = lambda v: math.floor(v + 0.5)
-WX_HEAD = f"{WX_SUN.month:02d}/{WX_SUN.day:02d}(일) 경기일"
-WX_RANGE = f"{1 + WX_IDX}~{10 + WX_IDX}°C"
-WX_PP = f"{10 + WX_IDX}%"
-WX_HOURS = "오전 " + "·".join(f"{js_round(WX_TEMP[h])}°" for h in (7, 8, 9, 10))
-
-
 # ---- 개인 스탯 표 기대값 (basketball/2026-11-22-스텝백-개인스탯.md 원본 기준)
 STAT_HEADS = ['선수', '득점', '리바', 'ORB', 'DRB', '어시', '스틸', '블락', '턴오버', '파울', '2점', '3점', '자유투', 'MVP', '출전']
 STAT_KEYS = ['pts', 'reb', 'orb', 'drb', 'ast', 'stl', 'blk', 'to', 'pf', 'fg2', 'fg3', 'ft', 'mvp', 'gp']
@@ -128,12 +105,10 @@ with sync_playwright() as p:
                                   permissions=["clipboard-read", "clipboard-write"])
         for host in ("**map.naver.com/**", "**map.kakao.com/**", "**play.google.com/**", "**apps.apple.com/**"):
             ctx.route(host, stub_map)
-        ctx.route("**api.open-meteo.com/**",
-                  lambda route: route.fulfill(status=200, content_type="application/json",
-                                              body=json.dumps(WX_PAYLOAD, ensure_ascii=False)))
         page = ctx.new_page()
-        errs = []
+        errs, reqs = [], []
         collect(page, errs)
+        page.on("request", lambda r: reqs.append(r.url) if "open-meteo" in r.url else None)
         page.goto(URL, wait_until="load")
         page.wait_for_timeout(400)
 
@@ -275,7 +250,7 @@ with sync_playwright() as p:
            and "시흥 SH스포츠센터" in gym.inner_text(), gym.inner_text().replace("\n", " "))
         gym.click(); page.wait_for_timeout(400)
         ok(f"{tag}: 길찾기 시트 열림", not page.locator("#navModal").is_hidden())
-        ok(f"{tag}: 길찾기 시트에는 날씨 블록 없음(히어로로 이동)",
+        ok(f"{tag}: 길찾기 시트에 예보 블록 없음",
            page.locator("#navModal #navWx").count() == 0 and "경기일 예보" not in page.inner_text("#navModal"))
         ok(f"{tag}: 시트 — 구장명·주소", page.inner_text("#navModal .nvgym .gname") == "시흥 SH스포츠센터"
            and page.inner_text("#navModal .nvgym .gaddr") == "경기도 시흥시 대야동 500-2")
@@ -314,8 +289,17 @@ with sync_playwright() as p:
         # 3-0c) 네이버 밴드 바로가기 — 유튜브 배지 아래 stack
         bnd = page.locator(".hero .bandbadge")
         BAND = "https://band.us/band/63120390"
-        ok(f"{tag}: BAND 배지 1개(유튜브 아래 stack)", bnd.count() == 1 and bnd.is_visible()
-           and "BAND 바로가기" in bnd.inner_text() and "↗" in bnd.inner_text(), bnd.inner_text().replace("\n", " "))
+        ok(f"{tag}: 스텝백 밴드 배지 1개(유튜브 아래 stack)", bnd.count() == 1 and bnd.is_visible()
+           and bnd.inner_text().replace("\n", " ").strip().endswith("스텝백 밴드로 바로가기 ↗"),
+           bnd.inner_text().replace("\n", " "))
+        bline = page.evaluate("""() => {
+          const tx = document.querySelector('.hero .bandbadge .bandtx');
+          const rg = document.createRange(); rg.selectNodeContents(tx);
+          const cs = getComputedStyle(tx);
+          return {rects: rg.getClientRects().length, ov: tx.scrollWidth - tx.clientWidth,
+                  clip: parseFloat(cs.fontSize) > 0 && tx.getBoundingClientRect().height <= parseFloat(cs.lineHeight || 12) * 1.6};
+        }""")
+        ok(f"{tag}: 밴드 문구 '스텝백 밴드로 바로가기 ↗' 한 줄", bline["rects"] == 1 and bline["ov"] <= 0 and bline["clip"], f"{bline}")
         bgeo = page.evaluate("""() => {
           const y = document.querySelector('.hero .ytbadge').getBoundingClientRect();
           const b = document.querySelector('.hero .bandbadge').getBoundingClientRect();
@@ -341,30 +325,13 @@ with sync_playwright() as p:
               a.dispatchEvent(ev); return ev.defaultPrevented;
             }""") is False)
 
-        # 3-0d) 히어로 경기일(일요일) 예보 배지 — 유튜브·밴드 아래
-        page.wait_for_selector("#heroWx.ok", timeout=8000)
-        wx = page.inner_text("#heroWx")
-        ok(f"{tag}: 히어로 경기일 예보 헤더", WX_HEAD in wx and "🌤️" in wx, wx.splitlines()[0] if wx else "")
-        ok(f"{tag}: 예보 — 날씨·최저~최고·강수확률", "대체로 맑음" in wx and WX_RANGE in wx and WX_PP in wx,
-           wx.replace("\n", " | "))
-        ok(f"{tag}: 오전 07~10시 시간대 기온", WX_HOURS in wx, wx.splitlines()[-1] if wx else "")
-        wgeo = page.evaluate("""() => {
-          const w = document.querySelector('#heroWx').getBoundingClientRect();
-          const b = document.querySelector('.hero .bandbadge').getBoundingClientRect();
-          const h = document.querySelector('.hero h1').getBoundingClientRect();
-          const p = document.querySelector('.hero .period').getBoundingClientRect();
-          const cs = getComputedStyle(document.querySelector('.hero h1'));
-          return {wl: w.left, wr: w.right, wt: w.top, wb: w.bottom, bw: b.bottom,
-                  hr: h.right, hb: h.bottom, pl: p.left, pb: p.bottom,
-                  lines: Math.round(h.height / parseFloat(cs.lineHeight)), vw: innerWidth,
-                  doc: document.documentElement.scrollWidth};
-        }""")
-        ok(f"{tag}: 예보 배지 위치 — 밴드 아래·오른쪽 정렬·제목/기간 겹침 없음",
-           wgeo["wt"] >= wgeo["bw"] - 1 and wgeo["wr"] <= wgeo["vw"] - 6 and wgeo["wl"] > wgeo["hr"]
-           and wgeo["wl"] > wgeo["vw"] * 0.5 and wgeo["lines"] == 1
-           and wgeo["doc"] <= wgeo["vw"] + 1,
-           f"wx x={wgeo['wl']:.0f}~{wgeo['wr']:.0f} y={wgeo['wt']:.0f}~{wgeo['wb']:.0f} "
-           f"band.bottom={wgeo['bw']:.0f} h1.right={wgeo['hr']:.0f} lines={wgeo['lines']}")
+        # 3-0d) 히어로 우측 상단 — 유튜브·밴드 2개만(경기일 날씨 예보 배지 제거됨)
+        ok(f"{tag}: 날씨 예보 배지 없음(#heroWx 부재)", page.locator("#heroWx").count() == 0
+           and ".hxwx" not in page.content() and "경기일 예보" not in page.inner_text(".hero"))
+        ok(f"{tag}: Open-Meteo 요청 0건", not any("open-meteo" in u for u in reqs),
+           ", ".join(u[:60] for u in reqs[:2]))
+        kids = page.eval_on_selector_all(".heroRight > *", "els=>els.map(e=>e.className)")
+        ok(f"{tag}: 히어로 우측 상단 = 유튜브·밴드 2개", kids == ["ytbadge", "bandbadge"], " / ".join(kids))
 
         # 3-1) 상단 요약 카드 4개 — 클릭 이동 · 라벨 잘림 없음
         cards = page.locator("#heroStats .stat")
@@ -826,9 +793,6 @@ with sync_playwright() as p:
                      "**play.google.com/**", "**apps.apple.com/**"):
             ctx.route(host, lambda route: route.fulfill(status=200, content_type="text/html",
                                                         body="<title>stub</title><h1>stub</h1>"))
-        ctx.route("**api.open-meteo.com/**",
-                  lambda route: route.fulfill(status=200, content_type="application/json",
-                                              body=json.dumps(WX_PAYLOAD, ensure_ascii=False)))
         page = ctx.new_page()
         errs, pops = [], []
         page.on("pageerror", lambda e, s=errs: s.append(str(e)))
@@ -880,31 +844,6 @@ with sync_playwright() as p:
         ok(f"{tag}: JS 에러 0건", len(errs) == 0, "; ".join(errs[:3]))
         ctx.close()
 
-    # 날씨 API 실패 시 — 시트 UI 유지·JS 에러 없음 (앱 링크 테스트는 별도 컨텍스트)
-    ctx = browser.new_context(viewport={"width": 390, "height": 844}, device_scale_factor=2)
-    ctx.route("**api.open-meteo.com/**", lambda route: route.abort())
-    page = ctx.new_page()
-    wxerrs = []
-    page.on("pageerror", lambda e: wxerrs.append(str(e)))
-    page.goto(URL, wait_until="load")
-    page.fill("#code", CODE); page.press("#code", "Enter")
-    page.wait_for_selector(".hero h1", timeout=8000)
-    page.wait_for_selector("#heroWx.wr", timeout=8000)
-    ok("날씨 실패: 히어로 배지에 짧은 안내", "예보 불러오기 실패" in page.inner_text("#heroWx"), page.inner_text("#heroWx"))
-    ok("날씨 실패: 히어로·길찾기 시트 정상", page.evaluate("""() => {
-          const w = document.querySelector('#heroWx').getBoundingClientRect();
-          const sh = document.querySelector('#navModal .sheet').getBoundingClientRect();
-          return w.width <= 140 && w.right <= innerWidth - 6
-            && document.documentElement.scrollWidth <= innerWidth + 1;
-        }"""))
-    page.click("#gymBtn"); page.wait_for_timeout(500)
-    ok("날씨 실패: 길찾기 시트 정상(내비 3종)",
-       not page.locator("#navModal").is_hidden() and page.locator("#navPick [data-nav]").count() == 3
-       and page.inner_text("#navModal .nvgym .gaddr") == "경기도 시흥시 대야동 500-2")
-    page.screenshot(path=f"{OUT}/wx_fail.png")
-    page.keyboard.press("Escape"); page.wait_for_timeout(200)
-    ok("날씨 실패: JS 에러 0건", len(wxerrs) == 0, "; ".join(wxerrs[:2]))
-    ctx.close()
     browser.close()
 if httpd: httpd.shutdown()
 
