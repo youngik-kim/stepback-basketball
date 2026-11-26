@@ -1,0 +1,50 @@
+# 🏀 STEPBACK · 스텝백 승률 &amp; 스탯
+
+일요일 농구팀 **스텝백(STEPBACK)** 의 누적 승률·개인 스탯·주간 경기 결과를 폰에서 보기 좋게 정리한 단일 HTML 페이지입니다.
+
+- 🌐 **https://youngik-kim.github.io/stepback-basketball/**
+- 🏟 구장: 시흥 SH스포츠센터 · 매주 일요일
+- 📅 집계: 2026-01-03 ~ 2026-11-22 · 45회차(기록지 46장) · 3파전 34회 / 2파전 11회 · 총 135경기
+- 🔒 **팀 입장 코드** 필요 (HTML 소스에는 데이터가 암호문으로만 들어갑니다)
+
+## 화면 구성
+
+1. **주차 선택 바(상단 고정)** — `‹` / 날짜 드롭다운(45회차) / `›` / `최신`. 과거 날짜를 고르면 그 회차 경기 결과와 **그 회차까지의 누적 승률·순위·게스트**로 화면 전체가 바뀝니다.
+2. **경기 결과** — 팀 성적(승·무·패, 득실)·스코어·팀 명단(게스트는 `G`)·특이사항. 2026-02-15처럼 기록지가 2장인 날은 기록지별로 나눠 보여줍니다.
+3. **최종 승률** — 정규(참여율 40%↑ 18회 이상) 16명 · 순위 외 4명 · 시즌 하이라이트 · 게스트 71명(출전 순)
+4. **개인 스탯** — `26.11.22` 경기 기록(15명) / 시즌 누적(16명) 탭, 득점·리바운드·어시스트·MVP 정렬
+5. **정회원 로스터** — 21명 백넘버·신장·포지션(복수 포지션은 앞 포지션 기준 필터, 신장순 정렬)
+6. **주간 결과 전체** — 최신 회차부터 45개 아코디언
+
+선수 이름을 누르면 개인 카드가 뜹니다 — 승률·승무패·참여율·신장·포지션·백넘버, `26.11.22` 경기 스탯, 시즌 누적 스탯, 회차별 상대/스코어, 2파전·3파전 분리 전적.
+
+## 매주 갱신 방법
+
+```bash
+# 1) 기록지 내용을 basketball/stepback-records.md · stepback-guests.md 에 반영한 뒤
+python3 src/build_data.py      # -> src/data.json (평문, 커밋 금지) + 기록지 표와 자동 대조 검증
+python3 src/build_site.py      # -> index.html (ENC_DATA 암호화) + robots.txt
+python3 src/verify.py          # (선택) 390×844 / 1280×800 렌더링·기능 검증
+```
+
+- `build_data.py` 는 주차별 로스터×팀 성적에서 개인 승·무·패·출전·2파전/3파전을 **다시 계산해 기록지 표와 대조**합니다. 불일치가 있으면 목록을 출력하고 종료코드 1로 끝납니다.
+- 입장 코드는 `site/.entry-code` 파일(또는 `--code`, `STEPBACK_ENTRY_CODE`)로 넣습니다.
+
+## 보안
+
+- `index.html` 에는 `<meta name="robots" content="noindex, nofollow">`, `robots.txt` 는 `User-agent: * / Disallow: /`.
+- 데이터는 **PBKDF2-SHA256 20만 회 → AES-256-GCM** 으로 암호화해 `const ENC = {…}` 로만 내장됩니다. HTML 소스에 선수 이름·전적·입장 코드가 평문으로 남지 않습니다(빌드 시 자동 검사).
+- 입장한 기기는 `localStorage` 에 **복호화 키만** 저장해 재입장을 생략합니다. 푸터 `🔒 잠금` 버튼으로 즉시 잠글 수 있습니다(공용 PC).
+- **절대 저장소에 올리면 안 되는 파일**: `src/data.json`(평문 명단), `.entry-code`. `.gitignore` 에 포함되어 있습니다.
+- 배포물은 `index.html` · `robots.txt` · `.nojekyll` 뿐입니다.
+
+## 구조
+
+```
+index.html          배포 페이지 (단일 파일, ENC_DATA 내장)
+robots.txt          검색엔진 차단
+src/build_data.py   기록지 마크다운 -> data.json + 전적 재계산 검증
+src/build_site.py   data.json 암호화 -> index.html · robots.txt
+src/template.html   페이지 템플릿 (평문 이름 없음)
+src/verify.py       로컬 HTTP + Chromium 검증 스크립트
+```

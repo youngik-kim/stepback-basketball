@@ -1,0 +1,6 @@
+# 배포 금지 — 평문 명단 / 입장 코드
+src/data.json
+.entry-code
+
+# 로컬 검증 산출물
+_verify/
