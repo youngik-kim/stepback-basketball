@@ -77,12 +77,21 @@ body.locked .wrap{display:none}
 .hero h1 .en{font-size:10px;letter-spacing:.38em;color:var(--tx3);font-weight:800}
 .hero .period{color:var(--tx2);font-size:12px;margin:4px 0 0}
 .hero .period b{color:var(--tx);font-weight:700}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 2px}
-.stat{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);
-  border-radius:10px;padding:6px 3px;text-align:center;min-width:0}
-.stat .v{font-size:14.5px;font-weight:900;letter-spacing:-.01em;line-height:1.15}
-.stat .k{font-size:10px;color:var(--tx3);margin-top:1px}
+/* 상단 요약 카드 — 탭하면 해당 섹션으로 이동 · 390px 에서 라벨 잘림 없도록 여백/글자 크기 보정 */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:12px 0 2px}
+.stat{appearance:none;-webkit-appearance:none;width:100%;min-width:0;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;gap:0;font-family:inherit;color:inherit;text-align:center;
+  background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);
+  border-radius:10px;padding:7px 2px;cursor:pointer;
+  transition:transform .12s ease,border-color .15s ease,background .15s ease}
+.stat .v{font-size:14.5px;font-weight:900;letter-spacing:-.01em;line-height:1.15;max-width:100%}
+.stat .k{font-size:9.5px;color:var(--tx3);margin-top:1px;line-height:1.3;max-width:100%}
+.stat.hi .k{letter-spacing:-.02em}
 .stat.hi .v{background:linear-gradient(92deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat:active{transform:scale(.96)}
+.stat:focus-visible{outline:2px solid rgba(51,224,196,.62);outline-offset:2px}
+@media (hover:hover){.stat:hover{border-color:rgba(51,224,196,.45);background:linear-gradient(160deg,#1c2a44,#141f33)}}
+@media (max-width:380px){.stat .k{font-size:9px}}
 
 /* ---------- week selector ---------- */
 .selbar{position:sticky;top:0;z-index:50;display:flex;gap:7px;align-items:center;
@@ -167,6 +176,7 @@ details.mini[open]>summary .chev{transform:rotate(90deg)}
   border:1px solid var(--line);cursor:pointer;color:var(--tx2)}
 .chip:hover{color:var(--tx);border-color:var(--line2)}
 .chip .st{color:var(--tx3);font-size:9.5px;margin-left:2px}
+.chip .st.assoc{color:var(--gold);font-weight:900}
 .note{margin-top:9px;font-size:11.5px;color:var(--tx2);background:rgba(91,156,255,.07);
   border-left:2px solid rgba(91,156,255,.5);padding:7px 9px;border-radius:0 8px 8px 0;line-height:1.55}
 .note b{color:var(--acc2);font-size:10.5px;letter-spacing:.04em}
@@ -251,7 +261,7 @@ details.mini[open]>summary .chev{transform:rotate(90deg)}
 .hlcard.best{border-color:rgba(51,224,196,.4);background:linear-gradient(150deg,rgba(51,224,196,.12),var(--card))}
 
 /* ---------- details box ---------- */
-details.box{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:9px}
+details.box{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:9px;scroll-margin-top:62px}
 details.box>summary{list-style:none;cursor:pointer;padding:13px;display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px}
 details.box>summary::-webkit-details-marker{display:none}
 details.box>summary .chev{margin-left:auto;color:var(--tx3);transition:.2s;font-size:11px}
@@ -274,7 +284,17 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--tx3);margin:8px 2px 0}
 
 /* ---------- stat section ---------- */
-.tabs{display:inline-flex;background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:3px;gap:3px;margin:4px 0 8px}
+.tabs{display:inline-flex;background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:3px;gap:3px;margin:4px 0 0}
+.stathdr{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;margin:4px 0 8px}
+.stathdr .mtoggle{flex:0 0 auto;margin-left:auto}
+.stev{display:flex;align-items:center;gap:6px;margin:-2px 0 9px}
+.stev[hidden]{display:none}
+.stev select{appearance:none;-webkit-appearance:none;flex:1 1 auto;min-width:0;background:var(--card);border:1px solid var(--line2);
+  border-radius:9px;color:var(--tx);font-size:12px;font-weight:800;padding:7px 10px;cursor:pointer}
+.stev select:focus{outline:none;border-color:rgba(51,224,196,.65)}
+@media (max-width:430px){.stathdr{gap:5px}.stathdr .tabs{width:100%;display:flex}
+  .stathdr .tabs button{flex:1 1 0;padding:7px 4px;font-size:10.5px}
+  .stev .mtoggle button{padding:5px 8px;font-size:10.5px}}
 .tabs button{border:0;background:transparent;color:var(--tx2);font-size:12px;font-weight:800;
   padding:7px 12px;border-radius:9px;cursor:pointer;white-space:nowrap}
 .tabs button[aria-pressed="true"]{background:linear-gradient(120deg,rgba(51,224,196,.22),rgba(91,156,255,.18));
@@ -352,6 +372,12 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .rcell .nmn{min-width:0}
 .rcell .nmn b{font-size:13px;font-weight:800;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rcell .nmn span{font-size:9.5px;color:var(--tx3);display:block;margin-top:1px}
+.rcell.assoc{border-color:rgba(255,209,102,.34);background:linear-gradient(160deg,rgba(255,209,102,.09),var(--card))}
+.rcell.assoc .no{color:var(--gold);background:rgba(255,209,102,.12);border-color:rgba(255,209,102,.3)}
+/* 정회원/준회원 구분 배지 */
+.rrole{font-style:normal;font-size:9px;font-weight:900;letter-spacing:.02em;color:#20160a;
+  background:linear-gradient(120deg,var(--gold),var(--amber));padding:1.5px 5px;border-radius:999px;
+  margin-left:4px;vertical-align:middle;white-space:nowrap;line-height:1.2;display:inline-block}
 .poschip{padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:800;border:1px solid var(--line);
   background:rgba(255,255,255,.04);color:var(--tx3);cursor:pointer}
 .poschip[aria-pressed="true"]{color:#04120f;background:linear-gradient(120deg,var(--acc),#8af2dd);border-color:transparent}
@@ -403,6 +429,10 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mbadge{font-size:10.5px;font-weight:800;padding:3px 7px;border-radius:999px;background:rgba(255,209,102,.14);
   border:1px solid rgba(255,209,102,.32);color:var(--gold)}
 .mbadge.blue{background:rgba(91,156,255,.14);border-color:rgba(91,156,255,.32);color:#9cc4ff}
+.mbadge.assoc{background:linear-gradient(120deg,var(--gold),var(--amber));border-color:transparent;color:#20160a}
+.mbadge.reg{background:rgba(51,224,196,.14);border-color:rgba(51,224,196,.32);color:var(--acc)}
+.mbadge.guest{background:rgba(255,255,255,.09);border-color:var(--line2);color:var(--tx2)}
+.mname .rrole{font-size:11px;padding:2.5px 7px;margin-left:2px;vertical-align:middle}
 .mrate{display:flex;align-items:baseline;gap:8px;margin:12px 0 4px;flex-wrap:wrap}
 .mrate .big{font-size:38px;font-weight:900;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;
   background:linear-gradient(92deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -427,6 +457,19 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mshotc .v{font-size:12.5px;font-weight:900;font-variant-numeric:tabular-nums;margin-top:1px;white-space:nowrap}
 .mshotc .p{font-size:10px;font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums}
 .mshotc.none .v,.mshotc.none .p{color:var(--tx3)}
+/* 총합 / 쿼터당(/Q) 전환 */
+.msechead{display:flex;align-items:center;gap:8px;margin:16px 0 6px}
+.msechead .msec{margin:0}
+.mtabs button{font-size:10px;padding:4px 7px}
+@media (max-width:430px){.msechead{flex-wrap:wrap}
+  .msechead .mtabs{width:100%;display:flex;margin-left:0}
+  .msechead .mtabs button{flex:1 1 0;padding:5px 3px;font-size:9.5px}}
+.mtoggle{margin-left:auto;display:inline-flex;background:rgba(255,255,255,.05);border:1px solid var(--line2);border-radius:9px;padding:2px;gap:2px}
+.mtoggle button{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:var(--tx3);font-family:inherit;
+  font-size:10.5px;font-weight:900;padding:4px 9px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.mtoggle button[aria-pressed="true"]{background:linear-gradient(120deg,var(--acc),#8af2dd);color:#04120f}
+.mshotc .pq{font-size:9px;color:var(--acc2);font-weight:800;margin-top:1px;font-variant-numeric:tabular-nums}
+.pqnote{font-size:9.5px;color:var(--tx3);font-weight:700;margin-left:auto}
 .mweek{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:7px;align-items:center;padding:7px 0;
   border-bottom:1px solid rgba(255,255,255,.06);font-size:12px}
 .mweek .dt{color:var(--tx3);font-weight:800;font-variant-numeric:tabular-nums}
@@ -508,7 +551,7 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     <span class="eyebrow">🏀 Sunday · 시흥 SH스포츠센터</span>
     <h1>스텝백 <span class="en">STEPBACK</span></h1>
     <p class="period" id="periodLine"></p>
-    <div class="stats" id="heroStats"></div>
+    <div class="stats" id="heroStats" role="group" aria-label="시즌 요약 — 탭하면 해당 섹션으로 이동"></div>
   </header>
 
   <div class="selbar">
@@ -572,9 +615,20 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
   <!-- ===== 개인 스탯 ===== -->
   <section id="secStats" aria-labelledby="hStats">
     <div class="shead"><h2 id="hStats">개인 스탯</h2><span class="n" id="statAsOf"></span><span class="right">탭하면 개인 카드</span></div>
-    <div class="tabs" role="group" aria-label="스탯 종류">
-      <button id="tabEvent" aria-pressed="true">26.11.22 경기</button>
-      <button id="tabCareer" aria-pressed="false">시즌 누적</button>
+    <div class="stathdr">
+      <div class="tabs" id="statTabs" role="group" aria-label="스탯 보기">
+        <button id="tabCareer" aria-pressed="true">시즌 누적</button>
+        <button id="tabCareerQ" aria-pressed="false">시즌 누적(쿼터당)</button>
+        <button id="tabEvent" aria-pressed="false">직전 경기</button>
+      </div>
+    </div>
+    <div class="stev" id="evWrap" hidden>
+      <label class="sr" for="evSel">경기 날짜 선택</label>
+      <select id="evSel"></select>
+      <div class="mtoggle" id="evView" role="group" aria-label="직전 경기 보기 — 총합 또는 쿼터당">
+        <button type="button" data-evview="total" aria-pressed="true">총합</button>
+        <button type="button" data-evview="perq" aria-pressed="false">쿼터당</button>
+      </div>
     </div>
     <div class="sortrow" id="sortRow" role="group" aria-label="정렬 기준"></div>
     <div class="statwrap">
@@ -592,7 +646,7 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
 
   <!-- ===== 로스터 ===== -->
   <section id="secRoster" aria-labelledby="hRoster">
-    <div class="shead"><h2 id="hRoster">정회원 로스터</h2><span class="n" id="rosterCnt"></span><span class="right">백넘버 · 신장 · 포지션</span></div>
+    <div class="shead"><h2 id="hRoster">로스터</h2><span class="n" id="rosterCnt"></span><span class="right">백넘버 · 신장 · 포지션</span></div>
     <div class="roster-sum" id="rosterSum"></div>
     <div class="sortrow" id="posRow" role="group" aria-label="포지션 필터"></div>
     <div class="rostergrid" id="rosterGrid"></div>
@@ -645,7 +699,10 @@ const wd = d => WEEKDAY[new Date(d + 'T00:00:00').getDay()];
 const rec3 = p => `${p.w}승 ${p.d ? p.d + '무 ' : ''}${p.l}패`;
 const dotCls = t => 'dot-' + t;
 
-let DATA = null, ST = null, Q = '', STAT_MODE = 'event', STAT_SORT = 'pts', POS_FILTER = 'ALL';
+let DATA = null, ST = null, Q = '', STAT_SORT = 'pts', POS_FILTER = 'ALL';
+/* 스탯 보기: career = 시즌 누적 / careerQ = 시즌 누적(쿼터당) / event = 직전 경기 */
+let STAT_MODE = 'career', EVENT_DATE = null, EVENT_VIEW = 'total';
+let ST_SRC = null;
 
 /* ---------------- 암호 해제 ---------------- */
 const LS_KEY = 'stepback-lock-v1';
@@ -748,7 +805,8 @@ const LATEST = () => CHRONO()[CHRONO().length - 1];
 let curDate = null;
 
 function nameKind() {
-  const reg = new Set(DATA.members.map(p => p.name).concat(DATA.outsiders.map(p => p.name), DATA.absent));
+  const reg = new Set(DATA.members.map(p => p.name).concat(DATA.outsiders.map(p => p.name), DATA.absent,
+    (DATA.absentAssoc || [])));
   const gst = new Set(DATA.guests.map(p => p.name));
   return { reg, gst };
 }
@@ -783,6 +841,7 @@ function computeAsOf(date) {
       name: s.name, weeks: s.weeks.size, games: g, w: s.w, d: s.d, l: s.l,
       rate: g ? s.w / g * 100 : 0, two: s.two, three: s.three,
       perfect: s.weeks.size === n && n >= 5,
+      role: (DATA.roster.find(r => r.name === s.name) || {}).role || null,
       kind: KIND.gst.has(s.name) && !KIND.reg.has(s.name) ? 'guest' : 'regular'
     });
   }
@@ -807,14 +866,42 @@ function renderHero() {
   const isLast = curDate === LAT.date;
   $('#periodLine').innerHTML = `<b>${p.start.replace(/-/g, '.')} – ${p.end.slice(5).replace('-', '.')}</b> · ${p.weeks}회차 · 기록지 ${p.sheets}장`;
   const best = st.regular[0];
-  $('#heroStats').innerHTML = [
-    [isLast ? '정규' : '순위권', st.regular.length + '명'],
-    ['경기', st.games + '경기'],
-    ['게스트', st.guests.length + '명'],
-    [best ? '최고 승률 ' + pct(best.rate) + '%' : '최고 승률', best ? best.name : '—', 'hi'],
-  ].map(([k, v, c]) => `<div class="stat ${c || ''}"><div class="v">${esc(v)}</div><div class="k">${esc(k)}</div></div>`).join('');
+  const cards = [
+    { k: isLast ? '정규' : '순위권', v: st.regular.length + '명', jump: 'rank',
+      aria: `${isLast ? '정규' : '순위권'} ${st.regular.length}명 — 최종 승률 섹션으로 이동` },
+    { k: '경기', v: st.games + '경기', jump: 'weeks',
+      aria: `경기 ${st.games}경기 — 주간 결과 전체 섹션으로 이동` },
+    { k: '게스트', v: st.guests.length + '명', jump: 'guest',
+      aria: `게스트 ${st.guests.length}명 — 게스트 명단을 펼치고 이동` },
+    best
+      ? { k: '최고 승률 ' + pct(best.rate) + '%', v: best.name, cls: 'hi', person: best.name,
+          aria: `${best.name} 최고 승률 ${pct(best.rate)}% — 개인 카드 열기` }
+      : { k: '최고 승률', v: '—', cls: 'hi', aria: '최고 승률 선수 없음' },
+  ];
+  $('#heroStats').innerHTML = cards.map(c =>
+    `<button type="button" class="stat ${c.cls || ''}" aria-label="${esc(c.aria)}"` +
+    (c.person ? ` data-person="${esc(c.person)}"` : c.jump ? ` data-jump="${c.jump}"` : '') +
+    `><div class="v">${esc(c.v)}</div><div class="k">${esc(c.k)}</div></button>`
+  ).join('');
   $('#fPeriod').textContent = `${p.start} ~ ${p.end} (${p.weeks}회차 / ${p.sheets}장)`;
   $('#fNote').innerHTML = `기록은 <b>${p.start.replace(/-/g, '.')}</b>부터 45회차분입니다. 기록지가 미완성인 회차(1/3 등)는 대진별 마지막 기재값을 최종 점수로 썼고, 그 사실을 해당 주차 메모에 남겼습니다.`;
+}
+
+/* ---------------- hero 요약 카드 → 이동 ---------------- */
+function scrollToTarget(el) {
+  if (!el) return;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+}
+function heroJump(kind) {
+  if (kind === 'rank') return scrollToTarget($('#secRank'));
+  if (kind === 'weeks') return scrollToTarget($('#secWeeks'));
+  if (kind === 'guest') {
+    const g = $('#guestBox');
+    if (!g) return;
+    if (!g.open) g.open = true;
+    scrollToTarget(g);
+  }
 }
 
 /* ---------------- selector ---------------- */
@@ -868,9 +955,11 @@ function sheetHtml(sh, multi, idx) {
   </div>`;
 }
 const GUEST_SET = () => new Set(DATA.guests.map(p => p.name));
+const ROLE_OF = n => { const r = DATA.roster.find(x => x.name === n); return r ? r.role : null; };
 function chip(n) {
   const g = GUEST_SET().has(n) && !DATA.roster.some(r => r.name === n);
-  return `<button class="chip" data-person="${esc(n)}">${esc(n)}${g ? '<span class="st">G</span>' : ''}</button>`;
+  const a = ROLE_OF(n) === '준회원';
+  return `<button class="chip" data-person="${esc(n)}"${a ? ' aria-label="' + esc(n) + ' 준회원 개인 카드 보기"' : ''}>${esc(n)}${g ? '<span class="st">G</span>' : ''}${a ? '<span class="st assoc">준</span>' : ''}</button>`;
 }
 function renderResult() {
   const CH = CHRONO();
@@ -917,7 +1006,7 @@ function memberRow(p, q, rank) {
   if (p.three && (p.three.w + p.three.d + p.three.l)) meta.push(`3파전 ${rec3(p.three)}`);
   return `<button class="rrow ${rank <= 3 ? 'p' + rank : ''}" data-person="${esc(p.name)}" aria-label="${esc(p.name)} 개인 카드 보기">
     <span class="rk">${rank}</span>
-    <span class="nm"><span class="nn">${hl(p.name, q)}${p.perfect ? '<span aria-label="개근" title="전 회차 출전">🔥</span>' : ''}</span>
+    <span class="nm"><span class="nn">${hl(p.name, q)}${p.perfect ? '<span aria-label="개근" title="전 회차 출전">🔥</span>' : ''}${p.role === '준회원' ? '<i class="rrole">준회원</i>' : ''}</span>
       ${meta.length ? `<span class="meta splitmeta">${meta.join(' · ')}</span>` : ''}</span>
     <span class="wk">${p.weeks}회</span>
     <span class="rec">${rec3(p)}</span>
@@ -935,9 +1024,15 @@ function renderRank() {
   $('#critInner').innerHTML = `<div class="crit"><b>정규 순위 산정</b> — 전체 ${DATA.period.weeks}회 중 <b>참여율 ${DATA.criteria.minRate}% 이상(18회 이상)</b>만 정규 순위에 들어갑니다.
       (지금 기준 <b>${ST.n}회 중 ${ST.minWeeks}회 이상</b>)
       <div class="row"><span class="pill">① 참여율 ${DATA.criteria.minRate}%↑</span><span class="pill">② 동률 시 다승</span><span class="pill">③ 경기수</span><span class="pill">④ 가나다 순</span></div></div>
-      <div class="legend"><span>🔥 전 회차 개근</span><span>승률 = 승 ÷ (승+무+패)</span><span>이름을 누르면 개인 카드</span></div>`;
+      <div class="legend"><span>🔥 전 회차 개근</span><span>승률 = 승 ÷ (승+무+패)</span><span>이름을 누르면 개인 카드</span><span><b style="color:var(--gold)">준</b> 준회원 · <b>G</b> 게스트</span><span>로스터 정회원 ${DATA.rosterMeta ? DATA.rosterMeta.regular : DATA.roster.length} · 준회원 ${DATA.rosterMeta ? DATA.rosterMeta.associate : 0}</span></div>`;
   $('#outRight').textContent = `${ST.minWeeks}회 미만`;
-  $('#absentLine').innerHTML = DATA.absent.length ? `미출전 정회원 · ${DATA.absent.map(esc).join(', ')} (기록지에 이름 없음)` : '';
+  $('#absentLine').innerHTML = (() => {
+    const bits = [];
+    const ab = DATA.absent || [], aa = DATA.absentAssoc || [];
+    if (ab.length) bits.push(`미출전 정회원 (${ab.length}명): ${ab.map(esc).join(', ')}`);
+    if (aa.length) bits.push(`미출전 준회원 (${aa.length}명): ${aa.map(esc).join(', ')}`);
+    return bits.length ? bits.join(' · ') + ' (기록지에 이름 없음)' : '';
+  })();
 
   const f = p => !Q || p.name.includes(Q);
   const regs = ST.regular.filter(f), outs = ST.outsiders.filter(f), gs = ST.guests.filter(f);
@@ -949,7 +1044,7 @@ function renderRank() {
     const prog = Math.min(100, Math.round(p.weeks / ST.minWeeks * 100));
     return `<button class="otile" data-person="${esc(p.name)}">
       <span class="rk">${ST.outsiders.indexOf(p) + 1}</span>
-      <span><span class="nn">${hl(p.name, Q)}</span>
+      <span><span class="nn">${hl(p.name, Q)}${p.role === '준회원' ? '<i class="rrole">준회원</i>' : ''}</span>
         <span class="meta">${p.weeks}회 · ${rec3(p)} · ${pct(p.rate)}%</span>
         <span class="prog"><i style="width:${prog}%"></i></span></span>
       <span class="cond ${p.need === 1 ? 'soon' : ''}">${esc(p.note)}</span></button>`;
@@ -1012,10 +1107,29 @@ const stCol = k => ST_COLS.find(c => c.k === k);
 function statVal(p, k) {
   const c = stCol(k);
   if (c && c.shot) { const s = p[k]; return s && s.a ? s.p : -1; }
-  return p[k] == null ? -1 : p[k];
+  const v = numView(p, k);
+  return v == null ? -1 : v;
+}
+/* 보기 모드 반영값 — 쿼터당 모드면 각 항목을 출전수로 나눈 평균 */
+function numView(p, k) {
+  const v = p[k];
+  if (v == null) return null;
+  if (!ST_SRC || !ST_SRC.perq || !p.gp) return v;
+  return v / p.gp;
+}
+const EVENTS = () => (DATA.stats.events && DATA.stats.events.length ? DATA.stats.events : [DATA.stats.event]);
+function statSource() {
+  if (STAT_MODE === 'event') {
+    const list = EVENTS();
+    const ev = list.find(e => e.date === EVENT_DATE) || list[list.length - 1];
+    return { rows: ev.rows, label: `${ev.date.slice(5).replace('-', '.')} 경기`, date: ev.date, perq: EVENT_VIEW === 'perq', key: 'event' };
+  }
+  return { rows: DATA.stats.career.rows, label: STAT_MODE === 'careerQ' ? '시즌 누적(쿼터당)' : '시즌 누적',
+           date: DATA.stats.career.date, perq: STAT_MODE === 'careerQ', key: 'career' };
 }
 function statRows() {
-  const src = DATA.stats[STAT_MODE];
+  ST_SRC = statSource();
+  const src = ST_SRC;
   const c = stCol(STAT_SORT);
   const arr = src.rows.slice().sort((a, b) => {
     const d = statVal(b, STAT_SORT) - statVal(a, STAT_SORT);
@@ -1046,9 +1160,17 @@ function syncStatScroll() {
 }
 function renderStats() {
   const { src, arr, total } = statRows();
+  $('#tabCareer').setAttribute('aria-pressed', String(STAT_MODE === 'career'));
+  $('#tabCareerQ').setAttribute('aria-pressed', String(STAT_MODE === 'careerQ'));
+  $('#tabEvent').setAttribute('aria-pressed', String(STAT_MODE === 'event'));
+  $('#evWrap').hidden = STAT_MODE !== 'event';
+  if (STAT_MODE === 'event') {
+    const list = EVENTS();
+    $('#evSel').innerHTML = list.map(e =>
+      `<option value="${e.date}" ${e.date === src.date ? 'selected' : ''}>${e.date.slice(5).replace('-', '.')} 경기</option>`).join('');
+    $$('#evView button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.evview === (src.perq ? 'perq' : 'total'))));
+  }
   $('#statAsOf').textContent = `${src.label} · ${total}명`;
-  $('#tabEvent').setAttribute('aria-pressed', STAT_MODE === 'event');
-  $('#tabCareer').setAttribute('aria-pressed', STAT_MODE === 'career');
   $('#sortRow').innerHTML = ST_COLS.filter(c => !c.shot).map(c =>
     `<button class="sortchip" data-sort="${c.k}" aria-pressed="${STAT_SORT === c.k}">${c.l}</button>`).join('');
   const rowEl = $('#sortRow'), act = rowEl.querySelector(`[data-sort="${STAT_SORT}"]`);
@@ -1067,14 +1189,17 @@ function renderStats() {
     const cls = (c.k === STAT_SORT ? ' sorted' : '') + (isLead ? ' lead' : '');
     if (c.shot) {
       const s = p[c.k];
-      return `<td class="shot${c.k === STAT_SORT ? ' sorted' : ''}"><b class="${isLead ? 'lead' : ''}">${s ? s.p + '%' : '–'}</b><i>${fmtMakes(s)}</i></td>`;
+      const sub = (ST_SRC && ST_SRC.perq && s && s.a && p.gp) ? `/Q ${(s.m / p.gp).toFixed(1)}/${(s.a / p.gp).toFixed(1)}` : fmtMakes(s);
+      return `<td class="shot${c.k === STAT_SORT ? ' sorted' : ''}"><b class="${isLead ? 'lead' : ''}">${s ? s.p + '%' : '–'}</b><i>${sub}</i></td>`;
     }
     if (c.k === 'mvp') return `<td class="num${cls}">${p.mvp == null ? '–' : p.mvp.toFixed(2)}</td>`;
-    return `<td class="num${cls}">${fmtN(p[c.k])}</td>`;
+    const v = numView(p, c.k);
+    return `<td class="num${cls}">${v == null ? '–' : (ST_SRC && ST_SRC.perq ? v.toFixed(1) : fmtN(v))}</td>`;
   };
   $('#statRows').innerHTML = arr.length ? arr.map(p => {
     const ro = rosterOf(p.name);
-    const meta = [ro && ro.no ? '#' + ro.no : null, ro ? ro.height + 'cm' : null, ro ? ro.pos : null].filter(Boolean).join(' · ');
+    const meta = [ro && ro.no ? '#' + ro.no : null, ro ? ro.height + 'cm' : null, ro ? ro.pos : null,
+      ro && ro.role === '준회원' ? '준회원' : null].filter(Boolean).join(' · ');
     return `<tr class="strow" data-person="${esc(p.name)}" tabindex="0">
       <th class="pcol" scope="row"><span class="who"><b>${hl(p.name, Q)}</b><i>${esc(meta)}</i></span></th>
       ${ST_COLS.map(c => cell(p, c)).join('')}
@@ -1082,33 +1207,39 @@ function renderStats() {
   }).join('') : `<tr><td class="nores-cell" colspan="${ST_COLS.length + 1}">${Q ? '해당 이름의 스탯이 없습니다.' : '스탯 기록이 없습니다.'}</td></tr>`;
   const sc = $('#statScroll');
   if (sc && sc.scrollLeft > sc.scrollWidth - sc.clientWidth) sc.scrollLeft = 0;
-  syncStatScroll();  $('#statHint').innerHTML = `2점·3점·자유투는 <b style="color:var(--tx2)">성공률(%)</b> 기준, 나머지는 개수 기준 정렬 · 헤더나 위 칩을 눌러 바꿀 수 있습니다 · 리바운드 = ORB + DRB · MVP는 기록지 산식 그대로`;
+  syncStatScroll();  $('#statHint').innerHTML = (ST_SRC && ST_SRC.perq
+    ? `↔ <b style="color:var(--tx)">쿼터당(/Q)</b> 보기 — 득점·리바·ORB·DRB·어시·스틸·블락·턴오버·파울을 각 선수 <b style="color:var(--tx2)">출전수로 나눈 평균</b>(소수점 1자리)으로 표시합니다 · 2점·3점·자유투는 <b style="color:var(--tx2)">성공률(%)</b> 기준 + 쿼터당 성공/시도 · 정렬도 쿼터당 수치 기준`
+    : `2점·3점·자유투는 <b style="color:var(--tx2)">성공률(%)</b> 기준, 나머지는 개수 기준 정렬 · 헤더나 위 칩을 눌러 바꿀 수 있습니다 · 리바운드 = ORB + DRB · MVP는 기록지 산식 그대로`);
 }
 
 /* ---------------- roster ---------------- */
 function renderRoster() {
   const POS = ['ALL', 'PG', 'SG', 'SF', 'PF'];
   $('#posRow').innerHTML = POS.map(p => `<button class="sortchip" data-pos="${p}" aria-pressed="${POS_FILTER === p}">${p === 'ALL' ? '전체' : p}</button>`).join('')
+    + `<button class="sortchip" data-pos="ASSOC" aria-pressed="${POS_FILTER === 'ASSOC'}">준회원</button>`
     + `<button class="sortchip" data-pos="HEIGHT" aria-pressed="${POS_FILTER === 'HEIGHT'}">신장순</button>`;
   const hs = DATA.roster.map(r => r.height).filter(Boolean);
   const avg = hs.reduce((a, b) => a + b, 0) / (hs.length || 1);
   const cnt = {};
   DATA.roster.forEach(r => { cnt[r.posMain] = (cnt[r.posMain] || 0) + 1; });
   const posTxt = ['PG', 'SG', 'SF', 'PF'].filter(k => cnt[k]).map(k => `${k} <b>${cnt[k]}</b>`).join(' · ');
+  const RM = DATA.rosterMeta || { total: DATA.roster.length, regular: DATA.roster.length, associate: 0 };
   $('#rosterSum').innerHTML = [
-    `정회원 <b>${DATA.roster.length}명</b>`,
+    `정회원 <b>${RM.regular}명</b>`,
+    RM.associate ? `준회원 <b>${RM.associate}명</b>` : '',
     `평균 신장 <b>${avg.toFixed(1)}cm</b>`,
     posTxt
-  ].map(s => `<span class="rs">${s}</span>`).join('');
+  ].filter(Boolean).map(s => `<span class="rs">${s}</span>`).join('');
   let list = DATA.roster.slice();
   if (POS_FILTER === 'HEIGHT') list.sort((a, b) => (b.height || 0) - (a.height || 0));
+  else if (POS_FILTER === 'ASSOC') list = list.filter(r => r.role === '준회원');
   else if (POS_FILTER !== 'ALL') list = list.filter(r => r.posMain === POS_FILTER);
   if (Q) list = list.filter(r => r.name.includes(Q));
-  $('#rosterGrid').innerHTML = list.length ? list.map(r => `<button class="rcell" data-person="${esc(r.name)}">
+  $('#rosterGrid').innerHTML = list.length ? list.map(r => `<button class="rcell ${r.role === '준회원' ? 'assoc' : ''}" data-person="${esc(r.name)}"${r.role === '준회원' ? ` aria-label="${esc(r.name)} 준회원 개인 카드 보기"` : ''}>
       <span class="no">${r.no || '–'}</span>
-      <span class="nmn"><b>${hl(r.name, Q)}</b><span>${r.height ? r.height + 'cm' : '–'} · ${esc(r.pos)}</span></span>
+      <span class="nmn"><b>${hl(r.name, Q)}</b><span>${r.height ? r.height + 'cm' : '–'} · ${esc(r.pos)}${r.role === '준회원' ? '<i class="rrole">준회원</i>' : ''}</span></span>
     </button>`).join('')
-    : `<div class="nores" style="grid-column:1/-1">${Q ? '해당 이름이 없습니다.' : '해당 포지션이 없습니다.'}</div>`;
+    : `<div class="nores" style="grid-column:1/-1">${Q ? '해당 이름이 없습니다.' : POS_FILTER === 'ASSOC' ? '준회원이 없습니다.' : '해당 포지션이 없습니다.'}</div>`;
   $('#rosterCnt').textContent = `${list.length}/${DATA.roster.length}명`;
 }
 
@@ -1159,28 +1290,55 @@ function renderWeeks() {
 
 /* ---------------- modal ---------------- */
 let lastFocus = null;
-function statBlock(rows, name, label, date) {
+let MODAL_MODE = 'career', MODAL_NAME = null, MODAL_DATE = null;
+const MODAL_MODES = [['career', '시즌 누적'], ['careerQ', '시즌 누적(쿼터당)'], ['event', '직전 경기']];
+function modalToggle() {
+  return `<div class="mtoggle mtabs" role="group" aria-label="개인 스탯 보기">`
+    + MODAL_MODES.map(([k, l]) => `<button type="button" data-mdmode="${k}" aria-pressed="${MODAL_MODE === k}">${l}</button>`).join('')
+    + `</div>`;
+}
+function modalBlocks(name) {
+  if (MODAL_MODE === 'event') {
+    const list = EVENTS();
+    const ev = list.find(e => e.date === MODAL_DATE) || list[list.length - 1];
+    return statBlock(ev.rows, name, `${ev.date.slice(5).replace('-', '.')} 경기 스탯`, ev.date, false);
+  }
+  const perq = MODAL_MODE === 'careerQ';
+  return statBlock(DATA.stats.career.rows, name, perq ? '시즌 누적(쿼터당) 스탯' : '시즌 누적 스탯', DATA.stats.career.date, perq);
+}
+function setModalMode(mode) {
+  if (!MODAL_MODES.some(([k]) => k === mode)) return;
+  MODAL_MODE = mode;
+  $$('.mtoggle [data-mdmode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mdmode === MODAL_MODE)));
+  const body = $('#mStatBody');
+  if (!body || !MODAL_NAME) return;
+  const sheet = $('#modal .sheet'), y = sheet ? sheet.scrollTop : 0;
+  body.innerHTML = modalBlocks(MODAL_NAME);
+  if (sheet) sheet.scrollTop = y;
+}
+function statBlock(rows, name, label, date, perq) {
   const p = rows.find(r => r.name === name);
   if (!p) return `<div class="msec">${label} <span class="as">${date}</span></div><div class="mempty">이 기록지에 스탯이 없습니다(출전 명단 미포함).</div>`;
   const n = (v, d) => (v == null ? '–' : (Number.isInteger(v) ? String(v) : v.toFixed(d || 1)));
-  const shot = (t, s) => s
-    ? `<div class="mshotc"><div class="t">${t}</div><div class="v">${n(s.m)}/${n(s.a)}</div><div class="p">${s.p}%</div></div>`
-    : `<div class="mshotc none"><div class="t">${t}</div><div class="v">–</div><div class="p">시도 없음</div></div>`;
-  return `<div class="msec">${label} <span class="as">${date}</span></div>
+  const gp = p.gp || 0;
+  const q = v => (v == null || !gp) ? '–' : (v / gp).toFixed(1);   /* 쿼터(출전)당 평균 */
+  const val = v => perq ? q(v) : n(v);
+  const shot = (t, s) => {
+    if (!s) return `<div class="mshotc none"><div class="t">${t}</div><div class="v">–</div><div class="p">시도 없음</div></div>`;
+    const pq = perq && gp ? `<div class="pq">/Q ${q(s.m)}/${q(s.a)}</div>` : '';
+    return `<div class="mshotc"><div class="t">${t}</div><div class="v">${n(s.m)}/${n(s.a)}</div><div class="p">${s.p}%</div>${pq}</div>`;
+  };
+  const NAMES = [['리바운드', p.reb], ['ORB 공격', p.orb], ['DRB 수비', p.drb], ['어시스트', p.ast],
+                 ['스틸', p.stl], ['블락', p.blk], ['턴오버', p.to], ['파울', p.pf]];
+  const cells = `<div class="msc"><div class="v">${val(p.pts)}</div><div class="k">득점${perq ? ' /Q' : ''}</div></div>`
+    + (perq ? '' : `<div class="msc"><div class="v">${p.ppg == null ? '–' : p.ppg.toFixed(1)}</div><div class="k">평균(점/Q)</div></div>`)
+    + NAMES.map(([k, v]) => `<div class="msc"><div class="v">${val(v)}</div><div class="k">${k}${perq ? ' /Q' : ''}</div></div>`).join('')
+    + `<div class="msc"><div class="v">${p.mvp == null ? '–' : p.mvp.toFixed(2)}</div><div class="k">MVP</div></div>`
+    + `<div class="msc"><div class="v">${n(p.gp)}</div><div class="k">출전</div></div>`;
+  return `<div class="msec">${label} <span class="as">${date}</span>${perq ? `<span class="pqnote">÷ 출전 ${gp}경기</span>` : ''}</div>
     <div class="mshots">${shot('2점', p.fg2)}${shot('3점', p.fg3)}${shot('자유투', p.ft)}</div>
-    <div class="mstats">
-      <div class="msc"><div class="v">${n(p.pts)}</div><div class="k">득점</div></div>
-      <div class="msc"><div class="v">${n(p.reb)}</div><div class="k">리바운드</div></div>
-      <div class="msc"><div class="v">${n(p.orb)}</div><div class="k">ORB 공격</div></div>
-      <div class="msc"><div class="v">${n(p.drb)}</div><div class="k">DRB 수비</div></div>
-      <div class="msc"><div class="v">${n(p.ast)}</div><div class="k">어시스트</div></div>
-      <div class="msc"><div class="v">${n(p.stl)}</div><div class="k">스틸</div></div>
-      <div class="msc"><div class="v">${n(p.blk)}</div><div class="k">블락</div></div>
-      <div class="msc"><div class="v">${n(p.to)}</div><div class="k">턴오버</div></div>
-      <div class="msc"><div class="v">${n(p.pf)}</div><div class="k">파울</div></div>
-      <div class="msc"><div class="v">${p.mvp == null ? '–' : p.mvp.toFixed(2)}</div><div class="k">MVP</div></div>
-      <div class="msc"><div class="v">${n(p.gp)}</div><div class="k">출전</div></div>
-    </div>`;
+    <div class="mstats">${cells}</div>`;
+
 }
 function openPerson(name) {
   const st = computeAsOf(curDate);
@@ -1195,7 +1353,8 @@ function openPerson(name) {
   if (regIdx >= 0) rankLabel = `정규 ${regIdx + 1}위 · 참여율 ${pct(p.weeks / st.n * 100)}%`;
   else if (outIdx >= 0) rankLabel = `순위 외 ${outIdx + 1} · 참여율 ${pct(p.weeks / st.n * 100)}%`;
   else if (gstIdx >= 0) rankLabel = `게스트 · ${p.weeks}회 출전`;
-  else rankLabel = curDate === LAT.date ? '정회원 · 출전 기록 없음' : `${st.n}회차까지 출전 기록 없음`;
+  else rankLabel = (ro && ro.role === '준회원' ? '준회원' : '정회원')
+    + (curDate === LAT.date ? ' · 출전 기록 없음' : ` · ${st.n}회차까지 출전 기록 없음`);
 
   const wk = [];
   for (const w of st.weeks.slice().reverse()) {
@@ -1213,17 +1372,27 @@ function openPerson(name) {
       }
     }
   }
-  const badges = [p.perfect ? '🔥 개근' : '', gstIdx >= 0 ? '게스트' : ''].filter(Boolean);
+  const isAssoc = !!(ro && ro.role === '준회원');
+  const memberKind = gstIdx >= 0 || !ro ? { t: '게스트', cls: 'guest' }
+    : isAssoc ? { t: '준회원', cls: 'assoc' }
+    : { t: '정회원', cls: 'reg' };
+  const badges = [
+    p.perfect ? { t: '🔥 개근' } : null,
+    memberKind,
+  ].filter(Boolean);
   const metaBits = [ro && ro.no ? '#' + ro.no : '', ro ? ro.height + 'cm' : '', ro ? ro.pos : ''].filter(Boolean);
-  const evB = DATA.stats.event.rows.some(r => r.name === name)
-    ? statBlock(DATA.stats.event.rows, name, '26.11.22 경기 스탯', DATA.stats.event.date) : '';
-  const caB = DATA.stats.career.rows.some(r => r.name === name)
-    ? statBlock(DATA.stats.career.rows, name, '시즌 누적 스탯', DATA.stats.career.date) : '';
-  const statHtml = (evB + caB) || '<div class="msec">개인 스탯</div><div class="mempty">이 선수의 기록지 스탯이 아직 없습니다. (11/22 기록지 · 누적표 모두 미포함)</div>';
+  MODAL_MODE = 'career';
+  MODAL_DATE = (EVENTS()[EVENTS().length - 1] || {}).date || null;
+  const blocks = modalBlocks(name);
+  const hasStat = DATA.stats.career.rows.some(r => r.name === name) || EVENTS().some(e => e.rows.some(r => r.name === name));
+  const statHtml = hasStat
+    ? `<div class="msechead"><div class="msec">개인 스탯</div>${modalToggle()}</div><div id="mStatBody">${blocks}</div>`
+    : '<div class="msec">개인 스탯</div><div class="mempty">이 선수의 기록지 스탯이 아직 없습니다. (11/22 기록지 · 누적표 모두 미포함)</div>';
+  MODAL_NAME = name;
   $('#mBody').innerHTML = `
-    <div class="mname" id="mName">${esc(name)}</div>
+    <div class="mname" id="mName">${esc(name)}${isAssoc ? '<i class="rrole">준회원</i>' : ''}</div>
     <div class="mrank">${esc(rankLabel)}</div>
-    ${badges.length ? `<div class="mbadges">${badges.map(b => `<span class="mbadge">${b}</span>`).join('')}</div>` : ''}
+    ${badges.length ? `<div class="mbadges">${badges.map(b => `<span class="mbadge ${b.cls || ''}">${b.t}</span>`).join('')}</div>` : ''}
     ${metaBits.length ? `<div class="mbadges">${metaBits.map(b => `<span class="mbadge blue">${esc(b)}</span>`).join('')}</div>` : ''}
     <div class="mrate"><span class="big">${pct(p.rate)}%</span><span class="lbl">승률 · ${rec3(p)} / ${p.games}경기</span></div>
     <div class="mbar"><i style="width:${Math.max(2, Math.min(100, p.rate))}%"></i></div>
@@ -1292,8 +1461,20 @@ function bind() {
     $('#searchbox').classList.remove('hasq');
     renderRank(); renderStats(); renderRoster(); $('#q').focus();
   });
-  $('#tabEvent').addEventListener('click', () => { STAT_MODE = 'event'; renderStats(); });
   $('#tabCareer').addEventListener('click', () => { STAT_MODE = 'career'; renderStats(); });
+  $('#tabCareerQ').addEventListener('click', () => { STAT_MODE = 'careerQ'; renderStats(); });
+  $('#tabEvent').addEventListener('click', () => {
+    STAT_MODE = 'event';
+    if (!EVENT_DATE) { const l = EVENTS(); EVENT_DATE = l[l.length - 1].date; }
+    renderStats();
+  });
+  $('#evSel').addEventListener('change', e => { EVENT_DATE = e.target.value; renderStats(); });
+  $('#evView').addEventListener('click', e => {
+    const b = e.target.closest('[data-evview]');
+    if (!b) return;
+    EVENT_VIEW = b.dataset.evview === 'perq' ? 'perq' : 'total';
+    renderStats();
+  });
   $('#sortRow').addEventListener('click', e => {
     const b = e.target.closest('[data-sort]');
     if (!b) return;
@@ -1320,6 +1501,10 @@ function bind() {
   document.addEventListener('click', e => {
     const pick = e.target.closest('[data-pick]');
     if (pick) { selectWeek(pick.dataset.pick, { scroll: true }); return; }
+    const jmp = e.target.closest('[data-jump]');
+    if (jmp) { heroJump(jmp.dataset.jump); return; }
+    const sm = e.target.closest('[data-mdmode]');
+    if (sm) { setModalMode(sm.dataset.mdmode); return; }
     const t = e.target.closest('[data-person]');
     if (t && t.dataset.person) { openPerson(t.dataset.person); return; }
     if (e.target.closest('[data-close]')) closeModal();

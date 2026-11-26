@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""로컬 검증: 390x844 / 1280x800 — 잠금 화면, 오답 거부, 정답 입장, 새로고침 유지, 주차 전환, 검색, 개인 카드, JS 에러, 가로 스크롤."""
+"""로컬 검증: 390x844 / 1280x800 — 잠금 화면, 오답 거부, 정답 입장, 새로고침 유지, 상단 요약 카드 4개 이동,
+주차 전환, 검색, 개인 카드, 정/준회원 표기, JS 에러, 가로 스크롤."""
 import io, os, re, sys, json, threading, functools
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from playwright.sync_api import sync_playwright
@@ -12,6 +13,8 @@ CODE = (os.environ.get('STEPBACK_ENTRY_CODE') or io.open(os.path.join(SITE, '.en
 DATA = json.loads(io.open(os.path.join(SITE, 'src', 'data.json'), encoding='utf-8').read())
 NAMES = {p['name'] for p in DATA['members'] + DATA['outsiders'] + DATA['guests'] + DATA['roster']} | set(DATA['absent'])
 TOP = DATA['members'][0]
+ASSOC = [r['name'] for r in DATA['roster'] if r.get('role') == '준회원']
+REG_N = sum(1 for r in DATA['roster'] if r.get('role') == '정회원')
 REB_LEAD = max(DATA['stats']['career']['rows'], key=lambda r: r['reb'])
 
 # ---- 개인 스탯 표 기대값 (basketball/2026-11-22-스텝백-개인스탯.md 원본 기준)
@@ -38,6 +41,18 @@ CARD_EXPECT = [f"{CARD_P['fg2']['m']:.0f}/{CARD_P['fg2']['a']:.0f}", f"{CARD_P['
 if CARD_C:
     c = CARD_C[0]
     CARD_EXPECT += [f"{c['fg2']['m']:.0f}/{c['fg2']['a']:.0f}", f"{c['fg2']['p']:.0f}%"]
+
+PERQ_KEYS = ['pts', 'reb', 'orb', 'drb', 'ast', 'stl', 'blk', 'to', 'pf']
+CELL_P = [r for r in DATA['stats']['event']['rows'] if r['name'] == CELL_PLAYER['name']][0]
+EXPECT_Q = [(f"{CELL_P[k] / CELL_P['gp']:.1f}" if CELL_P['gp'] else '–') for k in PERQ_KEYS]
+PERQ_TOP = sorted(DATA['stats']['event']['rows'],
+                  key=lambda r: (-(r['pts'] / r['gp'] if r['gp'] else -1), r['name']))[0]['name']
+CAREER_ROWS = DATA['stats']['career']['rows']
+CAREER_P = sorted(CAREER_ROWS, key=lambda r: (-r['pts'], r['name']))[0]
+CAREER_Q = [(f"{CAREER_P[k] / CAREER_P['gp']:.1f}" if CAREER_P['gp'] else '–') for k in PERQ_KEYS]
+BOTH_ROWS = [r for r in CAREER_ROWS if any(e['name'] == r['name'] for e in DATA['stats']['event']['rows'])]
+MODAL_P = sorted(BOTH_ROWS, key=lambda r: (-r['pts'], r['name']))[0]
+MODAL_EV = [r for r in DATA['stats']['event']['rows'] if r['name'] == MODAL_P['name']][0]
 
 URL = os.environ.get("SITE_URL")
 httpd = None
@@ -95,6 +110,63 @@ with sync_playwright() as p:
            page.locator("#memberRows .rrow").first.inner_text().replace("\n", " | ")[:70])
         page.screenshot(path=f"{OUT}/{tag}_3_home.png")
 
+        # 3-1) 상단 요약 카드 4개 — 클릭 이동 · 라벨 잘림 없음
+        cards = page.locator("#heroStats .stat")
+        ok(f"{tag}: 요약 카드 4개(버튼)", cards.count() == 4 and page.eval_on_selector_all("#heroStats .stat", "els=>els.every(e=>e.tagName==='BUTTON')"),
+           f"count={cards.count()}")
+        lab = page.evaluate("""() => {
+          const out = [];
+          document.querySelectorAll('#heroStats .stat').forEach(el => {
+            const k = el.querySelector('.k');
+            const r = document.createRange(); r.selectNodeContents(k);
+            const cr = el.getBoundingClientRect(), kr = k.getBoundingClientRect(), tr = r.getBoundingClientRect();
+            out.push({ txt: k.textContent, leftMargin: tr.left - cr.left, rightMargin: cr.right - tr.right,
+                       lines: Math.round(kr.height / parseFloat(getComputedStyle(k).lineHeight)),
+                       overflow: k.scrollWidth - k.clientWidth });
+          });
+          return out;
+        }""")
+        ok(f"{tag}: 요약 카드 라벨 한 줄·좌우 여백",
+           all(x["lines"] == 1 and x["leftMargin"] >= 3 and x["rightMargin"] >= 3 and x["overflow"] <= 0 for x in lab),
+           "; ".join(f"{x['txt']}: {x['leftMargin']:.1f}/{x['rightMargin']:.1f}" for x in lab))
+        if w < 760:
+            page.locator("#heroStats").screenshot(path=f"{OUT}/{tag}_3b_hero_cards.png")
+
+        def near_top(sel, tol=14):
+            return page.eval_on_selector(sel, "el=>el.getBoundingClientRect().top")
+
+        def to_top():
+            page.evaluate("window.scrollTo(0,0)"); page.wait_for_timeout(250)
+
+        # 정규 → 최종 승률 섹션
+        to_top(); cards.nth(0).click(); page.wait_for_timeout(900)
+        t = near_top("#secRank")
+        ok(f"{tag}: '정규' 카드 → 최종 승률 섹션", page.evaluate("window.scrollY") > 100 and -2 <= t <= 70, f"top={t:.0f}")
+
+        # 경기 → 주간 결과 전체 섹션
+        to_top(); cards.nth(1).click(); page.wait_for_timeout(1200)
+        t = near_top("#secWeeks")
+        ok(f"{tag}: '경기' 카드 → 주간 결과 전체 섹션", page.evaluate("window.scrollY") > 100 and -2 <= t <= 70, f"top={t:.0f}")
+
+        # 게스트 → 접혀 있으면 펼치고 게스트 섹션
+        page.evaluate("document.querySelector('#guestBox').open=false"); to_top()
+        cards.nth(2).click(); page.wait_for_timeout(1000)
+        t = near_top("#guestBox")
+        ok(f"{tag}: '게스트' 카드 → 펼침+게스트 섹션",
+           page.eval_on_selector("#guestBox", "el=>el.open") and -2 <= t <= 70,
+           f"open={page.eval_on_selector('#guestBox','el=>el.open')} top={t:.0f}")
+        ok(f"{tag}: 게스트 목록 채워짐", page.locator("#guestRows .grow").count() == len(DATA['guests']),
+           f"{page.locator('#guestRows .grow').count()}")
+
+        # 최고 승률 → 그 선수 개인 카드
+        to_top(); cards.nth(3).click()
+        page.wait_for_selector("#modal:not([hidden])", timeout=4000)
+        ok(f"{tag}: '최고 승률' 카드 → {TOP['name']} 개인 카드",
+           page.inner_text("#mName").find(TOP['name']) >= 0 and f"{TOP['rate']}" in page.inner_text("#mBody"),
+           page.inner_text("#mName"))
+        page.keyboard.press("Escape"); page.wait_for_timeout(300)
+        to_top()
+
         # 4) 가로 스크롤 없음
         sw, iw = page.evaluate("[document.documentElement.scrollWidth, window.innerWidth]")
         ok(f"{tag}: 가로 스크롤 없음", sw <= iw + 1, f"scrollWidth={sw} innerWidth={iw}")
@@ -147,16 +219,36 @@ with sync_playwright() as p:
         page.wait_for_timeout(300)
         ok(f"{tag}: 카드 닫기", page.locator("#modal").is_hidden())
 
-        # 10) 개인 스탯: 전 항목 열 · 헤더/칩 정렬 · 선수 열 고정 · 좌우 스크롤
+        # 10) 개인 스탯 — 3모드(시즌 누적 / 시즌 누적(쿼터당) / 직전 경기) · 정렬 · 스크롤
         page.locator("#secStats").scroll_into_view_if_needed(); page.wait_for_timeout(250)
         heads = page.eval_on_selector_all("#statHead th", r"els=>els.map(e=>e.innerText.replace(/[\s\u25bc]/g,''))")
         ok(f"{tag}: 스탯 헤더 15열", heads == STAT_HEADS, " / ".join(heads))
-        ok(f"{tag}: 경기 15행 · 행당 15칸", page.locator("#statRows .strow").count() == 15
-           and page.locator("#statRows .strow").first.locator("td").count() == 14,
-           f"rows={page.locator('#statRows .strow').count()} tds={page.locator('#statRows .strow').first.locator('td').count()}")
         ok(f"{tag}: 정렬 칩 {len(STAT_KEYS) - len(SHOT_KEYS)}개", page.locator("#sortRow .sortchip").count() == len(STAT_KEYS) - len(SHOT_KEYS), f"{page.locator('#sortRow .sortchip').count()}")
+        labels = page.eval_on_selector_all("#statTabs button", "els=>els.map(e=>e.innerText.trim())")
+        ok(f"{tag}: 스탯 모드 순서", labels == ['시즌 누적', '시즌 누적(쿼터당)', '직전 경기'], " > ".join(labels))
+        ok(f"{tag}: 기본 시즌 누적 · 날짜 선택 숨김",
+           page.get_attribute("#tabCareer", "aria-pressed") == "true"
+           and page.locator("#statRows .strow").count() == len(DATA['stats']['career']['rows'])
+           and page.locator("#evWrap").is_hidden(),
+           f"rows={page.locator('#statRows .strow').count()}")
 
-        # 기록지 값 그대로 들어갔는지 (박덕원: 2점 8/11·73% … ORB 0 · DRB 3 · 스틸 7 · 턴오버 2)
+        # ② 시즌 누적(쿼터당)
+        page.click("#tabCareerQ"); page.wait_for_timeout(350)
+        sel_row = f"#statRows .strow[data-person='{CAREER_P['name']}']"
+        qcells = page.eval_on_selector(sel_row, "tr=>Array.from(tr.children).slice(1,10).map(td=>td.innerText.trim())")
+        ok(f"{tag}: 시즌 누적(쿼터당) 9항목 평균", qcells == CAREER_Q, f"{qcells} vs {CAREER_Q}")
+        shot_txt = page.eval_on_selector(f"{sel_row} td.shot", "el=>el.innerText.replace(/\\s+/g,' ')")
+        ok(f"{tag}: 2점 % 유지 + 쿼터당 성공/시도", '%' in shot_txt and '/Q' in shot_txt, shot_txt)
+        page.screenshot(path=f"{OUT}/{tag}_6c1_stats_careerq.png")
+
+        # ③ 직전 경기 (+ 날짜 드롭다운)
+        page.click("#tabEvent"); page.wait_for_timeout(400)
+        ok(f"{tag}: 직전 경기 15행 · 날짜 선택 노출",
+           page.locator("#statRows .strow").count() == 15 and page.locator("#evWrap").is_visible()
+           and page.eval_on_selector("#evSel", "el=>el.options[el.selectedIndex].text").strip() == '11.22 경기',
+           f"rows={page.locator('#statRows .strow').count()}")
+        ok(f"{tag}: 행당 15칸", page.locator("#statRows .strow").first.locator("td").count() == 14,
+           f"tds={page.locator('#statRows .strow').first.locator('td').count()}")
         cells = page.eval_on_selector(f"#statRows .strow[data-person='{CELL_PLAYER['name']}']",
                                       "tr=>Array.from(tr.children).slice(1).map(td=>td.innerText.replace(/\\s+/g,' ').trim())")
         ok(f"{tag}: {CELL_PLAYER['name']} 전 항목 셀 값", cells == CELL_EXPECT, " | ".join(cells))
@@ -183,7 +275,7 @@ with sync_playwright() as p:
             ok(f"{tag}: 왼쪽 복귀 시 페이드 다시 표시", not page.eval_on_selector("#statFade", "el=>el.classList.contains('off')"))
         page.screenshot(path=f"{OUT}/{tag}_6b_stats_left.png")
 
-        # 헤더 클릭 정렬 — 14개 열 전부, 최상단이 데이터 기대값과 일치
+        # 헤더 클릭 정렬 — 14개 열 전부(직전 경기 기준)
         for key in STAT_KEYS:
             page.click(f"#statHead [data-sort='{key}']"); page.wait_for_timeout(120)
             top = page.eval_on_selector("#statRows .strow th.pcol b", "el=>el.innerText.trim()")
@@ -192,8 +284,21 @@ with sync_playwright() as p:
             if key == 'stl':
                 page.screenshot(path=f"{OUT}/{tag}_6c_stats_sort_stl.png")
 
-        # 누적 탭 + 칩 정렬
-        page.click("#tabCareer"); page.wait_for_timeout(250)
+        # 직전 경기 — 쿼터당 보조 토글
+        page.click("#evView [data-evview='perq']"); page.wait_for_timeout(300)
+        qcells = page.eval_on_selector(sel_row := f"#statRows .strow[data-person='{CELL_PLAYER['name']}']",
+                                       "tr=>Array.from(tr.children).slice(1,10).map(td=>td.innerText.trim())")
+        ok(f"{tag}: 직전 경기 쿼터당 9항목 평균", qcells == EXPECT_Q, f"{qcells} vs {EXPECT_Q}")
+        page.click("#statHead [data-sort='pts']"); page.wait_for_timeout(250)
+        top = page.eval_on_selector("#statRows .strow th.pcol b", "el=>el.innerText.trim()")
+        ok(f"{tag}: 쿼터당 수치 기준 정렬(득점/Q) → {PERQ_TOP}", top == PERQ_TOP, top)
+        page.screenshot(path=f"{OUT}/{tag}_6c2_stats_perq.png")
+        page.click("#evView [data-evview='total']"); page.wait_for_timeout(250)
+        back = page.eval_on_selector(sel_row, "tr=>Array.from(tr.children).slice(1,10).map(td=>td.innerText.trim())")
+        ok(f"{tag}: 직전 경기 총합 복귀", back == CELL_EXPECT[:9], f"{back}")
+
+        # 시즌 누적 복귀 + 칩 정렬
+        page.click("#tabCareer"); page.wait_for_timeout(300)
         ok(f"{tag}: 누적 스탯 16명", page.locator("#statRows .strow").count() == 16, f"{page.locator('#statRows .strow').count()}")
         page.click("#sortRow [data-sort='reb']"); page.wait_for_timeout(250)
         first = page.eval_on_selector("#statRows .strow th.pcol b", "el=>el.innerText.trim()")
@@ -202,21 +307,64 @@ with sync_playwright() as p:
         first = page.eval_on_selector("#statRows .strow th.pcol b", "el=>el.innerText.trim()")
         ok(f"{tag}: 턴오버 정렬", first == SORT_TOP['career']['to'], first)
         page.screenshot(path=f"{OUT}/{tag}_6d_stats_career.png")
-        page.click("#tabEvent"); page.click("#sortRow [data-sort='pts']"); page.wait_for_timeout(200)
 
-        # 개인 카드(모달) — 두 시점 전 항목
-        page.locator("#statRows .strow").first.click()
+        # 개인 카드(모달) — 같은 3모드
+        page.click("#sortRow [data-sort='pts']"); page.wait_for_timeout(200)
+        page.locator(f"#statRows .strow[data-person='{MODAL_P['name']}']").click()
         page.wait_for_selector("#modal:not([hidden])", timeout=4000)
         mb = page.inner_text("#mBody")
-        need = ["2점", "3점", "자유투", "득점", "리바운드", "ORB", "DRB", "어시스트", "스틸", "블락", "턴오버", "파울", "MVP", "출전"]
+        need = ["2점", "3점", "자유투", "득점", "리바운드", "ORB", "DRB", "어시스트", "스틸", "블락", "턴오버", "파울", "MVP", "출전", "평균(점/Q)"]
         ok(f"{tag}: 개인 카드 전 항목 표시", all(k in mb for k in need), "".join(k for k in need if k not in mb) or "all")
-        ok(f"{tag}: 개인 카드 2점 성공/시도+% (경기·누적)", all(x in mb for x in CARD_EXPECT), f"{CARD_EXPECT} · " + mb.replace("\n", " ")[:60])
+
+        def msc():
+            return {k: v for k, v in page.evaluate("""() => [...document.querySelectorAll('#mStatBody .msc')]
+              .map(e => [e.querySelector('.k').innerText.trim(), e.querySelector('.v').innerText.trim()])""")}
+
+        mlabels = page.eval_on_selector_all("#mBody .mtabs button", "els=>els.map(e=>e.innerText.trim())")
+        ok(f"{tag}: 카드 모드 순서", mlabels == ['시즌 누적', '시즌 누적(쿼터당)', '직전 경기'], " > ".join(mlabels))
+        tot = msc()
+        ok(f"{tag}: 카드 기본 시즌 누적 평균(점/Q)", tot.get('평균(점/Q)') == f"{MODAL_P['ppg']:.1f}"
+           and tot.get('득점') == f"{MODAL_P['pts']:g}", f"득점={tot.get('득점')} avg={tot.get('평균(점/Q)')}")
+        page.click("#mBody .mtabs button[data-mdmode='careerQ']"); page.wait_for_timeout(300)
+        pq = msc()
+        ok(f"{tag}: 카드 시즌 누적(쿼터당) 9항목",
+           pq.get('득점 /Q') == f"{MODAL_P['pts'] / MODAL_P['gp']:.1f}"
+           and pq.get('리바운드 /Q') == f"{MODAL_P['reb'] / MODAL_P['gp']:.1f}"
+           and pq.get('스틸 /Q') == f"{MODAL_P['stl'] / MODAL_P['gp']:.1f}"
+           and pq.get('파울 /Q') == f"{MODAL_P['pf'] / MODAL_P['gp']:.1f}",
+           f"득점={pq.get('득점 /Q')} 리바={pq.get('리바운드 /Q')} 파울={pq.get('파울 /Q')}")
+        ok(f"{tag}: 쿼터당 모드 평균(점/Q) 카드 생략", '평균(점/Q)' not in pq)
+        shots_pq = page.eval_on_selector_all("#mStatBody .mshotc .pq", "els=>els.map(e=>e.innerText.trim())")
+        ok(f"{tag}: 2·3점·자유투 % 유지 + /Q 성공/시도", len(shots_pq) >= 1 and '%' in page.inner_text("#mStatBody .mshots"), f"{shots_pq}")
+        page.screenshot(path=f"{OUT}/{tag}_6f_modal_perq.png")
+        page.click("#mBody .mtabs button[data-mdmode='event']"); page.wait_for_timeout(300)
+        ev = msc()
+        ok(f"{tag}: 카드 직전 경기 평균(점/Q)", ev.get('평균(점/Q)') == f"{MODAL_EV['ppg']:.1f}"
+           and ev.get('득점') == f"{MODAL_EV['pts']:g}", f"득점={ev.get('득점')} avg={ev.get('평균(점/Q)')}")
         page.screenshot(path=f"{OUT}/{tag}_6e_stats_modal.png")
         page.keyboard.press("Escape"); page.wait_for_timeout(250)
 
         # 11) 로스터
         page.locator("#secRoster").scroll_into_view_if_needed()
         ok(f"{tag}: 로스터 21명", page.locator("#rosterGrid .rcell").count() == 21, f"{page.locator('#rosterGrid .rcell').count()}")
+        rsum = page.inner_text("#rosterSum")
+        ok(f"{tag}: 로스터 정회원 {REG_N} · 준회원 {len(ASSOC)} 배지",
+           f"정회원 {REG_N}명" in rsum and f"준회원 {len(ASSOC)}명" in rsum, rsum.replace("\n", " "))
+        page.click('[data-pos="ASSOC"]'); page.wait_for_timeout(250)
+        ok(f"{tag}: 준회원 필터 {len(ASSOC)}명", page.locator("#rosterGrid .rcell").count() == len(ASSOC)
+           and page.locator("#rosterGrid .rcell.assoc .rrole").count() == len(ASSOC),
+           f"{page.locator('#rosterGrid .rcell').count()} / 배지 {page.locator('#rosterGrid .rcell.assoc .rrole').count()}")
+        page.screenshot(path=f"{OUT}/{tag}_7b_assoc.png")
+        page.click('[data-pos="ALL"]'); page.wait_for_timeout(200)
+        ok(f"{tag}: 로스터 준회원 카드 배지", page.locator("#rosterGrid .rcell.assoc").count() == len(ASSOC),
+           f"{page.locator('#rosterGrid .rcell.assoc').count()}")
+        if ASSOC:
+            page.locator("#rosterGrid .rcell.assoc").first.click()
+            page.wait_for_selector("#modal:not([hidden])", timeout=4000)
+            ok(f"{tag}: 준회원 개인 카드 이름 옆 배지", "준회원" in page.inner_text("#mName"), page.inner_text("#mName"))
+            ok(f"{tag}: 준회원 개인 카드 승률/기록", "승률" in page.inner_text("#mBody"))
+            page.screenshot(path=f"{OUT}/{tag}_7c_assoc_modal.png")
+            page.keyboard.press("Escape"); page.wait_for_timeout(250)
         page.click('[data-pos="PG"]'); page.wait_for_timeout(250)
         ok(f"{tag}: PG 필터 4명", page.locator("#rosterGrid .rcell").count() == 4, f"{page.locator('#rosterGrid .rcell').count()}")
         page.screenshot(path=f"{OUT}/{tag}_7_roster.png")

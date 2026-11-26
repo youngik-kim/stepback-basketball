@@ -43,6 +43,9 @@ def wdl(s):
 
 def name_of(cell):
     c = clean(cell)
+    # 이름 옆 '(준회원)' 표기는 구분(로스터 role)에서 관리하므로 이름에서 걷어낸다
+    c = re.sub(r"\*?\(\s*준회원\s*\)\*?", " ", c)
+    c = re.sub(r"\s{2,}", " ", c).strip()
     perfect = "[개근]" in c
     c = c.replace("[개근]", "").strip()
     return c, perfect
@@ -79,10 +82,14 @@ for r in rows(out_block)[1:]:
                           games=games, w=w, d=d, l=l, rate=rate, note=note,
                           perfect=perfect))
 
-absent = []
-m = re.search(r"미출전 정회원 \((\d+)명\): (.+)", rec)
-if m:
-    absent = [a.strip() for a in m.group(2).split(",")]
+absent = []        # 미출전 정회원
+absent_assoc = []  # 미출전 준회원
+for pat, bucket in ((r"미출전 정회원 \((\d+)명\): ([^\n]+)", absent),
+                    (r"미출전 준회원 \((\d+)명\): ([^\n]+)", absent_assoc)):
+    m = re.search(pat, rec)
+    if m:
+        names = m.group(2).split("—")[0]
+        bucket.extend([a.strip() for a in names.split(",") if a.strip()])
 
 # ---------------------------------------------------------------- 게스트
 guests = []
@@ -243,7 +250,7 @@ three_n = sum(1 for w in weeks if w["type"].startswith("3"))
 games_n = sum(len(s["games"]) for w in weeks for s in w["sheets"])
 
 print(f"주차 {len(weeks)} (2파전 {two_n} / 3파전 {three_n}) · 경기 {games_n} · 기록지 {sum(len(w['sheets']) for w in weeks)}장")
-print(f"정규 {len(members)} · 순위외 {len(outsiders)} · 게스트 {len(guests)} · 미출전 {absent}")
+print(f"정규 {len(members)} · 순위외 {len(outsiders)} · 게스트 {len(guests)} · 미출전 정회원 {absent} · 미출전 준회원 {absent_assoc}")
 print("검증 오류:", errors if errors else "없음")
 
 # ---------------------------------------------------------------- 11/22 스탯 · 누적
@@ -278,6 +285,8 @@ def parse_stats(block):
             mvp=num(r[12]), gp=num(r[13]),
         )
         rec_p["reb"] = (rec_p["orb"] or 0) + (rec_p["drb"] or 0)
+        # 쿼터당 평균득점 = 총득점 ÷ 출전수 (출전 0이면 없음)
+        rec_p["ppg"] = round(rec_p["pts"] / rec_p["gp"], 1) if (rec_p["pts"] is not None and rec_p["gp"]) else None
         out.append(rec_p)
     return out
 
@@ -291,12 +300,23 @@ for r in rows(roster_block)[1:]:
         continue
     nm = clean(r[0])
     no = clean(r[1]); h = clean(r[2]); pos = clean(r[3])
+    role = "준회원" if len(r) > 4 and "준회원" in clean(r[4]) else "정회원"
     roster.append(dict(name=nm, no=(None if no in ("-", "") else no),
                        height=(None if h in ("-", "") else int(h)), pos=pos,
-                       posMain=pos.split("/")[0]))
+                       posMain=pos.split("/")[0], role=role))
+
+# 로스터의 구분(정회원/준회원)을 순위 표에도 붙인다
+ROLE = {r["name"]: r["role"] for r in roster}
+for p in members + outsiders:
+    p["role"] = ROLE.get(p["name"], "정회원")
+
+assoc_names = [r["name"] for r in roster if r["role"] == "준회원"]
+reg_names = [r["name"] for r in roster if r["role"] == "정회원"]
+if len(roster) != 21 or len(reg_names) != 18 or len(assoc_names) != 3:
+    errors.append(f"로스터 구분 인원 이상: 전체 {len(roster)} · 정회원 {len(reg_names)} · 준회원 {len(assoc_names)} ({', '.join(assoc_names)})")
 
 # --- 스탯 열 완비 검사 (2점·3점·자유투·ORB·DRB·리바총합·어시·스틸·블락·턴오버·파울·MVP·출전)
-STAT_KEYS = ["pts", "fg2", "fg3", "ft", "orb", "drb", "reb", "ast", "stl", "blk", "to", "pf", "mvp", "gp"]
+STAT_KEYS = ["pts", "ppg", "fg2", "fg3", "ft", "orb", "drb", "reb", "ast", "stl", "blk", "to", "pf", "mvp", "gp"]
 for label, srows, exp in (("11/22", overall, 15), ("누적", career, 16)):
     missing = [(r["name"], k) for r in srows for k in STAT_KEYS if k not in r]
     if missing:
@@ -306,10 +326,14 @@ for label, srows, exp in (("11/22", overall, 15), ("누적", career, 16)):
     for r in srows:
         if (r["orb"] or 0) + (r["drb"] or 0) != r["reb"]:
             errors.append(f"스탯 {label} {r['name']}: 리바총합 {r['reb']} != ORB+DRB")
+        if r["gp"] and r["pts"] is not None:
+            if r["ppg"] != round(r["pts"] / r["gp"], 1):
+                errors.append(f"스탯 {label} {r['name']}: 평균 {r['ppg']} != {r['pts']}/{r['gp']}")
     if any(r["name"] != clean(r["name"]) for r in srows):
         errors.append(f"스탯 {label} 이름 정리 오류")
 
 print(f"스탯: 11/22 {len(overall)}명 · 누적 {len(career)}명 · 로스터 {len(roster)}명 · 열 {len(STAT_KEYS)}종(리바총합 포함) 확인")
+print(f"로스터 구분: 정회원 {len(reg_names)}명 · 준회원 {len(assoc_names)}명 ({', '.join(assoc_names)})")
 
 # ---------------------------------------------------------------- 하이라이트
 best = max(members, key=lambda p: p["rate"])
@@ -328,8 +352,9 @@ data = dict(
                 two=two_n, three=three_n),
     criteria=dict(minRate=40, minWeeks=18, totalWeeks=len(weeks),
                   text="전체 45회 중 참여율 40% 이상(18회 이상) — 동률 시 다승 → 경기수 → 가나다"),
-    members=members, outsiders=outsiders, absent=absent, guests=guests,
-    roster=roster,
+    members=members, outsiders=outsiders, absent=absent, absentAssoc=absent_assoc,
+    guests=guests, roster=roster,
+    rosterMeta=dict(total=len(roster), regular=len(reg_names), associate=len(assoc_names)),
     stats=dict(event=dict(date="2026-11-22", label="26.11.22 경기", rows=overall),
                career=dict(date="2026-11-22", label="시즌 누적", rows=career)),
     highlight=h,
