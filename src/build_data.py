@@ -19,6 +19,7 @@ def read(p):
 rec = read("basketball/stepback-records.md")
 gst = read("basketball/stepback-guests.md")
 stat = read("basketball/2026-11-22-스텝백-개인스탯.md")
+hist = read("basketball/2026-10-25~11-15-스텝백-개인스탯.md")
 
 def clean(s):
     return s.replace("**", "").replace("`", "").strip()
@@ -292,6 +293,19 @@ def parse_stats(block):
 
 overall = parse_stats(stat.split("## 스텝백 누적기록")[0])
 career = parse_stats(stat.split("## 스텝백 누적기록")[1].split("## 스텝백 정회원 신장")[0])
+
+# --- 경기 날짜별 전체기록(11/22 최신 + 10/25~11/15 5주치) — 최신순
+events = [dict(date="2026-11-22", rows=overall, tag="")]
+for sec in re.split(r"^## ", hist, flags=re.M)[1:]:
+    head, _, body = sec.partition("\n")
+    if "누적" in head:          # 11/8 기준 누적 스냅샷은 참고용 — 드롭다운에 넣지 않는다
+        continue
+    dm = re.search(r"(\d{4}-\d{2}-\d{2})", head)
+    if not dm:
+        continue
+    events.append(dict(date=dm.group(1), rows=parse_stats(body),
+                       tag="3G" if "3G" in head else ""))
+events.sort(key=lambda e: e["date"], reverse=True)
 roster_block = stat.split("## 스텝백 정회원 신장")[1]
 
 roster = []
@@ -335,6 +349,38 @@ for label, srows, exp in (("11/22", overall, 15), ("누적", career, 16)):
 print(f"스탯: 11/22 {len(overall)}명 · 누적 {len(career)}명 · 로스터 {len(roster)}명 · 열 {len(STAT_KEYS)}종(리바총합 포함) 확인")
 print(f"로스터 구분: 정회원 {len(reg_names)}명 · 준회원 {len(assoc_names)}명 ({', '.join(assoc_names)})")
 
+# --- 경기 날짜별 기록(11/22·11/15·11/08·11/01·10/25) 검산
+EXPECT_EVENTS = [("2026-11-22", 15, True), ("2026-11-15", 12, True), ("2026-11-08", 14, True),
+                 ("2026-11-01", 12, False), ("2026-10-25", 10, False)]
+warn = []
+if [e["date"] for e in events] != [x[0] for x in EXPECT_EVENTS]:
+    errors.append("경기 날짜 목록 이상: " + ", ".join(e["date"] for e in events))
+for e, (ed, en, has_mvp) in zip(events, EXPECT_EVENTS):
+    rs = e["rows"]
+    if len(rs) != en:
+        errors.append(f"경기 {ed} 인원 {len(rs)}명 (기록지 {en}명)")
+    if len({r["name"] for r in rs}) != len(rs):
+        errors.append(f"경기 {ed} 이름 중복")
+    for r in rs:
+        if (r["orb"] or 0) + (r["drb"] or 0) != r["reb"]:
+            errors.append(f"경기 {ed} {r['name']}: 리바총합 {r['reb']} != ORB+DRB")
+        if r["gp"] and r["pts"] is not None and r["ppg"] != round(r["pts"] / r["gp"], 1):
+            errors.append(f"경기 {ed} {r['name']}: 평균 {r['ppg']} != {r['pts']}/{r['gp']}")
+        if has_mvp and r["mvp"] is None:
+            errors.append(f"경기 {ed} {r['name']}: MVP 포인트 없음")
+        if not has_mvp and r["mvp"] is not None:
+            errors.append(f"경기 {ed} {r['name']}: MVP 포인트 {r['mvp']} (기록지에 없는 열)")
+        # 총득점은 시트 원본 값 — 시트가 자유투 성공을 두 번 더하는 특성이 있어 참고 경고만 남긴다
+        pm2 = r["fg2"]["m"] if r["fg2"] else 0
+        pm3 = r["fg3"]["m"] if r["fg3"] else 0
+        ftm = r["ft"]["m"] if r["ft"] else 0
+        base = 2 * pm2 + 3 * pm3
+        if r["pts"] is not None and min(abs(r["pts"] - (base + ftm)), abs(r["pts"] - (base + 2 * ftm))) > 0.01:
+            warn.append(f"{ed} {r['name']}: 총득점 {r['pts']} · 샷합 {base} · 자유투 {ftm}")
+
+print("경기별: " + " · ".join(f"{e['date'][5:]}{('(' + e['tag'] + ')') if e['tag'] else ''} {len(e['rows'])}명" for e in events))
+print("총득점 검산 경고(시트 산식 차이):", warn if warn else "없음")
+
 # ---------------------------------------------------------------- 하이라이트
 best = max(members, key=lambda p: p["rate"])
 most_w = max(members, key=lambda p: p["w"])
@@ -355,8 +401,11 @@ data = dict(
     members=members, outsiders=outsiders, absent=absent, absentAssoc=absent_assoc,
     guests=guests, roster=roster,
     rosterMeta=dict(total=len(roster), regular=len(reg_names), associate=len(assoc_names)),
-    stats=dict(event=dict(date="2026-11-22", label="26.11.22 경기", rows=overall),
-               career=dict(date="2026-11-22", label="시즌 누적", rows=career)),
+    stats=dict(event=dict(date=events[0]["date"], tag=events[0]["tag"], label="26.11.22 경기", rows=events[0]["rows"]),
+               career=dict(date="2026-11-22", label="시즌 누적", rows=career),
+               events=[dict(date=e["date"], tag=e["tag"],
+                            label=e["date"][5:7] + "." + e["date"][8:10] + " 경기" + (" " + e["tag"] if e["tag"] else ""),
+                            rows=e["rows"]) for e in events]),
     highlight=h,
     weeks=[dict(date=w["date"], type=w["type"], note=w["note"], sheets=w["sheets"])
            for w in weeks],

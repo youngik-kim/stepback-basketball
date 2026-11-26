@@ -34,7 +34,29 @@ def sort_top(rows, key):
         return (-(-1 if v is None else v), r['name'])
     return sorted(rows, key=k)[0]['name']
 
-SORT_TOP = {mode: {k: sort_top(v['rows'], k) for k in STAT_KEYS} for mode, v in DATA['stats'].items()}
+SORT_TOP = {mode: {k: sort_top(v['rows'], k) for k in STAT_KEYS}
+            for mode, v in DATA['stats'].items() if isinstance(v, dict) and 'rows' in v}
+
+# ---- 경기 날짜 5개(11/22 · 11/15 · 11/08 · 11/01 · 10/25) 기대값
+EVENTS = DATA['stats']['events']
+EV = {e['date']: e for e in EVENTS}
+EV_ORDER = [e['date'] for e in EVENTS]
+EV_LABELS = [e['date'][5:7] + '.' + e['date'][8:10] + ' 경기' + (' · ' + e['tag'] if e.get('tag') else '') for e in EVENTS]
+EV_PICK = {e['date']: sorted(e['rows'], key=lambda r: (-(r['pts'] or 0), r['name']))[0] for e in EVENTS}
+
+def fmt_n(v):
+    if v is None:
+        return '–'
+    return str(int(v)) if float(v).is_integer() else ('%g' % v)
+
+def shot_cell(s):
+    return '– –' if not s else f"{s['p']:g}% {fmt_n(s['m'])}/{fmt_n(s['a'])}"
+
+def row_cells(r):
+    return [fmt_n(r['pts']), fmt_n(r['reb']), fmt_n(r['orb']), fmt_n(r['drb']), fmt_n(r['ast']),
+            fmt_n(r['stl']), fmt_n(r['blk']), fmt_n(r['to']), fmt_n(r['pf']),
+            shot_cell(r['fg2']), shot_cell(r['fg3']), shot_cell(r['ft']),
+            '–' if r['mvp'] is None else f"{r['mvp']:.2f}", fmt_n(r['gp'])]
 CARD_P = sorted(DATA['stats']['event']['rows'], key=lambda r: (-r['pts'], r['name']))[0]
 CARD_C = [r for r in DATA['stats']['career']['rows'] if r['name'] == CARD_P['name']]
 CARD_EXPECT = [f"{CARD_P['fg2']['m']:.0f}/{CARD_P['fg2']['a']:.0f}", f"{CARD_P['fg2']['p']:.0f}%"]
@@ -253,6 +275,60 @@ with sync_playwright() as p:
                                       "tr=>Array.from(tr.children).slice(1).map(td=>td.innerText.replace(/\\s+/g,' ').trim())")
         ok(f"{tag}: {CELL_PLAYER['name']} 전 항목 셀 값", cells == CELL_EXPECT, " | ".join(cells))
 
+        # ③-2) 경기 날짜 5개 드롭다운 — 11.22 · 11.15 · 11.08 · 11.01 · 10.25
+        opts = page.eval_on_selector_all("#evSel option", "els=>els.map(e=>[e.value, e.textContent.trim()])")
+        ok(f"{tag}: 경기 날짜 5개(최신순)", [o[0] for o in opts] == EV_ORDER and [o[1] for o in opts] == EV_LABELS,
+           " / ".join(o[1] for o in opts))
+        for d in EV_ORDER:
+            page.select_option("#evSel", d)
+            page.wait_for_timeout(300)
+            ev, pick = EV[d], EV_PICK[d]
+            n = page.locator("#statRows .strow").count()
+            got = page.eval_on_selector(f"#statRows .strow[data-person='{pick['name']}']",
+                                        "tr=>Array.from(tr.children).slice(1).map(td=>td.innerText.replace(/\\s+/g,' ').trim())")
+            exp = row_cells(pick)
+            asof = page.inner_text("#statAsOf")
+            lab = EV_LABELS[EV_ORDER.index(d)]
+            ok(f"{tag}: {d} — {n}명 · {pick['name']} 전 항목",
+               n == len(ev['rows']) and got == exp and lab in asof,
+               (f"{got} vs {exp}" if got != exp else f"{n}명 · {asof[:40]}"))
+            if pick['mvp'] is None:
+                ok(f"{tag}: {d} MVP 포인트 없음 '–'", got[12] == '–', got[12])
+        # 총합 ↔ 쿼터당 (MVP 없는 날짜 포함)
+        for d in ('2026-11-08', '2026-11-01', '2026-10-25'):
+            page.select_option("#evSel", d); page.wait_for_timeout(250)
+            pick = EV_PICK[d]
+            page.click("#evView [data-evview='perq']"); page.wait_for_timeout(300)
+            q = page.eval_on_selector(f"#statRows .strow[data-person='{pick['name']}']",
+                                      "tr=>Array.from(tr.children).slice(1,10).map(td=>td.innerText.trim())")
+            qe = ['–' if pick[k] is None else (f"{pick[k] / pick['gp']:.1f}" if pick['gp'] else '–') for k in PERQ_KEYS]
+            ok(f"{tag}: {d} 쿼터당 9항목", q == qe, f"{q} vs {qe}")
+            page.click("#evView [data-evview='total']"); page.wait_for_timeout(250)
+            back = page.eval_on_selector(f"#statRows .strow[data-person='{pick['name']}']",
+                                         "tr=>Array.from(tr.children).slice(1).map(td=>td.innerText.replace(/\\s+/g,' ').trim())")
+            ok(f"{tag}: {d} 총합 복귀", back == row_cells(pick), f"{back}")
+
+        # ③-3) 정렬 칩 → 해당 열이 '선수' 고정 열 옆으로 자동 스크롤
+        page.select_option("#evSel", EV_ORDER[0]); page.wait_for_timeout(250)
+        if w < 760:
+            page.eval_on_selector("#statScroll", "el=>{el.scrollLeft=0}"); page.wait_for_timeout(200)
+            page.click("#sortRow [data-sort='to']"); page.wait_for_timeout(1100)
+            m = page.evaluate("""() => {
+              const sc = document.querySelector('#statScroll');
+              const th = document.querySelector('#statHead th[data-col="to"]');
+              const pc = document.querySelector('#statHead th.pcol');
+              const a = th.getBoundingClientRect(), b = pc.getBoundingClientRect(), c = sc.getBoundingClientRect();
+              return {thL: a.left, thR: a.right, pinR: b.right, scL: c.left, scR: c.right, sl: sc.scrollLeft, sw: sc.scrollWidth, cw: sc.clientWidth};
+            }""")
+            ok(f"{tag}: 턴오버 칩 → 표 자동 가로 스크롤", m["sl"] > 120
+               and m["pinR"] - 4 <= m["thL"] <= m["pinR"] + 26 and m["thL"] < m["scR"],
+               f"scrollLeft={m['sl']} th.left={m['thL']:.0f} pin.right={m['pinR']:.0f}")
+            page.screenshot(path=f"{OUT}/{tag}_6c3_chip_scroll_to.png")
+            page.eval_on_selector("#statScroll", "el=>{el.scrollLeft=0}"); page.wait_for_timeout(200)
+            page.click("#sortRow [data-sort='pts']"); page.wait_for_timeout(900)
+            sl0 = page.eval_on_selector("#statScroll", "el=>el.scrollLeft")
+            ok(f"{tag}: 맨 앞 열(득점) 칩 → 스크롤 0 복귀", sl0 <= 2, f"scrollLeft={sl0}")
+
         # 가로 스크롤: 컨테이너 내부만, 문서 전체는 그대로
         sc = page.eval_on_selector("#statScroll", "el=>({sw:el.scrollWidth,cw:el.clientWidth,sl:el.scrollLeft})")
         sw, iw = page.evaluate("[document.documentElement.scrollWidth, window.innerWidth]")
@@ -341,6 +417,24 @@ with sync_playwright() as p:
         ev = msc()
         ok(f"{tag}: 카드 직전 경기 평균(점/Q)", ev.get('평균(점/Q)') == f"{MODAL_EV['ppg']:.1f}"
            and ev.get('득점') == f"{MODAL_EV['pts']:g}", f"득점={ev.get('득점')} avg={ev.get('평균(점/Q)')}")
+        # 카드 안 경기 날짜 드롭다운 — 5개 날짜 전환
+        mopts = page.eval_on_selector_all("#mEvSel option", "els=>els.map(e=>e.textContent.trim())")
+        ok(f"{tag}: 카드 경기 날짜 5개", mopts == EV_LABELS, " / ".join(mopts))
+        if page.locator("#mEvSel option[value='2026-10-25']").count():
+            page.select_option("#mEvSel", "2026-10-25"); page.wait_for_timeout(350)
+            mb2 = page.inner_text("#mStatBody")
+            pick = [r for r in EV['2026-10-25']['rows'] if r['name'] == MODAL_P['name']]
+            if pick:
+                p = pick[0]
+                got = msc()
+                ok(f"{tag}: 카드 10.25(3G) 전환", "10.25 경기 · 3G" in mb2 and got.get('득점') == fmt_n(p['pts'])
+                   and got.get('출전') == fmt_n(p['gp']) and got.get('MVP') == ('–' if p['mvp'] is None else f"{p['mvp']:.2f}"),
+                   f"{mb2.splitlines()[0][:40]} 득점={got.get('득점')} MVP={got.get('MVP')}")
+                page.click("#mEvView [data-mdview='perq']"); page.wait_for_timeout(300)
+                gq = msc()
+                ok(f"{tag}: 카드 10.25 쿼터당", gq.get('득점 /Q') == f"{p['pts'] / p['gp']:.1f}", f"{gq.get('득점 /Q')}")
+                page.click("#mEvView [data-mdview='total']"); page.wait_for_timeout(250)
+            page.screenshot(path=f"{OUT}/{tag}_6e2_modal_1025.png")
         page.screenshot(path=f"{OUT}/{tag}_6e_stats_modal.png")
         page.keyboard.press("Escape"); page.wait_for_timeout(250)
 
