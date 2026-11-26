@@ -88,6 +88,7 @@ python3 src/build_site.py      # -> index.html (ENC_DATA 암호화) + robots.txt
 LD_LIBRARY_PATH="$(cat ../.libs/ldpath.txt)" python3 src/verify.py   # (선택) 390×844 / 1280×800 렌더링·기능 검증
 ```
 
+- **짝꿍 승률 계산기·5인 랭킹은 별도 데이터가 없습니다** — `data.json` 의 주차별 로스터·팀 성적에서 브라우저가 직접 계산하므로, 위 두 명령만 다시 돌리면 조합 예상 승률도 자동으로 최신 기록 기준이 됩니다.
 - 주간 경기 결과·승률을 갱신한 주에는 `src/template.html` 의 `CHANGELOG` 맨 위에 `{ date: 'YYYY-MM-DD', tag: '기록', items: ['N회차(M/D) 경기 결과·승률·개인 스탯 반영'] }` 를 추가하고 다시 빌드합니다.
 
 - `build_data.py` 는 주차별 로스터×팀 성적에서 개인 승·무·패·출전·2파전/3파전을 **다시 계산해 기록지 표와 대조**합니다. 불일치가 있으면 목록을 출력하고 종료코드 1로 끝납니다.
