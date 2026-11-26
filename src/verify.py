@@ -136,10 +136,18 @@ with sync_playwright() as p:
         ytb = page.locator(".hero .ytbadge")
         ok(f"{tag}: 상단 유튜브 배지 1개", ytb.count() == 1 and ytb.is_visible(), f"count={ytb.count()}")
         ok(f"{tag}: 배지 링크 주소·새 창·noopener",
-           ytb.get_attribute("href") == "https://youtube.com/@stepback_basketball"
+           ytb.get_attribute("href") == "https://www.youtube.com/@stepback_basketball?sub_confirmation=1"
            and ytb.get_attribute("target") == "_blank"
            and "noopener" in (ytb.get_attribute("rel") or "") and "noreferrer" in (ytb.get_attribute("rel") or ""),
            ytb.get_attribute("href") or "")
+        intent = ytb.get_attribute("data-yt-intent") or ""
+        ok(f"{tag}: 유튜브 앱 intent 링크(구독 파라미터·fallback)",
+           intent == "intent://www.youtube.com/@stepback_basketball?sub_confirmation=1#Intent;scheme=https;"
+                     "package=com.google.android.youtube;S.browser_fallback_url=https%3A%2F%2Fwww.youtube.com%2F%40stepback_basketball%3Fsub_confirmation%3D1;end",
+           intent[:90])
+        ok(f"{tag}: 아이폰 앱 스킴(youtube://)",
+           (ytb.get_attribute("data-yt-ios") or "").startswith("youtube://www.youtube.com/@stepback_basketball"),
+           ytb.get_attribute("data-yt-ios") or "")
         ygeo = page.evaluate("""() => {
           const b = document.querySelector('.hero .ytbadge').getBoundingClientRect();
           const h = document.querySelector('.hero h1').getBoundingClientRect();
@@ -176,10 +184,18 @@ with sync_playwright() as p:
                   ball: !!ball && ball.getBoundingClientRect().width > 15,
                   pl: !!pl && pl.getBoundingClientRect().width > 8};
         }""")
-        ok(f"{tag}: 배지 구성(농구공·STEPBACK·YouTube ↗)",
+        ok(f"{tag}: 배지 구성(농구공·STEPBACK·YouTube 구독 ↗)",
            yparts["ball"] and yparts["pl"] and yparts["name"].strip() == "STEPBACK"
-           and "YouTube" in yparts["play"] and "↗" in yparts["play"],
+           and "YouTube 구독" in yparts["play"] and "↗" in yparts["play"],
            f"{yparts}")
+        prevented = page.evaluate("""() => {
+          const a = document.querySelector('.hero .ytbadge');
+          const ev = new MouseEvent('click', {bubbles: true, cancelable: true});
+          a.dispatchEvent(ev);
+          return ev.defaultPrevented;
+        }""")
+        ok(f"{tag}: iOS·PC는 기본 https 새 탭 동작(가로채지 않음)", prevented is False and "Android" not in page.evaluate("navigator.userAgent"),
+           f"defaultPrevented={prevented}")
         ytb.screenshot(path=f"{OUT}/{tag}_3a_ytbadge.png")
         page.locator(".heroTop").screenshot(path=f"{OUT}/{tag}_3a2_herotop.png")
 
@@ -521,6 +537,70 @@ with sync_playwright() as p:
         page.wait_for_timeout(250)
         ok(f"{tag}: 주간 펼침", page.locator('#weekList .wkcard').nth(1).get_attribute("open") is not None)
 
+        # 12-1) 개인 상세정보(키·넘버·포지션) 입력·업데이트 + 카톡 복사 — 정회원·준회원 / 게스트 제외
+        NO_NUM = [r['name'] for r in DATA['roster'] if r.get('no') in (None, '')]
+        REG_NM, ASSOC_NM = '김영익', ASSOC[0]
+        GST_NM = DATA['guests'][0]['name']
+
+        def open_card(nm):
+            page.evaluate("document.querySelector('#modal').hidden=true;document.body.style.overflow=''")
+            page.evaluate("""(n) => {
+              const el = document.querySelector(`#rosterGrid [data-person="${n}"]`)
+                || document.querySelector(`#statRows [data-person="${n}"]`);
+              el.click();
+            }""", nm)
+            page.wait_for_selector("#modal:not([hidden])", timeout=4000)
+            page.wait_for_timeout(220)
+
+        open_card(REG_NM)
+        ok(f"{tag}: 정회원 카드 — '개인정보 업데이트하기' 버튼", page.locator("#pInfoSlot .openbtn").count() == 1
+           and "개인정보 업데이트하기" in page.inner_text("#pInfoSlot"), page.inner_text("#pInfoSlot"))
+        ok(f"{tag}: 카드 배지 #24 · 181cm · SF/PF", page.eval_on_selector("#mProf", "el=>el.innerText.replace(/\\s+/g,' ').trim()") == "#24 · 181cm · SF/PF",
+           page.eval_on_selector("#mProf", "el=>el.innerText.replace(/\\s+/g,' ').trim()"))
+        page.click("#pInfoSlot [data-popen]"); page.wait_for_timeout(200)
+        ok(f"{tag}: 폼 — 이름 고정·키·넘버·없음·포지션 5종", page.locator("#pInfo").count() == 1
+           and page.inner_text("#pInfo .fixed") == REG_NM and page.input_value("#pHeight") == "181"
+           and page.input_value("#pNumber") == "24" and page.locator("#pInfo [data-ppos]").count() == 5)
+        ok(f"{tag}: 폼에 임시 적용 안내", "현재 기기에만 임시 적용" in page.inner_text("#pInfo") and "스텝백 카톡방(관리자)" in page.inner_text("#pInfo"))
+        page.fill("#pHeight", "189"); page.fill("#pNumber", "32")
+        page.click("#pInfo [data-ppos='PF']"); page.click("#pInfo [data-ppos='C']")
+        page.click("#pInfo [data-psave]"); page.wait_for_timeout(400)
+        ok(f"{tag}: 저장 → 카드 배지 즉시 반영(#32 · 189cm · SF/C)",
+           page.eval_on_selector("#mProf", "el=>el.innerText.replace(/\\s+/g,' ').trim()") == "#32 · 189cm · SF/C",
+           page.eval_on_selector("#mProf", "el=>el.innerText.replace(/\\s+/g,' ').trim()"))
+        ok(f"{tag}: 복사 안내 + 양식(수동 복사 박스)", page.inner_text("#pCopyBox p") == "아래 양식을 스텝백 카톡방에 공유해 주세요."
+           and page.input_value("#pCopy") == f"스텝백 정보 업데이트 요청 드립니다.\n[{REG_NM} / 189cm / 32번 / SF/C]",
+           repr(page.input_value("#pCopy")))
+        ok(f"{tag}: 복사 영역 임시 적용 안내", "현재 기기에만 임시 적용" in page.inner_text("#pCopyBox .note"))
+        ok(f"{tag}: localStorage stepback-profile-v1 저장", REG_NM in (page.evaluate("localStorage.getItem('stepback-profile-v1')") or ""))
+        page.screenshot(path=f"{OUT}/{tag}_12a_prof_saved.png")
+        page.keyboard.press("Escape"); page.wait_for_timeout(200)
+        ok(f"{tag}: 로스터·스탯 표 메타 즉시 반영",
+           "189cm" in page.eval_on_selector(f"#rosterGrid [data-person='{REG_NM}'] .nmn span", "el=>el.innerText")
+           and page.eval_on_selector(f"#statRows .strow[data-person='{REG_NM}'] .who i", "el=>el.innerText") == "#32 · 189cm · SF/C")
+        for nm in NO_NUM:
+            ro = [r for r in DATA['roster'] if r['name'] == nm][0]
+            open_card(nm)
+            ok(f"{tag}: {nm} — '개인정보 업데이트하기'(번호없음 확정, 자동 오픈 없음)",
+               page.locator("#pInfoSlot .openbtn").count() == 1 and page.locator("#pInfo").count() == 0)
+            ok(f"{tag}: {nm} 배지 '번호없음 · {ro['height']}cm · {ro['pos']}'",
+               page.eval_on_selector("#mProf", "el=>el.innerText.replace(/\\s+/g,' ').trim()") == f"번호없음 · {ro['height']}cm · {ro['pos']}",
+               page.eval_on_selector("#mProf", "el=>el.innerText.replace(/\\s+/g,' ').trim()"))
+            page.click("#pInfoSlot [data-popen]"); page.wait_for_timeout(180)
+            ok(f"{tag}: {nm} 폼 — 없음 체크·넘버 비활성",
+               page.is_checked("#pNumNone") and page.eval_on_selector("#pNumber", "el=>el.disabled"))
+            page.keyboard.press("Escape"); page.wait_for_timeout(150)
+            ok(f"{tag}: 로스터 {nm} 번호칸 '없음'", page.eval_on_selector(f"#rosterGrid [data-person='{nm}'] .no", "el=>el.innerText").strip() == "없음")
+        open_card(ASSOC_NM)
+        ok(f"{tag}: 준회원({ASSOC_NM})도 '개인정보 업데이트하기'", page.locator("#pInfoSlot .openbtn").count() == 1)
+        page.keyboard.press("Escape"); page.wait_for_timeout(150)
+        page.evaluate("""(n) => { document.querySelector('#guestBox').open = true;
+          [...document.querySelectorAll('#guestRows .grow')].find(e => e.dataset.person === n).click(); }""", GST_NM)
+        page.wait_for_selector("#modal:not([hidden])", timeout=4000); page.wait_for_timeout(220)
+        ok(f"{tag}: 게스트({GST_NM}) 카드 — 폼/버튼 없음", page.locator("#pInfoSlot .openbtn").count() == 0
+           and page.locator("#pInfo").count() == 0 and page.eval_on_selector("#mProf", "el=>el.hidden"))
+        page.keyboard.press("Escape"); page.wait_for_timeout(150)
+
         # 13) 잠금 버튼
         page.locator("#lockBtn").scroll_into_view_if_needed()
         page.click("#lockBtn")
@@ -541,6 +621,36 @@ with sync_playwright() as p:
     page.wait_for_timeout(600)
     page.screenshot(path=f"{OUT}/d_9_full.png", full_page=True)
     ctx.close()
+
+    # 모바일 유튜브 배지 — 앱 링크 분기 (안드로이드 intent / 아이폰 youtube:// → https fallback)
+    UA_AND = ("Mozilla/5.0 (Linux; Android 14; SM-S921N) AppleWebKit/537.36 (KHTML, like Gecko) "
+              "Chrome/126.0.0.0 Mobile Safari/537.36")
+    UA_IOS = ("Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 "
+              "(KHTML, like Gecko) Version/18.2 Mobile/15E148 Safari/604.1")
+    YT_SUB = "https://www.youtube.com/@stepback_basketball?sub_confirmation=1"
+    for tag, ua in [("android", UA_AND), ("ios", UA_IOS)]:
+        ctx = browser.new_context(viewport={"width": 390, "height": 844}, user_agent=ua,
+                                  device_scale_factor=2, is_mobile=True, has_touch=True)
+        ctx.route("**/*youtube.com/**", lambda route: route.fulfill(status=200, content_type="text/html",
+                                                                   body="<title>yt</title><h1>YouTube</h1>"))
+        page = ctx.new_page()
+        errs, pops = [], []
+        page.on("pageerror", lambda e, s=errs: s.append(str(e)))
+        page.on("popup", lambda pp, s=pops: s.append(pp.url))
+        page.goto(URL, wait_until="load")
+        page.fill("#code", CODE); page.press("#code", "Enter")
+        page.wait_for_selector(".hero h1", timeout=8000); page.wait_for_timeout(400)
+        ok(f"{tag}: 유튜브 배지 — 앱 호출을 위해 기본 이동 가로챔", page.evaluate("""() => {
+              const a = document.querySelector('.hero .ytbadge');
+              const ev = new MouseEvent('click', {bubbles: true, cancelable: true});
+              a.dispatchEvent(ev); return ev.defaultPrevented;
+            }""") is True)
+        page.click(".hero .ytbadge")
+        page.wait_for_timeout(2300)
+        landed = page.url if "youtube.com" in page.url else (pops[0] if pops else "")
+        ok(f"{tag}: 앱 미설치/미지원 시 https 구독 페이지로 대체", YT_SUB in landed, f"main={page.url[:60]} popup={pops[:1]}")
+        ok(f"{tag}: JS 에러 0건", len(errs) == 0, "; ".join(errs[:3]))
+        ctx.close()
     browser.close()
 if httpd: httpd.shutdown()
 

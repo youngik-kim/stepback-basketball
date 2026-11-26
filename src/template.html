@@ -102,6 +102,8 @@ body.locked .wrap{display:none}
 @media (hover:hover){.ytbadge:hover{border-color:rgba(255,209,102,.62);
   box-shadow:0 8px 22px rgba(0,0,0,.5),0 0 0 3px rgba(51,224,196,.12)}}
 .ytbadge:focus-visible{outline:2px solid rgba(51,224,196,.65);outline-offset:2px}
+@media (max-width:430px){.ytbadge{padding:4px 8px 4px 5px;gap:5px}.ytplay{font-size:9px;gap:2.5px}
+  .ytplay .pl{width:11px;height:8.5px}.ytarrow{font-size:8.5px}.ytname{letter-spacing:.14em}}
 @media (max-width:370px){.ytball{width:23px;height:23px}.ytname{font-size:8px;letter-spacing:.12em}
   .ytplay{font-size:9px}.ytplay .pl{width:11px;height:8.5px}}
 /* 상단 요약 카드 — 탭하면 해당 섹션으로 이동 · 390px 에서 라벨 잘림 없도록 여백/글자 크기 보정 */
@@ -407,6 +409,7 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .rcell .nmn span{font-size:9.5px;color:var(--tx3);display:block;margin-top:1px}
 .rcell.assoc{border-color:rgba(255,209,102,.34);background:linear-gradient(160deg,rgba(255,209,102,.09),var(--card))}
 .rcell.assoc .no{color:var(--gold);background:rgba(255,209,102,.12);border-color:rgba(255,209,102,.3)}
+.rcell .no.none{font-size:9px;letter-spacing:-.04em;color:var(--tx3);background:rgba(255,255,255,.05);border-color:var(--line)}
 /* 정회원/준회원 구분 배지 */
 .rrole{font-style:normal;font-size:9px;font-weight:900;letter-spacing:.02em;color:#20160a;
   background:linear-gradient(120deg,var(--gold),var(--amber));padding:1.5px 5px;border-radius:999px;
@@ -513,6 +516,60 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mempty{color:var(--tx3);font-size:12px;line-height:1.5}
 .masof{font-size:10.5px;color:var(--tx3);margin-top:9px}
 
+/* ---------- 개인 상세정보 배지 (키·넘버·포지션) ---------- */
+.mprof{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:5px 0 2px}
+.mprof[hidden]{display:none}
+.mprof .num{font-size:11.5px;font-weight:900;padding:2.5px 8px;border-radius:999px;font-variant-numeric:tabular-nums;
+  background:linear-gradient(120deg,rgba(91,156,255,.24),rgba(91,156,255,.08));
+  border:1px solid rgba(91,156,255,.42);color:#9cc4ff}
+.mprof .hgt{font-size:11.5px;font-weight:800;padding:2.5px 8px;border-radius:999px;color:var(--tx2);
+  background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.mprof .pos{font-size:11.5px;font-weight:800;padding:2.5px 8px;border-radius:999px;color:var(--acc);
+  background:rgba(51,224,196,.12);border:1px solid rgba(51,224,196,.34)}
+.mprof .num.none{background:rgba(255,255,255,.06);border-color:var(--line);color:var(--tx3)}
+.mprof .sep{color:var(--tx3);font-size:10px;font-weight:800}
+
+/* ---------- 개인 상세정보 입력·업데이트 (정회원·준회원) ---------- */
+.pinfo{margin:10px 0 2px;border:1px solid rgba(51,224,196,.30);border-radius:14px;
+  background:linear-gradient(180deg,rgba(51,224,196,.10),rgba(255,255,255,.02));padding:12px 12px 13px}
+.pinfo h4{margin:0 0 3px;font-size:12.5px;font-weight:900;color:var(--acc);letter-spacing:-.01em}
+.pinfo .hint{font-size:10.5px;color:var(--tx3);line-height:1.45;margin:0 0 9px}
+.pinfo .warn{font-size:10.5px;font-weight:800;color:var(--amber);line-height:1.5;margin:0 0 11px;
+  padding:7px 9px;border-radius:9px;background:rgba(255,209,102,.10);border:1px solid rgba(255,209,102,.26)}
+.pinfo .row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pinfo .row>label{font-size:11px;font-weight:800;color:var(--tx2);flex:0 0 46px}
+.pinfo input[type=number]{flex:1 1 auto;min-width:0;width:100%;height:42px;border-radius:10px;border:1px solid var(--line2);
+  background:#0b1119;color:var(--tx);font-size:15px;font-weight:800;padding:0 11px;
+  font-variant-numeric:tabular-nums;-webkit-appearance:none;appearance:none;margin:0}
+.pinfo input[type=number]:disabled{opacity:.38}
+.pinfo input[type=number]:focus{outline:2px solid rgba(51,224,196,.55);outline-offset:0;border-color:var(--acc)}
+.pinfo .unit{font-size:11px;color:var(--tx3);font-weight:800;flex:0 0 auto}
+.pinfo .none{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;color:var(--tx2);flex:0 0 auto;cursor:pointer}
+.pinfo .none input{width:17px;height:17px;margin:0;accent-color:var(--acc)}
+.pinfo .fixed{font-size:13.5px;font-weight:900}
+.pinfo .poss{display:flex;gap:5px;flex:1 1 auto;min-width:0}
+.pinfo .poss button{flex:1 1 0;min-width:0;height:40px;border-radius:10px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.05);color:var(--tx2);font-size:12px;font-weight:900;cursor:pointer;padding:0}
+.pinfo .poss button[aria-pressed="true"]{background:linear-gradient(120deg,rgba(51,224,196,.32),rgba(51,224,196,.12));
+  border-color:rgba(51,224,196,.62);color:var(--acc)}
+.pinfo .perr{font-size:11px;color:var(--red);font-weight:800;margin:0;min-height:0;line-height:1.4}
+.pinfo .perr:not(:empty){margin:0 0 8px}
+.pinfo .sbtn{display:block;width:100%;height:46px;border-radius:12px;border:0;cursor:pointer;
+  background:linear-gradient(92deg,var(--acc),#8af2dd);color:#04120f;font-size:13.5px;font-weight:900;
+  letter-spacing:-.01em;box-shadow:0 6px 16px rgba(51,224,196,.22)}
+.pinfo .sbtn:active{transform:translateY(1px)}
+.pinfo .ubtn{display:block;width:100%;height:40px;margin-top:6px;border-radius:11px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.05);color:var(--tx2);font-size:12px;font-weight:900;cursor:pointer}
+.pinfo .openbtn{display:block;width:100%;height:42px;border-radius:11px;border:1px solid rgba(51,224,196,.45);
+  background:rgba(51,224,196,.12);color:var(--acc);font-size:12.5px;font-weight:900;cursor:pointer;margin:0}
+.pinfo .cp{margin-top:11px;border:1px solid var(--line2);border-radius:12px;background:rgba(0,0,0,.30);padding:10px 11px}
+.pinfo .cp p{margin:0 0 7px;font-size:11.5px;font-weight:900;color:var(--lime);line-height:1.4}
+.pinfo .cp .note{font-size:10.5px;font-weight:800;color:var(--amber);line-height:1.5;margin:8px 0 0}
+.pinfo .cp textarea{display:block;width:100%;border:0;background:transparent;color:var(--tx);
+  font-family:inherit;font-size:12.5px;line-height:1.55;resize:none;min-height:54px;outline:none;padding:0;white-space:pre-wrap}
+.pinfo .cp .ok{font-size:10.5px;font-weight:800;color:var(--green);margin-top:6px}
+.pinfo .cp .wr{font-size:10.5px;font-weight:800;color:var(--amber);margin-top:6px;line-height:1.45}
+
 /* ---------- footer ---------- */
 footer{margin:26px 0 0;padding:16px 2px 0;border-top:1px solid var(--line);font-size:11px;color:var(--tx3);line-height:1.7}
 footer b{color:var(--tx2)}
@@ -593,8 +650,10 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
         <h1>스텝백 <span class="en">STEPBACK</span></h1>
         <p class="period" id="periodLine"></p>
       </div>
-      <a class="ytbadge" href="https://youtube.com/@stepback_basketball" target="_blank" rel="noopener noreferrer"
-         aria-label="스텝백 STEPBACK 유튜브 채널 열기 (새 창)">
+      <a class="ytbadge" href="https://www.youtube.com/@stepback_basketball?sub_confirmation=1" target="_blank" rel="noopener noreferrer"
+         data-yt-intent="intent://www.youtube.com/@stepback_basketball?sub_confirmation=1#Intent;scheme=https;package=com.google.android.youtube;S.browser_fallback_url=https%3A%2F%2Fwww.youtube.com%2F%40stepback_basketball%3Fsub_confirmation%3D1;end"
+         data-yt-ios="youtube://www.youtube.com/@stepback_basketball"
+         aria-label="스텝백 STEPBACK 유튜브 채널 구독하기 (새 창·앱)">
         <svg class="ytball" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
           <defs>
             <radialGradient id="sbBallG" cx="34%" cy="26%" r="80%">
@@ -618,7 +677,7 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
               <rect x=".5" y=".5" width="15" height="11" rx="3.2" fill="#ffd166"/>
               <path d="M6.3 3.5 10.6 6 6.3 8.5z" fill="#0b1120"/>
             </svg>
-            <span>YouTube</span><span class="ytarrow" aria-hidden="true">↗</span>
+            <span>YouTube 구독</span><span class="ytarrow" aria-hidden="true">↗</span>
           </span>
         </span>
       </a>
@@ -1283,9 +1342,10 @@ function renderStats() {
     return `<td class="num${cls}">${v == null ? '–' : (ST_SRC && ST_SRC.perq ? v.toFixed(1) : fmtN(v))}</td>`;
   };
   $('#statRows').innerHTML = arr.length ? arr.map(p => {
-    const ro = rosterOf(p.name);
-    const meta = [ro && ro.no ? '#' + ro.no : null, ro ? ro.height + 'cm' : null, ro ? ro.pos : null,
-      ro && ro.role === '준회원' ? '준회원' : null].filter(Boolean).join(' · ');
+    const ro = rosterOf(p.name), pf = effProfile(p.name);
+    const numTxt = profNumberText(pf);
+    const meta = [numTxt || null, (pf.height !== undefined && pf.height !== null && pf.height !== '') ? pf.height + 'cm' : null,
+      pf.position || null, ro && ro.role === '준회원' ? '준회원' : null].filter(Boolean).join(' · ');
     return `<tr class="strow" data-person="${esc(p.name)}" tabindex="0">
       <th class="pcol" scope="row"><span class="who"><b>${hl(p.name, Q)}</b><i>${esc(meta)}</i></span></th>
       ${ST_COLS.map(c => cell(p, c)).join('')}
@@ -1304,10 +1364,11 @@ function renderRoster() {
   $('#posRow').innerHTML = POS.map(p => `<button class="sortchip" data-pos="${p}" aria-pressed="${POS_FILTER === p}">${p === 'ALL' ? '전체' : p}</button>`).join('')
     + `<button class="sortchip" data-pos="ASSOC" aria-pressed="${POS_FILTER === 'ASSOC'}">준회원</button>`
     + `<button class="sortchip" data-pos="HEIGHT" aria-pressed="${POS_FILTER === 'HEIGHT'}">신장순</button>`;
-  const hs = DATA.roster.map(r => r.height).filter(Boolean);
+  const hs = DATA.roster.map(r => effProfile(r.name).height).filter(Boolean);
   const avg = hs.reduce((a, b) => a + b, 0) / (hs.length || 1);
+  const mainOf = r => (effProfile(r.name).position || r.posMain || '').split('/')[0];
   const cnt = {};
-  DATA.roster.forEach(r => { cnt[r.posMain] = (cnt[r.posMain] || 0) + 1; });
+  DATA.roster.forEach(r => { const m = mainOf(r); cnt[m] = (cnt[m] || 0) + 1; });
   const posTxt = ['PG', 'SG', 'SF', 'PF'].filter(k => cnt[k]).map(k => `${k} <b>${cnt[k]}</b>`).join(' · ');
   const RM = DATA.rosterMeta || { total: DATA.roster.length, regular: DATA.roster.length, associate: 0 };
   $('#rosterSum').innerHTML = [
@@ -1317,14 +1378,17 @@ function renderRoster() {
     posTxt
   ].filter(Boolean).map(s => `<span class="rs">${s}</span>`).join('');
   let list = DATA.roster.slice();
-  if (POS_FILTER === 'HEIGHT') list.sort((a, b) => (b.height || 0) - (a.height || 0));
+  if (POS_FILTER === 'HEIGHT') list.sort((a, b) => (effProfile(b.name).height || 0) - (effProfile(a.name).height || 0));
   else if (POS_FILTER === 'ASSOC') list = list.filter(r => r.role === '준회원');
-  else if (POS_FILTER !== 'ALL') list = list.filter(r => r.posMain === POS_FILTER);
+  else if (POS_FILTER !== 'ALL') list = list.filter(r => mainOf(r) === POS_FILTER);
   if (Q) list = list.filter(r => r.name.includes(Q));
-  $('#rosterGrid').innerHTML = list.length ? list.map(r => `<button class="rcell ${r.role === '준회원' ? 'assoc' : ''}" data-person="${esc(r.name)}"${r.role === '준회원' ? ` aria-label="${esc(r.name)} 준회원 개인 카드 보기"` : ''}>
-      <span class="no">${r.no || '–'}</span>
-      <span class="nmn"><b>${hl(r.name, Q)}</b><span>${r.height ? r.height + 'cm' : '–'} · ${esc(r.pos)}${r.role === '준회원' ? '<i class="rrole">준회원</i>' : ''}</span></span>
-    </button>`).join('')
+  $('#rosterGrid').innerHTML = list.length ? list.map(r => {
+    const pf = effProfile(r.name), no = profNumberText(pf);
+    return `<button class="rcell ${r.role === '준회원' ? 'assoc' : ''}" data-person="${esc(r.name)}"${r.role === '준회원' ? ` aria-label="${esc(r.name)} 준회원 개인 카드 보기"` : ''}>
+      <span class="no${pf.number === null ? ' none' : ''}">${pf.number === null ? '없음' : (pf.number === undefined || pf.number === '' ? '–' : esc(pf.number))}</span>
+      <span class="nmn"><b>${hl(r.name, Q)}</b><span>${(pf.height ? pf.height + 'cm' : '–')} · ${esc(pf.position || '–')}${r.role === '준회원' ? '<i class="rrole">준회원</i>' : ''}</span></span>
+    </button>`;
+  }).join('')
     : `<div class="nores" style="grid-column:1/-1">${Q ? '해당 이름이 없습니다.' : POS_FILTER === 'ASSOC' ? '준회원이 없습니다.' : '해당 포지션이 없습니다.'}</div>`;
   $('#rosterCnt').textContent = `${list.length}/${DATA.roster.length}명`;
 }
@@ -1372,6 +1436,198 @@ function renderWeeks() {
       </div></details>`;
   }).join('');
   $('#cntWeek').textContent = `${CH.length}회차 · 46장`;
+}
+
+/* ---------------- 개인 상세정보 (정회원·준회원 전용) ----------------
+   키(cm)·넘버·포지션을 이 기기에 저장(localStorage: stepback-profile-v1)하고
+   개인 카드 배지·로스터/스탯 표 메타에 즉시 반영합니다.
+   저장과 동시에 스텝백 카톡방에 공유할 문구를 클립보드에 복사합니다. 게스트는 대상이 아닙니다. */
+const PROF_KEY = 'stepback-profile-v1';
+const POS_LIST = ['PG', 'SG', 'SF', 'PF', 'C'];
+let lastProfName = '';
+
+function loadProfStore() {
+  try {
+    const o = JSON.parse(localStorage.getItem(PROF_KEY) || '{}');
+    return (o && typeof o === 'object') ? o : {};
+  } catch (e) { return {}; }
+}
+function saveProfStore(o) { try { localStorage.setItem(PROF_KEY, JSON.stringify(o)); } catch (e) { } }
+/* 로스터(src/data.json) 기준값. 넘버가 '-'로 등록됐고 키·포지션이 있으면 '번호없음(null)'으로 봅니다. */
+function baseProfile(name) {
+  const ro = rosterOf(name);
+  if (!ro) return { height: undefined, number: undefined, position: '' };
+  const hasH = ro.height !== undefined && ro.height !== null && ro.height !== '';
+  const hasPos = !!ro.pos;
+  const no = (ro.no === undefined || ro.no === null || ro.no === '') ? null : String(ro.no);
+  return {
+    height: hasH ? ro.height : undefined,
+    number: no !== null ? no : ((hasH && hasPos) ? null : undefined),   /* null = '없음' 확정 */
+    position: hasPos ? String(ro.pos) : ''
+  };
+}
+/* 이 기기에서 저장한 값이 로스터 값보다 우선합니다. number === null 은 '없음' 선택. */
+function effProfile(name) {
+  const b = baseProfile(name), ov = loadProfStore()[name];
+  if (!ov || typeof ov !== 'object') return b;
+  return {
+    height: ov.height === undefined ? b.height : ov.height,
+    number: ov.number === undefined ? b.number : ov.number,
+    position: ov.position === undefined ? b.position : ov.position
+  };
+}
+function hasFullProfile(pf) {
+  return pf.height !== undefined && pf.height !== null && pf.height !== ''
+    && pf.position !== undefined && pf.position !== null && pf.position !== ''
+    && pf.number !== undefined;   /* null(=없음) 은 입력한 값으로 봅니다 */
+}
+/* 정회원·준회원만 — 게스트(로스터 밖)는 제외 */
+function canEditProfile(name) { return !!rosterOf(name); }
+function profNumberText(pf) {
+  if (pf.number === null) return '번호없음';
+  if (pf.number === undefined || pf.number === '') return '';
+  return '#' + pf.number;
+}
+function profBadgeHtml(pf) {
+  const bits = [];
+  const num = profNumberText(pf);
+  if (num) bits.push('<span class="num' + (pf.number === null ? ' none' : '') + '">' + esc(num) + '</span>');
+  if (pf.height !== undefined && pf.height !== null && pf.height !== '') bits.push('<span class="hgt">' + esc(pf.height) + 'cm</span>');
+  if (pf.position) bits.push('<span class="pos">' + esc(pf.position) + '</span>');
+  return bits.join('<span class="sep">·</span>');
+}
+function paintProfBadge(name) {
+  const el = $('#mProf');
+  if (!el) return;
+  const html = profBadgeHtml(effProfile(name));
+  el.innerHTML = html;
+  el.hidden = !html;
+}
+function profFormHtml(name) {
+  const pf = effProfile(name), none = pf.number === null;
+  const poss = String(pf.position || '').split('/').filter(Boolean);
+  const hv = (pf.height === undefined || pf.height === null) ? '' : pf.height;
+  const nv = (pf.number === undefined || pf.number === null) ? '' : pf.number;
+  return '<div class="pinfo" id="pInfo">'
+    + '<h4>' + (hasFullProfile(pf) ? '개인 상세정보 업데이트' : '개인 상세정보를 입력해 주세요') + '</h4>'
+    + '<div class="hint">키·넘버·포지션을 저장하면 카드에 바로 표시되고, 카톡 공유용 문구가 복사됩니다.</div>'
+    + '<div class="warn">※ 입력 내용은 현재 기기에만 임시 적용됩니다. 복사된 양식을 스텝백 카톡방(관리자)에 전달해 주셔야 전체 페이지에 최종 반영됩니다.</div>'
+    + '<div class="row"><label>이름</label><span class="fixed">' + esc(name) + '</span></div>'
+    + '<div class="row"><label for="pHeight">키</label><input id="pHeight" type="number" inputmode="numeric" min="120" max="230" step="1" placeholder="예: 181" value="' + esc(hv) + '"><span class="unit">cm</span></div>'
+    + '<div class="row"><label for="pNumber">넘버</label><input id="pNumber" type="number" inputmode="numeric" min="0" max="99" step="1" placeholder="예: 24" value="' + esc(nv) + '"' + (none ? ' disabled' : '') + '>'
+    + '<label class="none"><input type="checkbox" id="pNumNone"' + (none ? ' checked' : '') + '>없음</label></div>'
+    + '<div class="row" style="align-items:flex-start"><label style="padding-top:11px">포지션</label><div class="poss">'
+    + POS_LIST.map(function (p) { return '<button type="button" data-ppos="' + p + '" aria-pressed="' + (poss.indexOf(p) >= 0 ? 'true' : 'false') + '">' + p + '</button>'; }).join('')
+    + '</div></div>'
+    + '<p class="perr" id="pErr"></p>'
+    + '<button type="button" class="sbtn" data-psave="1">저장 및 카톡 복사</button>'
+    + '<button type="button" class="ubtn" data-pclose="1">' + (hasFullProfile(pf) ? '취소' : '다음에 하기') + '</button>'
+    + '</div>';
+}
+function openProfForm(name) {
+  const slot = $('#pInfoSlot');
+  if (!slot) return;
+  slot.innerHTML = profFormHtml(name);
+}
+/* 폼을 접고 입력/업데이트 버튼만 남깁니다(전적을 볼 때 방해되지 않도록)
+   정보가 비어 있으면 '정보 입력하기', 이미 등록된 정회원·준회원은 '개인정보 업데이트하기' */
+function collapseProfSlot(name) {
+  const slot = $('#pInfoSlot');
+  if (!slot || !canEditProfile(name)) return;
+  const label = hasFullProfile(effProfile(name)) ? '개인정보 업데이트하기' : '정보 입력하기';
+  slot.innerHTML = '<div class="pinfo" style="padding:9px;background:rgba(51,224,196,.06)">'
+    + '<button type="button" class="openbtn" data-popen="1">' + label + '</button></div>';
+}
+function renderProfSlot(name) {
+  const slot = $('#pInfoSlot');
+  if (!slot) return;
+  if (!canEditProfile(name)) { slot.innerHTML = ''; return; }
+  /* 정보가 비어 있으면 폼을 바로 펼치고, 이미 있으면 버튼만 둡니다 */
+  if (hasFullProfile(effProfile(name))) collapseProfSlot(name);
+  else openProfForm(name);
+}
+function readProfForm() {
+  const setErr = function (m) { const el = $('#pErr'); if (el) el.textContent = m; };
+  setErr('');
+  const hEl = $('#pHeight'), nEl = $('#pNumber'), noneEl = $('#pNumNone');
+  const hRaw = (hEl ? hEl.value : '').trim();
+  if (!hRaw) { setErr('키를 숫자로 입력해 주세요.'); if (hEl) hEl.focus(); return null; }
+  const h = Number(hRaw);
+  if (!isFinite(h) || h < 120 || h > 230) { setErr('키는 120~230 사이 숫자로 입력해 주세요.'); if (hEl) hEl.focus(); return null; }
+  const none = !!(noneEl && noneEl.checked);
+  let num = null;
+  if (!none) {
+    const nRaw = (nEl ? nEl.value : '').trim();
+    if (!nRaw) { setErr('넘버를 숫자로 입력하거나 \'없음\'을 선택해 주세요.'); if (nEl) nEl.focus(); return null; }
+    const n = Number(nRaw);
+    if (!isFinite(n) || n < 0 || n > 99 || Math.floor(n) !== n) { setErr('넘버는 0~99 사이 숫자로 입력해 주세요.'); if (nEl) nEl.focus(); return null; }
+    num = n;
+  }
+  const picked = $$('#pInfo [data-ppos]').filter(function (b) { return b.getAttribute('aria-pressed') === 'true'; })
+    .map(function (b) { return b.getAttribute('data-ppos'); });
+  if (!picked.length) { setErr('포지션을 1개 이상 선택해 주세요.'); return null; }
+  return { height: Math.round(h), number: num, position: POS_LIST.filter(function (p) { return picked.indexOf(p) >= 0; }).join('/') };
+}
+function ktalkText(name, pf) {
+  const num = (pf.number === null) ? '없음' : pf.number + '번';
+  return '스텝백 정보 업데이트 요청 드립니다.\n[' + name + ' / ' + pf.height + 'cm / ' + num + ' / ' + pf.position + ']';
+}
+function copyText(t) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+      return navigator.clipboard.writeText(t).then(function () { return true; }).catch(function () { return legacyCopy(t); });
+    }
+  } catch (e) { }
+  return Promise.resolve(legacyCopy(t));
+}
+function legacyCopy(t) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = t; ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, t.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return !!ok;
+  } catch (e) { return false; }
+}
+/* 저장 → 카드 배지·로스터·스탯 표 즉시 반영 → 클립보드 복사 → 수동 복사용 텍스트 박스 표시 */
+function saveProf(name) {
+  const v = readProfForm();
+  if (!v) return;
+  const store = loadProfStore();
+  store[name] = v;
+  saveProfStore(store);
+  paintProfBadge(name);
+  const closeBtn = $('#pInfo [data-pclose]');   /* 저장 후에는 '다음에 하기' → '취소' */
+  if (closeBtn) closeBtn.textContent = '취소';
+  const text = ktalkText(name, v);
+  const info = $('#pInfo');
+  if (!info) return;
+  let box = $('#pCopy');
+  if (!box) {
+    const wrap = document.createElement('div');
+    wrap.className = 'cp';
+    wrap.id = 'pCopyBox';
+    wrap.innerHTML = '<p>아래 양식을 스텝백 카톡방에 공유해 주세요.</p>'
+      + '<textarea id="pCopy" readonly rows="2"></textarea><div id="pCopyStat"></div>'
+      + '<div class="note">※ 입력 내용은 현재 기기에만 임시 적용됩니다. 위 양식을 스텝백 카톡방(관리자)에 전달해 주셔야 전체 페이지에 최종 반영됩니다.</div>';
+    info.appendChild(wrap);
+    box = $('#pCopy');
+    if (wrap.scrollIntoView) wrap.scrollIntoView({ block: 'nearest' });
+  }
+  box.value = text;
+  box.style.height = 'auto';
+  box.style.height = Math.max(54, box.scrollHeight) + 'px';
+  const stat = $('#pCopyStat');
+  copyText(text).then(function (ok) {
+    if (!stat) return;
+    stat.className = ok ? 'ok' : 'wr';
+    stat.textContent = ok ? '복사되었습니다. 카톡방에 붙여넣어 주세요.' : '자동 복사가 막혔습니다. 위 텍스트를 길게 눌러 직접 복사해 주세요.';
+  });
+  /* 로스터·개인 스탯 표 메타도 같은 값으로 다시 그림 */
+  renderRoster(); renderStats();
 }
 
 /* ---------------- modal ---------------- */
@@ -1479,7 +1735,7 @@ function openPerson(name) {
     p.perfect ? { t: '🔥 개근' } : null,
     memberKind,
   ].filter(Boolean);
-  const metaBits = [ro && ro.no ? '#' + ro.no : '', ro ? ro.height + 'cm' : '', ro ? ro.pos : ''].filter(Boolean);
+  const profBits = profBadgeHtml(effProfile(name));
   MODAL_MODE = 'career';
   MODAL_PERQ = 'total';
   MODAL_DATE = EVENT_DATE || (EVENTS()[0] || {}).date || null;
@@ -1493,7 +1749,7 @@ function openPerson(name) {
     <div class="mname" id="mName">${esc(name)}${isAssoc ? '<i class="rrole">준회원</i>' : ''}</div>
     <div class="mrank">${esc(rankLabel)}</div>
     ${badges.length ? `<div class="mbadges">${badges.map(b => `<span class="mbadge ${b.cls || ''}">${b.t}</span>`).join('')}</div>` : ''}
-    ${metaBits.length ? `<div class="mbadges">${metaBits.map(b => `<span class="mbadge blue">${esc(b)}</span>`).join('')}</div>` : ''}
+    <div class="mprof" id="mProf"${profBits ? '' : ' hidden'}>${profBits}</div>
     <div class="mrate"><span class="big">${pct(p.rate)}%</span><span class="lbl">승률 · ${rec3(p)} / ${p.games}경기</span></div>
     <div class="mbar"><i style="width:${Math.max(2, Math.min(100, p.rate))}%"></i></div>
     <div class="mgrid">
@@ -1502,6 +1758,7 @@ function openPerson(name) {
       <div class="mcell"><div class="v">${st.n ? pct(p.weeks / st.n * 100) + '%' : '–'}</div><div class="k">참여율</div></div>
     </div>
     <div class="masof">${curDate === LAT.date ? '최종 기록(' + LAT.date + ') 기준' : curDate + '까지 누적 기준'}</div>
+    <div id="pInfoSlot"></div>
     ${statHtml}
     <div class="msec">회차별 기록</div>
     ${wk.length ? wk.map(w => `<div class="mweek">
@@ -1513,6 +1770,8 @@ function openPerson(name) {
     <div class="msec">2파전 · 3파전</div>
     <div class="mempty" style="color:var(--tx2)">2파전 ${rec3(p.two)} (${p.two.w + p.two.d + p.two.l}경기) · 3파전 ${rec3(p.three)} (${p.three.w + p.three.d + p.three.l}경기)</div>`;
   lastFocus = document.activeElement;
+  lastProfName = name;
+  renderProfSlot(name);
   $('#modal').hidden = false;
   document.body.style.overflow = 'hidden';
   $('#modal .sheet').scrollTop = 0;
@@ -1609,6 +1868,32 @@ function bind() {
     try { localStorage.removeItem(LS_KEY); } catch (e) {}
     location.reload();
   });
+  /* 우측 상단 유튜브 배지 — 모바일은 유튜브 앱(구독 링크)으로 바로 열고,
+     PC·기타는 기본 https 링크를 새 탭으로 엽니다.
+       안드로이드: intent:// (Chrome이 browser_fallback_url로 앱 없음/실패를 처리)
+       아이폰: youtube:// 커스텀 스킴 → 700ms 뒤에도 페이지가 보이면 https로 대체 */
+  const ytBadge = $('.hero .ytbadge');
+  if (ytBadge) ytBadge.addEventListener('click', e => {
+    const ua = navigator.userAgent;
+    const isAndroid = /Android/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);   /* iPadOS */
+    if (!isAndroid && !isIOS) return;   /* PC·기타: 기본 동작(새 탭) */
+    const appUrl = isIOS ? ytBadge.getAttribute('data-yt-ios') : ytBadge.getAttribute('data-yt-intent');
+    if (!appUrl) return;
+    e.preventDefault();
+    let left = false;
+    const onHide = () => { left = true; };
+    document.addEventListener('visibilitychange', onHide);
+    try { window.location.href = appUrl; } catch (err) {}
+    /* 앱이 안 열리고 페이지가 그대로 보이면 기본 https 로 대체 */
+    setTimeout(() => {
+      document.removeEventListener('visibilitychange', onHide);
+      if (left || document.hidden) return;
+      if (isIOS) { window.location.href = ytBadge.href; return; }
+      try { window.open(ytBadge.href, '_blank', 'noopener'); } catch (e2) { window.location.href = ytBadge.href; }
+    }, isIOS ? 700 : 1500);
+  });
   $('#critBox').addEventListener('toggle', () => {});
   document.addEventListener('click', e => {
     const pick = e.target.closest('[data-pick]');
@@ -1617,6 +1902,12 @@ function bind() {
     if (jmp) { heroJump(jmp.dataset.jump); return; }
     const sm = e.target.closest('[data-mdmode]');
     if (sm) { setModalMode(sm.dataset.mdmode); return; }
+    /* 개인 상세정보 폼 — 열기·접기·저장·포지션 토글 */
+    if (e.target.closest('[data-popen]')) { openProfForm(lastProfName); return; }
+    if (e.target.closest('[data-pclose]')) { collapseProfSlot(lastProfName); return; }
+    if (e.target.closest('[data-psave]')) { saveProf(lastProfName); return; }
+    const posb = e.target.closest('#pInfo [data-ppos]');
+    if (posb) { posb.setAttribute('aria-pressed', posb.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); return; }
     const t = e.target.closest('[data-person]');
     if (t && t.dataset.person) { openPerson(t.dataset.person); return; }
     if (e.target.closest('[data-close]')) closeModal();
@@ -1625,6 +1916,12 @@ function bind() {
       e.preventDefault();
       const el = $(jump.getAttribute('href'));
       if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 62, behavior: 'smooth' });
+    }
+  });
+  document.addEventListener('change', e => {
+    if (e.target && e.target.id === 'pNumNone') {
+      const num = $('#pNumber');
+      if (num) num.disabled = !!e.target.checked;   /* '없음' 선택 시 숫자 입력 비활성화 */
     }
   });
   document.addEventListener('keydown', e => {
