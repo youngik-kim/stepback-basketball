@@ -394,6 +394,59 @@ with sync_playwright() as p:
         sw, iw = page.evaluate("[document.documentElement.scrollWidth, window.innerWidth]")
         ok(f"{tag}: 가로 스크롤 없음", sw <= iw + 1, f"scrollWidth={sw} innerWidth={iw}")
 
+        # 4-1) 히어로 '📋 주요 변경점' 버튼 → 이력 시트 열기·닫기
+        to_top()
+        ok(f"{tag}: 히어로 '주요 변경점' 버튼", page.locator("#chgBtn").count() == 1 and page.locator("#chgBtn").is_visible()
+           and "주요 변경점" in page.inner_text("#chgBtn"), page.inner_text("#chgBtn"))
+        geo = page.evaluate("""() => {
+          const g = s => { const r = document.querySelector(s).getBoundingClientRect(); return [r.left, r.right, r.top, r.bottom]; };
+          return { b: g('#chgBtn'), p: g('#periodLine'), y: g('.hero .ytbadge'), n: g('.hero .bandbadge'),
+                   s: g('#heroStats'), vw: innerWidth };
+        }""")
+        def _ov(a, b):
+            return not (a[1] <= b[0] or b[1] <= a[0] or a[3] <= b[2] or b[3] <= a[2])
+        bl, brr, bt2, bb2 = geo["b"]
+        ok(f"{tag}: 변경점 버튼 — 뷰포트 안·유튜브/밴드/요약카드와 겹침 없음",
+           bl >= 8 and brr <= geo["vw"] - 8 and bt2 >= 0 and bb2 <= geo["s"][2] + 1
+           and not _ov(geo["b"], geo["y"]) and not _ov(geo["b"], geo["n"]) and not _ov(geo["b"], geo["s"]),
+           f"btn x={bl:.0f}~{brr:.0f} y={bt2:.0f}~{bb2:.0f} stats.top={geo['s'][2]:.0f}")
+        ok(f"{tag}: 변경점 버튼 — 기간 문구 바로 아래/같은 줄", bt2 >= geo["p"][2] - 4 and bt2 - geo["p"][2] < 40,
+           f"btn.y={bt2:.0f} period.y={geo['p'][2]:.0f}~{geo['p'][3]:.0f}")
+        page.click("#chgBtn"); page.wait_for_timeout(400)
+        ok(f"{tag}: 변경점 시트 열림 — 제목 '📋 주요 변경점'",
+           page.locator("#chgModal").is_visible() and page.inner_text("#chgTitle").strip() == "📋 주요 변경점",
+           page.inner_text("#chgTitle"))
+        ok(f"{tag}: 변경점 시트 — 개인 상세정보 수정 내역 제외 안내",
+           "개인 상세정보 수정 내역은 제외" in page.inner_text("#chgModal .clsub"))
+        rows = page.evaluate("""() => [...document.querySelectorAll('#chgList .cl')].map(el => ({
+            date: el.querySelector('.cld').textContent.trim(),
+            tag: el.querySelector('.clt').textContent.trim(),
+            items: [...el.querySelectorAll('li')].map(li => li.textContent.trim()) }))""")
+        ok(f"{tag}: 변경점 이력 4건 이상·날짜 형식·태그(기능/기록)", len(rows) >= 4
+           and all(re.fullmatch(r"\d{4}-\d{2}-\d{2}", r["date"]) and r["tag"] in ("기능", "기록") and r["items"] for r in rows),
+           f"{len(rows)}건")
+        dates = [r["date"] for r in rows]
+        ok(f"{tag}: 변경점 최신순 정렬·첫 날짜 NEW", dates == sorted(dates, reverse=True)
+           and page.locator("#chgList .cl").first.get_attribute("class").find("top") >= 0
+           and page.locator("#chgList .clnew").count() == 1, ",".join(dates))
+        bodytxt = page.inner_text("#chgList").replace("\n", " ")
+        ok(f"{tag}: 변경점 — 주간 경기 결과·승률 이력 포함",
+           any(r["tag"] == "기록" for r in rows) and "45회차" in bodytxt and "승률" in bodytxt)
+        ok(f"{tag}: 변경점 — 기능 이력 키워드(장단점·보안·길찾기·15열·개인 상세정보)",
+           all(k in bodytxt for k in ["플레이 장점", "보안 안내", "길찾기", "15열", "개인 상세정보"]))
+        page.screenshot(path=f"{OUT}/{tag}_4_chg_modal.png")
+        page.keyboard.press("Escape"); page.wait_for_timeout(300)
+        ok(f"{tag}: 변경점 시트 ESC 닫힘·스크롤 복구", page.locator("#chgModal").is_hidden()
+           and page.evaluate("document.body.style.overflow") != "hidden")
+        page.click("#chgBtn"); page.wait_for_timeout(300)
+        page.click("#chgModal .x"); page.wait_for_timeout(300)
+        ok(f"{tag}: 변경점 시트 X 닫힘", page.locator("#chgModal").is_hidden())
+        page.click("#chgBtn"); page.wait_for_timeout(300)
+        page.click("#chgModal .bd", position={"x": 4, "y": 4}); page.wait_for_timeout(300)
+        ok(f"{tag}: 변경점 시트 배경 탭 닫힘", page.locator("#chgModal").is_hidden())
+        ok(f"{tag}: 변경점 닫으면 요약 카드 클릭 복귀", page.locator("#heroStats .stat").count() == 4)
+        to_top()
+
         # 5) 재접속 유지 (새로고침)
         page.reload(wait_until="load")
         page.wait_for_timeout(700)
@@ -757,6 +810,47 @@ with sync_playwright() as p:
         ok(f"{tag}: 저장 후 게스트는 '개인정보 업데이트하기' + 배지 유지",
            page.inner_text("#pInfoSlot").strip() == "개인정보 업데이트하기"
            and page.eval_on_selector("#mProf", "el=>el.innerText.replace(/\\s+/g,' ').trim()") == "#88 · 180cm · SG")
+        page.keyboard.press("Escape"); page.wait_for_timeout(150)
+
+        # 12-2) 플레이 장점·단점(선택 입력) + 보안 안내
+        open_card(REG_NM)
+        page.click("#pInfoSlot [data-popen]"); page.wait_for_timeout(200)
+        ok(f"{tag}: 폼 — 장점·단점 입력란(선택)", page.locator("#pStrength").count() == 1
+           and page.locator("#pWeakness").count() == 1
+           and page.inner_text("label[for=pStrength]").strip() == "플레이 장점 (선택)"
+           and page.inner_text("label[for=pWeakness]").strip() == "플레이 단점 (선택)",
+           page.inner_text("label[for=pStrength]").strip())
+        ok(f"{tag}: 폼 — placeholders", page.get_attribute("#pStrength", "placeholder") == "예: 돌파, 3점 슛, 리바운드"
+           and page.get_attribute("#pWeakness", "placeholder") == "예: 체력, 자유투, 수비 로테이션")
+        ok(f"{tag}: 폼 — 장점·단점 초기값 비음", page.input_value("#pStrength") == "" and page.input_value("#pWeakness") == "")
+        SEC = page.inner_text("#pInfo .secnote").replace("\n", " ")
+        ok(f"{tag}: 폼 — 보안 안내(실시간 자동 연동·외부 서버·관리자 전달)",
+           all(k in SEC for k in ["실시간으로 자동 연동", "외부 서버", "보안에 취약", "관리자에게 전달해 반영"]), SEC)
+        ok(f"{tag}: 폼 — 장점·단점 선택 안내", "플레이 장점·단점은 선택" in page.inner_text("#pInfo .hint"))
+        BASE = f"[{REG_NM} / 189cm / 32번 / SF/C]"
+        MPLAY = "#mPlay"
+        for label, s, w, expect, copy in [
+            ("장점만", " 돌파,  3점 슛 ", "", "장점 돌파, 3점 슛", ["장점: 돌파, 3점 슛"]),
+            ("단점만", "", "체력, 자유투", "단점 체력, 자유투", ["단점: 체력, 자유투"]),
+            ("둘 다", "리바운드", "자유투", "장점 리바운드 단점 자유투", ["장점: 리바운드", "단점: 자유투"]),
+        ]:
+            page.fill("#pStrength", s); page.fill("#pWeakness", w)
+            page.click("#pInfo [data-psave]"); page.wait_for_timeout(380)
+            ok(f"{tag}: {label} 저장 — 카드 표시",
+               page.eval_on_selector(MPLAY, "el=>el.innerText.replace(/\\s+/g,' ').trim()") == expect,
+               page.eval_on_selector(MPLAY, "el=>el.innerText.replace(/\\s+/g,' ').trim()"))
+            ok(f"{tag}: {label} 저장 — 카톡 양식",
+               page.input_value("#pCopy") == "스텝백 정보 업데이트 요청 드립니다.\n" + BASE + "\n" + "\n".join(copy),
+               repr(page.input_value("#pCopy")))
+        page.screenshot(path=f"{OUT}/{tag}_12c_prof_play.png")
+        page.fill("#pStrength", ""); page.fill("#pWeakness", "")
+        page.click("#pInfo [data-psave]"); page.wait_for_timeout(380)
+        ok(f"{tag}: 둘 다 비우면 카드 블록 숨김·기존 1줄 양식 유지",
+           page.eval_on_selector(MPLAY, "el=>el.hidden")
+           and page.input_value("#pCopy") == "스텝백 정보 업데이트 요청 드립니다.\n" + BASE,
+           repr(page.input_value("#pCopy")))
+        ok(f"{tag}: 복사 영역에 자동 연동 미사용 안내",
+           "실시간 자동 연동은 보안상 사용하지 않습니다" in page.inner_text("#pCopyBox .note"))
         page.keyboard.press("Escape"); page.wait_for_timeout(150)
 
         # 13) 푸터 — 잠금 버튼 제거, 보안 안내 문구는 유지
