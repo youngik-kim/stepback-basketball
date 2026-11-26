@@ -20,6 +20,8 @@ rec = read("basketball/stepback-records.md")
 gst = read("basketball/stepback-guests.md")
 stat = read("basketball/2026-11-22-스텝백-개인스탯.md")
 hist = read("basketball/2026-10-25~11-15-스텝백-개인스탯.md")
+PREVIEW_PATH = "basketball/stepback-match-preview.md"
+prev_txt = read(PREVIEW_PATH) if os.path.exists(os.path.join(ROOT, PREVIEW_PATH)) else ""
 
 def clean(s):
     return s.replace("**", "").replace("`", "").strip()
@@ -44,8 +46,8 @@ def wdl(s):
 
 def name_of(cell):
     c = clean(cell)
-    # 이름 옆 '(준회원)' 표기는 구분(로스터 role)에서 관리하므로 이름에서 걷어낸다
-    c = re.sub(r"\*?\(\s*준회원\s*\)\*?", " ", c)
+    # 이름 옆 '(구분)' 표기는 로스터 role 에서 관리하므로 이름에서 걷어낸다
+    c = re.sub(r"\*?\(\s*(?:준회원|게스트)\s*\)\*?", " ", c)
     c = re.sub(r"\s{2,}", " ", c).strip()
     perfect = "[개근]" in c
     c = c.replace("[개근]", "").strip()
@@ -84,13 +86,16 @@ for r in rows(out_block)[1:]:
                           perfect=perfect))
 
 absent = []        # 미출전 정회원
-absent_assoc = []  # 미출전 준회원
-for pat, bucket in ((r"미출전 정회원 \((\d+)명\): ([^\n]+)", absent),
-                    (r"미출전 준회원 \((\d+)명\): ([^\n]+)", absent_assoc)):
+absent_guests = [] # 미출전 게스트 (로스터에만 등록)
+for pat, bucket in ((r"미출전 정회원 \((\d+)명\): ([^\n]+)", absent),):
     m = re.search(pat, rec)
     if m:
         names = m.group(2).split("—")[0]
         bucket.extend([a.strip() for a in names.split(",") if a.strip()])
+m = re.search(r"미출전 게스트 \((\d+)명\): ([^\n]+)", gst)
+if m:
+    names = m.group(2).split("—")[0]
+    absent_guests.extend([a.strip() for a in names.split(",") if a.strip()])
 
 # ---------------------------------------------------------------- 게스트
 guests = []
@@ -101,7 +106,13 @@ for r in rows(gst.split("## 📊 게스트 누적 전적")[1])[1:]:
     rate = float(clean(r[4]).replace("%", ""))
     dates = [x.strip() for x in r[5].split(",")]
     guests.append(dict(rank=int(clean(r[0])), name=name, weeks=weeks, w=w, d=d, l=l,
-                       rate=rate, dates=dates))
+                       rate=rate, dates=dates, absent=False))
+
+# 출전 기록이 없는 게스트(로스터에만 등록) — 순위 맨 뒤, 출전 0회로 표기
+guest_rows_played = len(guests)
+for nm in absent_guests:
+    guests.append(dict(rank=guest_rows_played + 1 + absent_guests.index(nm), name=nm, weeks=0,
+                       w=0, d=0, l=0, rate=None, dates=[], absent=True))
 
 # ---------------------------------------------------------------- 주간 로그
 log = rec.split("## 📅 주간 경기 로그")[1]
@@ -234,7 +245,8 @@ for p in members:
 for p in outsiders:
     check(p, "순위외")
 for g in guests:
-    check(g, "게스트")
+    if not g["absent"]:
+        check(g, "게스트")
 
 unknown = sorted(set(calc) - set(m["name"] for m in members) - set(o["name"] for o in outsiders)
                  - set(g["name"] for g in guests))
@@ -251,7 +263,7 @@ three_n = sum(1 for w in weeks if w["type"].startswith("3"))
 games_n = sum(len(s["games"]) for w in weeks for s in w["sheets"])
 
 print(f"주차 {len(weeks)} (2파전 {two_n} / 3파전 {three_n}) · 경기 {games_n} · 기록지 {sum(len(w['sheets']) for w in weeks)}장")
-print(f"정규 {len(members)} · 순위외 {len(outsiders)} · 게스트 {len(guests)} · 미출전 정회원 {absent} · 미출전 준회원 {absent_assoc}")
+print(f"정규 {len(members)} · 순위외 {len(outsiders)} · 게스트 {len(guests)}(미출전 {len(absent_guests)}) · 미출전 정회원 {absent}")
 print("검증 오류:", errors if errors else "없음")
 
 # ---------------------------------------------------------------- 11/22 스탯 · 누적
@@ -306,7 +318,7 @@ for sec in re.split(r"^## ", hist, flags=re.M)[1:]:
     events.append(dict(date=dm.group(1), rows=parse_stats(body),
                        tag="3G" if "3G" in head else ""))
 events.sort(key=lambda e: e["date"], reverse=True)
-roster_block = stat.split("## 스텝백 정회원 신장")[1]
+roster_block = stat.split("## 스텝백 로스터(정회원·게스트) 신장")[1]
 
 roster = []
 for r in rows(roster_block)[1:]:
@@ -314,20 +326,28 @@ for r in rows(roster_block)[1:]:
         continue
     nm = clean(r[0])
     no = clean(r[1]); h = clean(r[2]); pos = clean(r[3])
-    role = "준회원" if len(r) > 4 and "준회원" in clean(r[4]) else "정회원"
+    role = "게스트" if len(r) > 4 and "게스트" in clean(r[4]) else "정회원"
     roster.append(dict(name=nm, no=(None if no in ("-", "") else no),
                        height=(None if h in ("-", "") else int(h)), pos=pos,
                        posMain=pos.split("/")[0], role=role))
 
-# 로스터의 구분(정회원/준회원)을 순위 표에도 붙인다
+# 로스터의 구분(정회원/게스트)을 순위 표에도 붙인다
 ROLE = {r["name"]: r["role"] for r in roster}
 for p in members + outsiders:
     p["role"] = ROLE.get(p["name"], "정회원")
 
-assoc_names = [r["name"] for r in roster if r["role"] == "준회원"]
+guest_names = [r["name"] for r in roster if r["role"] == "게스트"]
 reg_names = [r["name"] for r in roster if r["role"] == "정회원"]
-if len(roster) != 21 or len(reg_names) != 18 or len(assoc_names) != 3:
-    errors.append(f"로스터 구분 인원 이상: 전체 {len(roster)} · 정회원 {len(reg_names)} · 준회원 {len(assoc_names)} ({', '.join(assoc_names)})")
+if len(roster) != 21 or len(reg_names) != 17 or len(guest_names) != 4:
+    errors.append(f"로스터 구분 인원 이상: 전체 {len(roster)} · 정회원 {len(reg_names)} · 게스트 {len(guest_names)} ({', '.join(guest_names)})")
+# 게스트 표(출전 + 미출전)와 로스터 게스트가 일치하는지
+if len(guests) != 75 or len([g for g in guests if not g["absent"]]) != 74:
+    errors.append(f"게스트 인원 이상: 표 {len(guests)}명(미출전 {len(absent_guests)}) — 74 출전 + 1 미출전 기대")
+missing_guest = [n for n in guest_names if n not in {g["name"] for g in guests}]
+if missing_guest:
+    errors.append("로스터 게스트가 게스트 표에 없음: " + ", ".join(missing_guest))
+if len(members) != 15 or len(outsiders) != 2:
+    errors.append(f"정규 순위 인원 이상: 정규 {len(members)} · 순위 외 {len(outsiders)} (15 · 2 기대)")
 
 # --- 스탯 열 완비 검사 (2점·3점·자유투·ORB·DRB·리바총합·어시·스틸·블락·턴오버·파울·MVP·출전)
 STAT_KEYS = ["pts", "ppg", "fg2", "fg3", "ft", "orb", "drb", "reb", "ast", "stl", "blk", "to", "pf", "mvp", "gp"]
@@ -347,7 +367,7 @@ for label, srows, exp in (("11/22", overall, 15), ("누적", career, 16)):
         errors.append(f"스탯 {label} 이름 정리 오류")
 
 print(f"스탯: 11/22 {len(overall)}명 · 누적 {len(career)}명 · 로스터 {len(roster)}명 · 열 {len(STAT_KEYS)}종(리바총합 포함) 확인")
-print(f"로스터 구분: 정회원 {len(reg_names)}명 · 준회원 {len(assoc_names)}명 ({', '.join(assoc_names)})")
+print(f"로스터 구분: 정회원 {len(reg_names)}명 · 게스트 {len(guest_names)}명 ({', '.join(guest_names)})")
 
 # --- 경기 날짜별 기록(11/22·11/15·11/08·11/01·10/25) 검산
 EXPECT_EVENTS = [("2026-11-22", 15, True), ("2026-11-15", 12, True), ("2026-11-08", 14, True),
@@ -381,6 +401,63 @@ for e, (ed, en, has_mvp) in zip(events, EXPECT_EVENTS):
 print("경기별: " + " · ".join(f"{e['date'][5:]}{('(' + e['tag'] + ')') if e['tag'] else ''} {len(e['rows'])}명" for e in events))
 print("총득점 검산 경고(시트 산식 차이):", warn if warn else "없음")
 
+# ---------------------------------------------------------------- 매치 프리뷰 (경기 전 예상)
+# basketball/stepback-match-preview.md — 회차(경기일)별 `### YYYY-MM-DD · 형식` 블록
+#   - **작성**: YYYY-MM-DD
+#   - **예상 1위**: 팀 승률%
+#   - **팀별 예상**  ->  `- 팀명 승률% — 선수, 선수, …`
+#   - **메모**: 한 줄
+def parse_previews(text):
+    out = {}
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.S)   # 예시 블록은 주석이라 건너뜁니다
+    text = re.sub(r"^```.*?^```", "", text, flags=re.S | re.M)   # 코드블록 안 예시도 건너뜁니다
+    for sec in re.split(r"^### ", text, flags=re.M)[1:]:
+        head, _, body = sec.partition("\n")
+        dm = re.match(r"(\d{4}-\d{2}-\d{2})\s*·\s*(.+?)\s*$", head.strip())
+        if not dm:
+            continue
+        date, wtype = dm.group(1), dm.group(2)
+        written, expected, note, teams = None, None, "", []
+        mode = None
+        for ln in body.splitlines():
+            s = ln.strip()
+            if not s or s.startswith(">") or s.startswith("<!--") or s.startswith("#"):
+                continue
+            if "**작성**" in s:
+                written = clean(re.split(r"[:：]", s, 1)[1]) if re.search(r"[:：]", s) else None
+                mode = None
+            elif "**예상 1위**" in s:
+                mv = re.search(r"([^\s:：]+)\s+([\d.]+)\s*%?", s.split("**", 2)[-1])
+                if mv:
+                    expected = dict(team=mv.group(1).strip(), rate=float(mv.group(2)))
+                mode = None
+            elif "**팀별 예상**" in s:
+                mode = "teams"
+            elif "**메모**" in s:
+                note = clean(re.split(r"[:：]", s, 1)[1]) if re.search(r"[:：]", s) else ""
+                mode = None
+            elif mode == "teams" and re.match(r"^[-*]\s+", s):
+                mt = re.match(r"^[-*]\s*(.+?)\s+([\d.]+)\s*%\s*(?:[—–\-]\s*)?(.*)$", s)
+                if mt:
+                    players = [p.strip() for p in re.split(r"[,·]", mt.group(3)) if p.strip()]
+                    teams.append(dict(team=mt.group(1).strip(), rate=float(mt.group(2)), players=players))
+        teams.sort(key=lambda t: -t["rate"])
+        if not teams:
+            continue
+        if not expected:
+            expected = dict(team=teams[0]["team"], rate=teams[0]["rate"])
+        out[date] = dict(date=date, type=wtype, written=written, expected=expected,
+                         teams=teams, note=note)
+    return out
+
+previews = parse_previews(prev_txt)
+print("매치 프리뷰:", ", ".join(f"{d}({p['type']}, {len(p['teams'])}팀)" for d, p in sorted(previews.items())) or "없음")
+last_date = weeks[-1]["date"]
+for d in previews:
+    if d not in {w["date"] for w in weeks} and d < last_date:
+        errors.append(f"프리뷰 날짜 {d} 가 회차 로그에 없습니다(오타?)")
+upcoming = [previews[d] for d in sorted(previews) if d > last_date]
+
 # ---------------------------------------------------------------- 하이라이트
 best = max(members, key=lambda p: p["rate"])
 most_w = max(members, key=lambda p: p["w"])
@@ -398,17 +475,19 @@ data = dict(
                 two=two_n, three=three_n),
     criteria=dict(minRate=40, minWeeks=18, totalWeeks=len(weeks),
                   text="전체 45회 중 참여율 40% 이상(18회 이상) — 동률 시 다승 → 경기수 → 가나다"),
-    members=members, outsiders=outsiders, absent=absent, absentAssoc=absent_assoc,
+    members=members, outsiders=outsiders, absent=absent, absentGuests=absent_guests,
     guests=guests, roster=roster,
-    rosterMeta=dict(total=len(roster), regular=len(reg_names), associate=len(assoc_names)),
+    rosterMeta=dict(total=len(roster), regular=len(reg_names), guest=len(guest_names)),
     stats=dict(event=dict(date=events[0]["date"], tag=events[0]["tag"], label="26.11.22 경기", rows=events[0]["rows"]),
                career=dict(date="2026-11-22", label="시즌 누적", rows=career),
                events=[dict(date=e["date"], tag=e["tag"],
                             label=e["date"][5:7] + "." + e["date"][8:10] + " 경기" + (" " + e["tag"] if e["tag"] else ""),
                             rows=e["rows"]) for e in events]),
     highlight=h,
-    weeks=[dict(date=w["date"], type=w["type"], note=w["note"], sheets=w["sheets"])
+    weeks=[dict(date=w["date"], type=w["type"], note=w["note"], sheets=w["sheets"],
+                preview=previews.get(w["date"]))
            for w in weeks],
+    upcomingPreviews=upcoming,
 )
 
 out_path = os.path.join(SITE, "src", "data.json")

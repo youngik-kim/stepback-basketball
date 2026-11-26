@@ -13,8 +13,12 @@ CODE = (os.environ.get('STEPBACK_ENTRY_CODE') or io.open(os.path.join(SITE, '.en
 DATA = json.loads(io.open(os.path.join(SITE, 'src', 'data.json'), encoding='utf-8').read())
 NAMES = {p['name'] for p in DATA['members'] + DATA['outsiders'] + DATA['guests'] + DATA['roster']} | set(DATA['absent'])
 TOP = DATA['members'][0]
-ASSOC = [r['name'] for r in DATA['roster'] if r.get('role') == '준회원']
+ROSTER_G = [r['name'] for r in DATA['roster'] if r.get('role') == '게스트']
 REG_N = sum(1 for r in DATA['roster'] if r.get('role') == '정회원')
+N_MEMBERS = len(DATA['members'])
+N_OUTSIDERS = len(DATA['outsiders'])
+N_GUESTS = len(DATA['guests'])
+GUEST_ABSENT = [g['name'] for g in DATA['guests'] if g.get('absent')]
 REB_LEAD = max(DATA['stats']['career']['rows'], key=lambda r: r['reb'])
 
 # ---- 개인 스탯 표 기대값 (basketball/2026-11-22-스텝백-개인스탯.md 원본 기준)
@@ -70,6 +74,8 @@ EXPECT_Q = [(f"{CELL_P[k] / CELL_P['gp']:.1f}" if CELL_P['gp'] else '–') for k
 PERQ_TOP = sorted(DATA['stats']['event']['rows'],
                   key=lambda r: (-(r['pts'] / r['gp'] if r['gp'] else -1), r['name']))[0]['name']
 CAREER_ROWS = DATA['stats']['career']['rows']
+CAREER_MVPQ = sorted([r for r in CAREER_ROWS if r['mvp'] is not None and r['gp']],
+                     key=lambda r: (-r['mvp'] / r['gp'], r['name']))
 CAREER_P = sorted(CAREER_ROWS, key=lambda r: (-r['pts'], r['name']))[0]
 CAREER_Q = [(f"{CAREER_P[k] / CAREER_P['gp']:.1f}" if CAREER_P['gp'] else '–') for k in PERQ_KEYS]
 BOTH_ROWS = [r for r in CAREER_ROWS if any(e['name'] == r['name'] for e in DATA['stats']['event']['rows'])]
@@ -169,6 +175,25 @@ RANK_ROWS, RANK_TOP, RANK_BOT = p_ranking(True)
 RANK_ROWS_NB, RANK_TOP_NB, _ = p_ranking(False)
 POS_UNKNOWN = [m['name'] for m in DATA['members'] if not pos_tokens(m['name'])]
 
+# ---- 📊 매치 프리뷰 검증용 예상값 (실제 최신 회차의 팀·명단으로 만든 테스트 프리뷰)
+_LATW = DATA['weeks'][-1]
+_PV_ST = _LATW['sheets'][0]['standings'][:3]
+_PV_ROST = _LATW['sheets'][0]['rosters']
+PV_WEEK = {
+    'date': _LATW['date'], 'type': _LATW['type'], 'written': _LATW['date'],
+    'expected': {'team': _PV_ST[0]['team'], 'rate': 58.0},
+    'teams': [{'team': s['team'], 'rate': 58.0 - 8 * i,
+               'players': _PV_ROST.get(s['team'], [])[:3]} for i, s in enumerate(_PV_ST)],
+    'note': '검증용 프리뷰 · 가드라인 균등 배분',
+}
+PV_NEXT = {
+    'date': '2026-11-29', 'type': '3파전', 'written': '2026-11-27',
+    'expected': {'team': _PV_ST[0]['team'], 'rate': 55.5},
+    'teams': [{'team': s['team'], 'rate': 55.5 - 6 * i,
+               'players': _PV_ROST.get(s['team'], [])[:3]} for i, s in enumerate(_PV_ST)],
+    'note': '다음 경기 검증용 프리뷰',
+}
+
 print("짝꿍 기대값 — 짝 %d · 균형 후보 %d · 전체 후보 %d · 포지션 미등록 %d"
       % (len(PAIR_TBL), len(RANK_ROWS), len(RANK_ROWS_NB), len(POS_UNKNOWN)))
 
@@ -265,11 +290,17 @@ with sync_playwright() as p:
         page.press("#code", "Enter")
         page.wait_for_selector(".hero h1", state="visible", timeout=8000)
         page.wait_for_timeout(500)
-        ok(f"{tag}: {CODE} 입장 성공", page.locator("#lock").is_hidden() and page.locator("#memberRows .rrow").count() == 16,
+        ok(f"{tag}: {CODE} 입장 성공", page.locator("#lock").is_hidden() and page.locator("#memberRows .rrow").count() == N_MEMBERS,
            f"정규 행 {page.locator('#memberRows .rrow').count()}")
         ok(f"{tag}: 승률 1위 {TOP['name']} {TOP['rate']}%", page.locator("#memberRows .rrow").first.inner_text().find(str(TOP['rate'])) >= 0,
            page.locator("#memberRows .rrow").first.inner_text().replace("\n", " | ")[:70])
         page.screenshot(path=f"{OUT}/{tag}_3_home.png")
+
+        # 3-2) 게스트/정회원 구분 — 화면 어디에도 '준회원' 표기가 없어야 함
+        body_txt = page.inner_text("body")
+        ok(f"{tag}: 화면에 '준회원' 표기 0건", "준회원" not in body_txt,
+           "준회원 포함" if "준회원" in body_txt else "")
+        ok(f"{tag}: 소스에도 '준회원' 문자열 없음", "준회원" not in page.content())
 
         # 3-0) 우측 상단 로고·유튜브 배지
         ytb = page.locator(".hero .ytbadge")
@@ -445,6 +476,14 @@ with sync_playwright() as p:
           });
           return out;
         }""")
+        ok(f"{tag}: 요약 카드 라벨 4종 = 승률·경기·정회원·게스트",
+           [x["txt"] for x in lab][1:] == ["경기", "정회원", "게스트"]
+           and lab[0]["txt"].startswith("승률") and "%" in lab[0]["txt"],
+           " | ".join(x["txt"] for x in lab))
+        hero_v = page.eval_on_selector_all("#heroStats .stat", "els=>els.map(e=>e.querySelector('.v').innerText)")
+        ok(f"{tag}: 요약 카드 값 — 승률 1위 {TOP['name']} · 경기 {DATA['period']['games']} · 정회원 {REG_N} · 게스트 {N_GUESTS}",
+           hero_v == [TOP['name'], f"{DATA['period']['games']}경기", f"{REG_N}명", f"{N_GUESTS}명"],
+           " / ".join(hero_v))
         ok(f"{tag}: 요약 카드 라벨 한 줄·좌우 여백",
            all(x["lines"] == 1 and x["leftMargin"] >= 3 and x["rightMargin"] >= 3 and x["overflow"] <= 0 for x in lab),
            "; ".join(f"{x['txt']}: {x['leftMargin']:.1f}/{x['rightMargin']:.1f}" for x in lab))
@@ -457,33 +496,35 @@ with sync_playwright() as p:
         def to_top():
             page.evaluate("window.scrollTo(0,0)"); page.wait_for_timeout(250)
 
-        # 정규 → 최종 승률 섹션
+        # 승률 → 승률 순위 섹션
         to_top(); cards.nth(0).click(); page.wait_for_timeout(900)
         t = near_top("#secRank")
-        ok(f"{tag}: '정규' 카드 → 최종 승률 섹션", page.evaluate("window.scrollY") > 100 and -2 <= t <= 70, f"top={t:.0f}")
+        ok(f"{tag}: '승률' 카드 → 승률 순위 섹션", page.evaluate("window.scrollY") > 100 and -2 <= t <= 70, f"top={t:.0f}")
 
         # 경기 → 주간 결과 전체 섹션
         to_top(); cards.nth(1).click(); page.wait_for_timeout(1200)
         t = near_top("#secWeeks")
         ok(f"{tag}: '경기' 카드 → 주간 결과 전체 섹션", page.evaluate("window.scrollY") > 100 and -2 <= t <= 70, f"top={t:.0f}")
 
+        # 정회원 → 로스터 섹션
+        to_top(); cards.nth(2).click(); page.wait_for_timeout(1000)
+        t = near_top("#secRoster")
+        ok(f"{tag}: '정회원' 카드 → 로스터 정보 섹션", page.evaluate("window.scrollY") > 100 and -2 <= t <= 70,
+           f"top={t:.0f} scroll={page.evaluate('window.scrollY')}")
+
         # 게스트 → 접혀 있으면 펼치고 게스트 섹션
         page.evaluate("document.querySelector('#guestBox').open=false"); to_top()
-        cards.nth(2).click(); page.wait_for_timeout(1000)
+        cards.nth(3).click(); page.wait_for_timeout(1000)
         t = near_top("#guestBox")
         ok(f"{tag}: '게스트' 카드 → 펼침+게스트 섹션",
            page.eval_on_selector("#guestBox", "el=>el.open") and -2 <= t <= 70,
            f"open={page.eval_on_selector('#guestBox','el=>el.open')} top={t:.0f}")
-        ok(f"{tag}: 게스트 목록 채워짐", page.locator("#guestRows .grow").count() == len(DATA['guests']),
-           f"{page.locator('#guestRows .grow').count()}")
-
-        # 최고 승률 → 그 선수 개인 카드
-        to_top(); cards.nth(3).click()
-        page.wait_for_selector("#modal:not([hidden])", timeout=4000)
-        ok(f"{tag}: '최고 승률' 카드 → {TOP['name']} 개인 카드",
-           page.inner_text("#mName").find(TOP['name']) >= 0 and f"{TOP['rate']}" in page.inner_text("#mBody"),
-           page.inner_text("#mName"))
-        page.keyboard.press("Escape"); page.wait_for_timeout(300)
+        ok(f"{tag}: 게스트 목록 {N_GUESTS}명(미출전 {len(GUEST_ABSENT)}명 포함)",
+           page.locator("#guestRows .grow").count() == N_GUESTS, f"{page.locator('#guestRows .grow').count()}")
+        ok(f"{tag}: 게스트 목록 — 출전 없는 게스트 표기",
+           page.locator("#guestRows .grow.absent").count() == len(GUEST_ABSENT)
+           and (not GUEST_ABSENT or "출전 기록 없음" in page.inner_text("#guestRows")),
+           f"absent rows={page.locator('#guestRows .grow.absent').count()}")
         to_top()
 
         # 4) 가로 스크롤 없음
@@ -530,6 +571,8 @@ with sync_playwright() as p:
            any(r["tag"] == "기록" for r in rows) and "45회차" in bodytxt and "승률" in bodytxt)
         ok(f"{tag}: 변경점 — 기능 이력 키워드(장단점·보안·길찾기·15열·개인 상세정보)",
            all(k in bodytxt for k in ["플레이 장점", "보안 안내", "길찾기", "15열", "개인 상세정보"]))
+        ok(f"{tag}: 변경점 최신 항목 — 게스트 전환·4칸·MVP 정렬·매치 프리뷰",
+           all(k in bodytxt for k in ["게스트", "정회원", "MVP", "매치 프리뷰"]))
         page.screenshot(path=f"{OUT}/{tag}_4_chg_modal.png")
         page.keyboard.press("Escape"); page.wait_for_timeout(300)
         ok(f"{tag}: 변경점 시트 ESC 닫힘·스크롤 복구", page.locator("#chgModal").is_hidden()
@@ -546,7 +589,7 @@ with sync_playwright() as p:
         # 5) 재접속 유지 (새로고침)
         page.reload(wait_until="load")
         page.wait_for_timeout(700)
-        ok(f"{tag}: 새로고침 자동 입장", page.locator("#lock").is_hidden() and page.locator("#memberRows .rrow").count() == 16)
+        ok(f"{tag}: 새로고침 자동 입장", page.locator("#lock").is_hidden() and page.locator("#memberRows .rrow").count() == N_MEMBERS)
 
         # 6) 주차 전환: 첫 회차
         opts = page.evaluate("Array.from(document.querySelectorAll('#weekSel option')).map(o=>o.value)")
@@ -563,7 +606,7 @@ with sync_playwright() as p:
         # 최신 버튼
         page.click("#latestBtn")
         page.wait_for_timeout(500)
-        ok(f"{tag}: 최신 복귀", page.locator("#latestBtn").is_hidden() and page.locator("#memberRows .rrow").count() == 16)
+        ok(f"{tag}: 최신 복귀", page.locator("#latestBtn").is_hidden() and page.locator("#memberRows .rrow").count() == N_MEMBERS)
 
         # 7) 다음/이전 버튼
         page.click("#prevBtn")
@@ -577,7 +620,7 @@ with sync_playwright() as p:
         n_reg = page.locator("#memberRows .rrow").count()
         n_out = page.locator("#outRows .otile").count()
         hint = page.inner_text("#searchHint")
-        ok(f"{tag}: 검색 필터", n_reg == 5 and n_out == 1 and "검색 결과" in hint, f"정규 {n_reg} / 순위외 {n_out} / {hint}")
+        ok(f"{tag}: 검색 필터", n_reg == 4 and n_out == 0 and "검색 결과" in hint, f"정규 {n_reg} / 순위외 {n_out} / {hint}")
         page.locator("#clr").click(); page.wait_for_timeout(250)
 
         # 9) 개인 카드
@@ -702,6 +745,8 @@ with sync_playwright() as p:
         page.screenshot(path=f"{OUT}/{tag}_6b_stats_left.png")
 
         # 헤더 클릭 정렬 — 14개 열 전부(직전 경기 기준)
+        # 기준 열을 한 번 바꿔 두어 아래 각 열의 첫 클릭이 항상 '내림차순'이 되게 합니다
+        page.click("#statHead [data-sort='gp']"); page.wait_for_timeout(150)
         for key in STAT_KEYS:
             page.click(f"#statHead [data-sort='{key}']"); page.wait_for_timeout(120)
             top = page.eval_on_selector("#statRows .strow th.pcol b", "el=>el.innerText.trim()")
@@ -733,6 +778,44 @@ with sync_playwright() as p:
         first = page.eval_on_selector("#statRows .strow th.pcol b", "el=>el.innerText.trim()")
         ok(f"{tag}: 턴오버 정렬", first == SORT_TOP['career']['to'], first)
         page.screenshot(path=f"{OUT}/{tag}_6d_stats_career.png")
+
+        # 시즌 누적(쿼터당) — MVP 열이 화면 값(MVP÷출전) 그대로 정렬되는지(내림/오름)
+        def mvp_col():
+            return page.evaluate("""() => {
+              const heads = [...document.querySelectorAll('#statHead th')].map(t => t.innerText.trim());
+              const i = heads.findIndex(h => h.startsWith('MVP'));
+              return [...document.querySelectorAll('#statRows .strow')].map(r => {
+                const td = r.querySelectorAll('td')[i - 1];
+                return { name: r.querySelector('.who b').innerText.trim(), v: td ? td.innerText.trim() : '' };
+              });
+            }""")
+        page.click("#tabCareerQ"); page.wait_for_timeout(350)
+        page.click("#statHead [data-sort='mvp']"); page.wait_for_timeout(250)
+        col = mvp_col()
+        vals = [float(x['v']) for x in col if x['v'] != '–']
+        ok(f"{tag}: 쿼터당 MVP 내림차순 — {vals and f'{vals[0]:.2f}'} 첫 행 {col[0]['name'] if col else ''}",
+           vals == sorted(vals, reverse=True) and CAREER_MVPQ and col[0]['name'] == CAREER_MVPQ[0]['name']
+           and abs(vals[0] - CAREER_MVPQ[0]['mvp'] / CAREER_MVPQ[0]['gp']) <= 0.0051,
+           f"{vals[:5]} vs {[round(r['mvp'] / r['gp'], 2) for r in CAREER_MVPQ[:5]]}")
+        ok(f"{tag}: 쿼터당 MVP 값 = MVP÷출전(2자리)",
+           all(abs(float(x['v']) - next(r['mvp'] / r['gp'] for r in CAREER_ROWS if r['name'] == x['name'])) <= 0.0051
+               for x in col if x['v'] != '–'),
+           " / ".join(f"{x['name']} {x['v']}" for x in col[:3]))
+        page.screenshot(path=f"{OUT}/{tag}_6d2_mvp_perq.png")
+        page.click("#statHead [data-sort='mvp']"); page.wait_for_timeout(250)
+        col_a = mvp_col()
+        vals_a = [float(x['v']) for x in col_a if x['v'] != '–']
+        ok(f"{tag}: 쿼터당 MVP 다시 누르면 오름차순",
+           vals_a == sorted(vals_a) and col_a[0]['name'] == CAREER_MVPQ[-1]['name']
+           and page.get_attribute("#statHead th[data-col='mvp']", 'aria-sort') == 'ascending',
+           f"{vals_a[:5]} first={col_a[0]['name']} ({CAREER_MVPQ[-1]['name']})")
+        page.click("#sortRow [data-sort='mvp']"); page.wait_for_timeout(250)
+        col_d = mvp_col()
+        ok(f"{tag}: MVP 정렬 칩으로 다시 내림차순",
+           [float(x['v']) for x in col_d if x['v'] != '–'] == vals and col_d[0]['name'] == CAREER_MVPQ[0]['name']
+           and page.get_attribute("#statHead th[data-col='mvp']", 'aria-sort') == 'descending',
+           f"first={col_d[0]['name']}")
+        page.click("#tabCareer"); page.wait_for_timeout(250)
 
         # 개인 카드(모달) — 같은 3모드
         page.click("#sortRow [data-sort='pts']"); page.wait_for_timeout(200)
@@ -792,22 +875,29 @@ with sync_playwright() as p:
         page.locator("#secRoster").scroll_into_view_if_needed()
         ok(f"{tag}: 로스터 21명", page.locator("#rosterGrid .rcell").count() == 21, f"{page.locator('#rosterGrid .rcell').count()}")
         rsum = page.inner_text("#rosterSum")
-        ok(f"{tag}: 로스터 정회원 {REG_N} · 준회원 {len(ASSOC)} 배지",
-           f"정회원 {REG_N}명" in rsum and f"준회원 {len(ASSOC)}명" in rsum, rsum.replace("\n", " "))
-        page.click('[data-pos="ASSOC"]'); page.wait_for_timeout(250)
-        ok(f"{tag}: 준회원 필터 {len(ASSOC)}명", page.locator("#rosterGrid .rcell").count() == len(ASSOC)
-           and page.locator("#rosterGrid .rcell.assoc .rrole").count() == len(ASSOC),
-           f"{page.locator('#rosterGrid .rcell').count()} / 배지 {page.locator('#rosterGrid .rcell.assoc .rrole').count()}")
-        page.screenshot(path=f"{OUT}/{tag}_7b_assoc.png")
+        ok(f"{tag}: 로스터 정회원 {REG_N} · 게스트 {len(ROSTER_G)}",
+           f"정회원 {REG_N}명" in rsum and f"게스트 {len(ROSTER_G)}명" in rsum and "준회원" not in rsum, rsum.replace("\n", " "))
+        page.click('[data-pos="GST"]'); page.wait_for_timeout(250)
+        ok(f"{tag}: 게스트 필터 {len(ROSTER_G)}명(백넘버 보유)", page.locator("#rosterGrid .rcell").count() == len(ROSTER_G)
+           and page.locator("#rosterGrid .rcell.gst .rrole").count() == len(ROSTER_G),
+           f"{page.locator('#rosterGrid .rcell').count()} / 배지 {page.locator('#rosterGrid .rcell.gst .rrole').count()}")
+        page.screenshot(path=f"{OUT}/{tag}_7b_guest_roster.png")
         page.click('[data-pos="ALL"]'); page.wait_for_timeout(200)
-        ok(f"{tag}: 로스터 준회원 카드 배지", page.locator("#rosterGrid .rcell.assoc").count() == len(ASSOC),
-           f"{page.locator('#rosterGrid .rcell.assoc').count()}")
-        if ASSOC:
-            page.locator("#rosterGrid .rcell.assoc").first.click()
+        ok(f"{tag}: 로스터 게스트 카드 배지", page.locator("#rosterGrid .rcell.gst").count() == len(ROSTER_G),
+           f"{page.locator('#rosterGrid .rcell.gst').count()}")
+        gnum = page.evaluate("""() => [...document.querySelectorAll('#rosterGrid .rcell.gst')].map(e => [e.dataset.person, e.querySelector('.no').innerText.trim(), e.querySelector('.rrole').innerText.trim()])""")
+        gexp = {r['name']: str(r['no']) for r in DATA['roster'] if r.get('role') == '게스트'}
+        ok(f"{tag}: 로스터 게스트 4명 백넘버 표기(#1·#5·#34·#96)",
+           {x[0]: x[1] for x in gnum} == gexp and all(x[2] == "게스트" for x in gnum),
+           str(gnum))
+        if ROSTER_G:
+            page.locator("#rosterGrid .rcell.gst").first.click()
             page.wait_for_selector("#modal:not([hidden])", timeout=4000)
-            ok(f"{tag}: 준회원 개인 카드 이름 옆 배지", "준회원" in page.inner_text("#mName"), page.inner_text("#mName"))
-            ok(f"{tag}: 준회원 개인 카드 승률/기록", "승률" in page.inner_text("#mBody"))
-            page.screenshot(path=f"{OUT}/{tag}_7c_assoc_modal.png")
+            ok(f"{tag}: 게스트 개인 카드 배지(이름 옆 기재 없음·배지 게스트)",
+               "게스트" in page.inner_text("#mBody") and "준회원" not in page.inner_text("#mBody"),
+               page.inner_text("#mBody")[:60].replace("\n", " | "))
+            ok(f"{tag}: 게스트 개인 카드 승률/기록", "승률" in page.inner_text("#mBody"))
+            page.screenshot(path=f"{OUT}/{tag}_7c_guest_modal.png")
             page.keyboard.press("Escape"); page.wait_for_timeout(250)
         page.click('[data-pos="PG"]'); page.wait_for_timeout(250)
         ok(f"{tag}: PG 필터 4명", page.locator("#rosterGrid .rcell").count() == 4, f"{page.locator('#rosterGrid .rcell').count()}")
@@ -820,10 +910,55 @@ with sync_playwright() as p:
         page.wait_for_timeout(250)
         ok(f"{tag}: 주간 펼침", page.locator('#weekList .wkcard').nth(1).get_attribute("open") is not None)
 
+        # 12-0) 📊 매치 프리뷰 & 승률 예상 — 경기 결과 표시 + 결과 후 예상↔실제 비교
+        page.evaluate("""(pv) => {
+          DATA.weeks[DATA.weeks.length - 1].preview = pv.week;
+          DATA.upcomingPreviews = [pv.next];
+          renderResult(); renderWeeks();
+        }""", {"week": PV_WEEK, "next": PV_NEXT})
+        page.wait_for_timeout(350)
+        tb = page.inner_text("#resultCard .pvbox")
+        ok(f"{tag}: 결과 카드에 '매치 프리뷰 & 승률 예상'", page.locator("#resultCard .pvbox").count() == 1
+           and "매치 프리뷰 & 승률 예상" in tb and "작성" in tb)
+        ok(f"{tag}: 프리뷰 — 예상 1위·팀별 승률·선수 명단",
+           PV_WEEK['teams'][0]['team'] in tb and f"{PV_WEEK['teams'][0]['rate']:.1f}%" in tb
+           and all(t['team'] in tb for t in PV_WEEK['teams'])
+           and (not PV_WEEK['teams'][0]['players'] or PV_WEEK['teams'][0]['players'][0] in tb),
+           tb.replace("\n", " | ")[:110])
+        cmp_rows = page.eval_on_selector_all("#resultCard .pvcmp tbody tr",
+                                            "els=>els.map(e=>e.innerText.replace(/\\s+/g,' ').trim())")
+        ok(f"{tag}: 프리뷰 ↔ 실제 비교 표 {len(PV_WEEK['teams'])}팀",
+           len(cmp_rows) == len(PV_WEEK['teams']) and all("→" in r and "%" in r for r in cmp_rows),
+           " / ".join(cmp_rows))
+        ok(f"{tag}: 프리뷰 예상 1위 → 실제 순위 비교 문장",
+           "예상 1위" in tb and "실제" in tb and "→" in tb)
+        up = page.inner_text("#previewSlot")
+        ok(f"{tag}: 다음 경기 프리뷰 카드({PV_NEXT['date'][5:]})", "매치 프리뷰 & 승률 예상" in up
+           and PV_NEXT['date'][5:].replace('-', '/') in up and PV_NEXT['teams'][0]['team'] in up,
+           up.replace("\n", " | ")[:90])
+        ok(f"{tag}: 주간 카드에 프리뷰 배지·내용 보존", page.locator("#weekList .wkcard .pvtag").count() >= 2
+           and page.locator("#weekList .wkcard .pvbox").count() == 1)
+        page.eval_on_selector(f"#weekList .wkcard[data-date='{PV_WEEK['date']}'] .pvbox", "e=>e.open=true")
+        page.wait_for_timeout(200)
+        wk_txt = page.eval_on_selector(f"#weekList .wkcard[data-date='{PV_WEEK['date']}'] .pvbox", "e=>e.innerText")
+        ok(f"{tag}: 주간 카드 프리뷰 내용(팀·비교)", PV_WEEK['teams'][0]['team'] in wk_txt and "예상" in wk_txt,
+           wk_txt.replace("\n", " | ")[:90])
+        swp = page.evaluate("document.documentElement.scrollWidth - innerWidth")
+        ok(f"{tag}: 프리뷰 카드 가로 넘칠 없음", swp <= 1, f"overflow={swp}")
+        page.eval_on_selector("#resultCard .pvbox", "e=>e.scrollIntoView({block:'center'})")
+        page.wait_for_timeout(200)
+        page.screenshot(path=f"{OUT}/{tag}_13_preview.png")
+        page.evaluate("""() => { DATA.weeks[DATA.weeks.length - 1].preview = null; DATA.upcomingPreviews = []; renderResult(); renderWeeks(); }""")
+        page.wait_for_timeout(250)
+        ok(f"{tag}: 프리뷰 없으면 영역 숨김", page.locator("#resultCard .pvbox").count() == 0
+           and page.inner_text("#previewSlot").strip() == "")
+
         # 12-1) 개인 상세정보(키·넘버·포지션) 입력·업데이트 + 카톡 복사 — 정회원·준회원 / 게스트 제외
         NO_NUM = [r['name'] for r in DATA['roster'] if r.get('no') in (None, '')]
-        REG_NM, ASSOC_NM = '김영익', ASSOC[0]
-        GST_NM = DATA['guests'][0]['name']
+        REG_NM = '김영익'
+        ROSTER_SET = {r['name'] for r in DATA['roster']}
+        GST_NM = [g['name'] for g in DATA['guests']
+                  if g['name'] not in ROSTER_SET and not g.get('absent')][0]
 
         def open_card(nm):
             page.evaluate("document.querySelector('#modal').hidden=true;document.body.style.overflow=''")
@@ -874,8 +1009,13 @@ with sync_playwright() as p:
                page.is_checked("#pNumNone") and page.eval_on_selector("#pNumber", "el=>el.disabled"))
             page.keyboard.press("Escape"); page.wait_for_timeout(150)
             ok(f"{tag}: 로스터 {nm} 번호칸 '없음'", page.eval_on_selector(f"#rosterGrid [data-person='{nm}'] .no", "el=>el.innerText").strip() == "없음")
-        open_card(ASSOC_NM)
-        ok(f"{tag}: 준회원({ASSOC_NM})도 '개인정보 업데이트하기'", page.locator("#pInfoSlot .openbtn").count() == 1)
+        GST_ROSTER_NM = ROSTER_G[0]
+        open_card(GST_ROSTER_NM)
+        ok(f"{tag}: 로스터 게스트({GST_ROSTER_NM})도 '개인정보 업데이트하기'(자동 오픈 없음)",
+           page.locator("#pInfoSlot .openbtn").count() == 1 and page.locator("#pInfo").count() == 0
+           and page.inner_text("#pInfoSlot").strip() == "개인정보 업데이트하기"
+           and "게스트" in page.inner_text("#mBody"),
+           page.inner_text("#pInfoSlot"))
         page.keyboard.press("Escape"); page.wait_for_timeout(150)
         def open_guest(nm):
             page.evaluate("""(n) => { document.querySelector('#guestBox').open = true;
@@ -971,7 +1111,7 @@ with sync_playwright() as p:
     ctx.close()
 
     # ---- 🤝 짝꿍 승률 계산기 (새 컨텍스트 — 개인정보 localStorage 영향 없음) ----
-    N_PICK = len(DATA['members']) + len(DATA['outsiders']) + len(DATA['guests'])
+    N_PICK = len(DATA['members']) + len(DATA['outsiders']) + len([g for g in DATA['guests'] if not g.get('absent')])
     for tag, vw_, vh_ in [("m", 390, 844), ("d", 1280, 800)]:
         ctx = browser.new_context(viewport={"width": vw_, "height": vh_},
                                   device_scale_factor=2 if tag == "m" else 1)
@@ -1007,7 +1147,7 @@ with sync_playwright() as p:
         PMOD = page.inner_text("#pairModal")
         ok(f"{tag}: 짝꿍 — 팀 수(2·3파전) 구분 UI 없음(단일 계산)",
            "2파전" not in PMOD and "3파전" not in PMOD and "모든 회차 통합" in PMOD)
-        ok(f"{tag}: 짝꿍 — 선택 칩 {N_PICK}명(회원 20 + 게스트 71)",
+        ok(f"{tag}: 짝꿍 — 선택 칩 {N_PICK}명(회원 {N_MEMBERS + N_OUTSIDERS} + 게스트 {len(DATA['guests']) - len(GUEST_ABSENT)})",
            page.locator("#pChips .pchip").count() == N_PICK, str(page.locator("#pChips .pchip").count()))
         ok(f"{tag}: 짝꿍 — 시작 상태 안내·선택 0/7", page.inner_text("#pCount").strip() == "0"
            and "예상 승률이 바로 계산됩니다" in page.inner_text("#pResult"))
@@ -1090,11 +1230,11 @@ with sync_playwright() as p:
            f"{p_val()} / {p_meta_text()}")
         # 게스트 포함 토글 OFF → 정회원+순위외 20명만
         page.uncheck("#pGuest"); page.wait_for_timeout(200)
-        ok(f"{tag}: 짝꿍 — '게스트 포함' 해제 시 20명",
+        ok(f"{tag}: 짝꿍 — '게스트 포함' 해제 시 {N_MEMBERS + N_OUTSIDERS}명",
            page.locator("#pChips .pchip").count() == len(DATA['members']) + len(DATA['outsiders']),
            str(page.locator("#pChips .pchip").count()))
         page.check("#pGuest"); page.wait_for_timeout(200)
-        ok(f"{tag}: 짝꿍 — '게스트 포함' 다시 켜면 91명", page.locator("#pChips .pchip").count() == N_PICK)
+        ok(f"{tag}: 짝꿍 — '게스트 포함' 다시 켜면 {N_PICK}명", page.locator("#pChips .pchip").count() == N_PICK)
 
         # 칩 말줄임·가로 넘침 없음
         trunc = page.evaluate("""() => {
