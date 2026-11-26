@@ -1386,7 +1386,7 @@ function renderRoster() {
     const pf = effProfile(r.name), no = profNumberText(pf);
     return `<button class="rcell ${r.role === '준회원' ? 'assoc' : ''}" data-person="${esc(r.name)}"${r.role === '준회원' ? ` aria-label="${esc(r.name)} 준회원 개인 카드 보기"` : ''}>
       <span class="no${pf.number === null ? ' none' : ''}">${pf.number === null ? '없음' : (pf.number === undefined || pf.number === '' ? '–' : esc(pf.number))}</span>
-      <span class="nmn"><b>${hl(r.name, Q)}</b><span>${(pf.height ? pf.height + 'cm' : '–')} · ${esc(pf.position || '–')}${r.role === '준회원' ? '<i class="rrole">준회원</i>' : ''}</span></span>
+      <span class="nmn"><b>${hl(r.name, Q)}</b><span>${pf.number === null ? '번호없음 · ' : ''}${(pf.height ? pf.height + 'cm' : '–')} · ${esc(pf.position || '–')}${r.role === '준회원' ? '<i class="rrole">준회원</i>' : ''}</span></span>
     </button>`;
   }).join('')
     : `<div class="nores" style="grid-column:1/-1">${Q ? '해당 이름이 없습니다.' : POS_FILTER === 'ASSOC' ? '준회원이 없습니다.' : '해당 포지션이 없습니다.'}</div>`;
