@@ -38,7 +38,7 @@ body.locked .wrap{display:none}
 
 /* ---------- lock ---------- */
 .lock{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
-  padding:22px;background:
+  padding:22px;overflow:auto;background:
     radial-gradient(600px 380px at 50% 0%, rgba(51,224,196,.18), transparent 70%),
     radial-gradient(500px 300px at 90% 100%, rgba(91,156,255,.14), transparent 70%),
     #05070d}
@@ -47,6 +47,9 @@ body.locked .wrap{display:none}
   background:linear-gradient(170deg,rgba(22,33,56,.96),rgba(11,17,32,.96));
   border:1px solid var(--line2);box-shadow:0 24px 70px rgba(0,0,0,.55)}
 .lball{font-size:34px;line-height:1;filter:drop-shadow(0 0 18px rgba(51,224,196,.45))}
+.llogo{display:flex;justify-content:center;margin:0 0 2px}
+.llogo svg{width:56px;height:56px;display:block;filter:drop-shadow(0 0 18px rgba(51,224,196,.45))}
+@media (max-width:370px){.llogo svg{width:48px;height:48px}}
 .leyebrow{margin-top:10px;font-size:10px;letter-spacing:.28em;font-weight:800;color:var(--acc)}
 .lockcard h1{margin:8px 0 6px;font-size:24px;letter-spacing:-.02em;font-weight:900}
 .lockcard .sub{font-size:12px;color:var(--tx2);line-height:1.6;margin:0 0 16px}
@@ -64,14 +67,28 @@ body.locked .wrap{display:none}
 .lerr.ok{color:var(--acc)}
 .lockcard.shake{animation:shake .32s}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}
-.lfoot{margin:14px 0 0;font-size:10.5px;color:var(--tx3);line-height:1.6}
+.lfoot{margin:12px 0 0;font-size:10.5px;color:var(--tx3);line-height:1.6}
+/* 게이트 하단 — 팀원 안심용 보안 안내 */
+.lsec{list-style:none;margin:13px 0 0;padding:10px 11px;border:1px solid var(--line);border-radius:12px;
+  background:rgba(255,255,255,.035);text-align:left;font-size:10.5px;line-height:1.55;color:var(--tx2)}
+.lsec li{position:relative;padding-left:11px;margin:0 0 5px;word-break:keep-all}
+.lsec li:last-child{margin:0}
+.lsec li::before{content:"";position:absolute;left:0;top:6px;width:4px;height:4px;border-radius:50%;
+  background:var(--acc);opacity:.85}
+.lsec b{color:var(--tx);font-weight:900;margin-right:4px}
 
 /* ---------- hero ---------- */
 .hero{padding:18px 0 8px}
-.eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.12em;
+.eyebrow{display:inline-flex;align-items:center;gap:6px;flex-direction:row;font-size:10.5px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--acc);font-weight:800;
   background:rgba(51,224,196,.10);border:1px solid rgba(51,224,196,.28);
-  padding:4px 9px;border-radius:999px}
+  padding:4px 9px;border-radius:999px;
+  appearance:none;-webkit-appearance:none;font-family:inherit;cursor:pointer;text-align:left}
+.eyebrow .gnav{font-size:9.5px;letter-spacing:.02em;text-transform:none;color:var(--acc);opacity:.9;
+  border-left:1px solid rgba(51,224,196,.35);padding-left:6px;margin-left:1px;white-space:nowrap}
+.eyebrow:active{transform:scale(.98)}
+.eyebrow:focus-visible{outline:2px solid rgba(51,224,196,.6);outline-offset:2px}
+@media (hover:hover){.eyebrow:hover{border-color:rgba(51,224,196,.55);background:rgba(51,224,196,.16)}}
 .hero h1{margin:10px 0 4px;font-size:27px;line-height:1.05;letter-spacing:-.02em;font-weight:900;
   display:flex;align-items:baseline;gap:10px}
 .hero h1 .en{font-size:10px;letter-spacing:.38em;color:var(--tx3);font-weight:800}
@@ -81,6 +98,21 @@ body.locked .wrap{display:none}
 .heroTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .heroLeft{flex:1 1 auto;min-width:0}
 .hero h1{flex-wrap:wrap;row-gap:0}
+.heroRight{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:0 0 auto;margin-top:1px}
+.heroRight .ytbadge{margin-top:0}
+/* 네이버 밴드 바로가기 (유튜브 배지 아래 stack) */
+.bandbadge{display:inline-flex;align-items:center;gap:6px;padding:4px 9px 4px 4px;border-radius:12px;
+  background:linear-gradient(150deg,#152a1e 0%,#101b15 58%,#0a1210 100%);
+  border:1px solid rgba(0,199,60,.46);text-decoration:none;color:var(--tx);
+  box-shadow:0 4px 12px rgba(0,0,0,.38);transition:transform .13s ease,border-color .15s ease}
+.bandbadge .bandico{width:24px;height:24px;border-radius:8px;background:#00c73c;color:#04240f;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex:0 0 auto;
+  letter-spacing:-.03em;box-shadow:inset 0 -1px 0 rgba(0,0,0,.18)}
+.bandbadge .bandtx{font-size:9.5px;font-weight:900;color:#c8f2d6;white-space:nowrap;letter-spacing:.01em}
+.bandbadge .ytarrow{font-size:9px;font-weight:900;color:#3ce56e}
+.bandbadge:active{transform:scale(.96)}
+.bandbadge:focus-visible{outline:2px solid rgba(0,199,60,.7);outline-offset:2px}
+@media (hover:hover){.bandbadge:hover{border-color:rgba(0,199,60,.8);box-shadow:0 6px 16px rgba(0,0,0,.45)}}
 .ytbadge{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;
   margin-top:1px;padding:5px 9px 5px 5px;border-radius:13px;overflow:hidden;
   background:linear-gradient(150deg,#1d2c47 0%,#111b2d 58%,#0a1120 100%);
@@ -102,8 +134,9 @@ body.locked .wrap{display:none}
 @media (hover:hover){.ytbadge:hover{border-color:rgba(255,209,102,.62);
   box-shadow:0 8px 22px rgba(0,0,0,.5),0 0 0 3px rgba(51,224,196,.12)}}
 .ytbadge:focus-visible{outline:2px solid rgba(51,224,196,.65);outline-offset:2px}
-@media (max-width:430px){.ytbadge{padding:4px 8px 4px 5px;gap:5px}.ytplay{font-size:9px;gap:2.5px}
-  .ytplay .pl{width:11px;height:8.5px}.ytarrow{font-size:8.5px}.ytname{letter-spacing:.14em}}
+@media (max-width:430px){.heroRight{gap:5px}
+  .bandbadge{padding:3px 8px 3px 3px;gap:5px}.bandbadge .bandico{width:21px;height:21px;font-size:12px;border-radius:7px}
+  .bandbadge .bandtx{font-size:9px}.bandbadge .ytarrow{font-size:8.5px}}
 @media (max-width:370px){.ytball{width:23px;height:23px}.ytname{font-size:8px;letter-spacing:.12em}
   .ytplay{font-size:9px}.ytplay .pl{width:11px;height:8.5px}}
 /* 상단 요약 카드 — 탭하면 해당 섹션으로 이동 · 390px 에서 라벨 잘림 없도록 여백/글자 크기 보정 */
@@ -516,6 +549,33 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mempty{color:var(--tx3);font-size:12px;line-height:1.5}
 .masof{font-size:10.5px;color:var(--tx3);margin-top:9px}
 
+/* ---------- 구장 길찾기 시트 ---------- */
+#navModal .sheet{max-width:520px}
+.nvhead h2{margin:6px 40px 2px 0;font-size:20px;font-weight:900;letter-spacing:-.02em}
+.nvsub{font-size:11.5px;color:var(--acc);font-weight:800}
+.nvgym{margin:13px 0 12px;padding:12px;border:1px solid var(--line2);border-radius:14px;background:rgba(255,255,255,.04)}
+.nvgym .gname{font-size:15px;font-weight:900;letter-spacing:-.01em}
+.nvgym .gaddr{font-size:12px;color:var(--tx2);margin-top:3px;font-weight:700;word-break:keep-all}
+.nvgym .copyaddr{margin-top:9px;height:34px;padding:0 12px;border-radius:9px;border:1px solid rgba(51,224,196,.4);
+  background:rgba(51,224,196,.12);color:var(--acc);font-size:11.5px;font-weight:900;cursor:pointer;font-family:inherit}
+.nvgym .addrstat{font-size:10.5px;font-weight:800;color:var(--green);margin-top:7px;min-height:0;line-height:1.4}
+.nvgym .addrstat:empty{display:none}
+.nvgym .addrstat.wr{color:var(--amber)}
+.navpick{display:grid;gap:7px}
+.navpick button{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:9px;
+  width:100%;padding:10px 12px;border-radius:13px;border:1px solid var(--line2);background:rgba(255,255,255,.05);
+  color:var(--tx);cursor:pointer;text-align:left;font-family:inherit}
+.navpick button:active{transform:translateY(1px)}
+.navpick .nvico{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;letter-spacing:-.02em}
+.navpick [data-nav="naver"] .nvico{background:#03c75a;color:#fff}
+.navpick [data-nav="kakao"] .nvico{background:#fee500;color:#3c1e1e}
+.navpick [data-nav="tmap"] .nvico{background:#0f5bd8;color:#fff}
+.navpick .nvt{font-size:13.5px;font-weight:900}
+.navpick .nvd{font-size:10.5px;color:var(--tx3);font-weight:800;white-space:nowrap}
+.nvnote{font-size:10.5px;color:var(--tx3);line-height:1.5;margin:11px 2px 0}
+.nvnote.wr{color:var(--amber);font-weight:800}
+
 /* ---------- 개인 상세정보 배지 (키·넘버·포지션) ---------- */
 .mprof{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:5px 0 2px}
 .mprof[hidden]{display:none}
@@ -626,7 +686,24 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
 <!-- ===================== 입장 코드 ===================== -->
 <div class="lock" id="lock">
   <div class="lockcard" id="lockCard">
-    <div class="lball">🏀</div>
+    <div class="llogo" aria-hidden="true" focusable="false">
+      <svg viewBox="0 0 44 44" role="img" aria-label="스텝백 로고">
+        <defs>
+          <radialGradient id="sbBallGateG" cx="34%" cy="26%" r="80%">
+            <stop offset="0" stop-color="#ffeaa8"/>
+            <stop offset=".52" stop-color="#ffc94d"/>
+            <stop offset="1" stop-color="#bf750f"/>
+          </radialGradient>
+        </defs>
+        <circle cx="22" cy="22" r="19.4" fill="url(#sbBallGateG)"/>
+        <g fill="none" stroke="#2a1503" stroke-width="1.8" stroke-linecap="round" opacity=".9">
+          <path d="M22 2.7v38.6M2.7 22h38.6"/>
+          <path d="M9.5 6.3c6.1 4.5 6.1 26.9 0 31.4"/>
+          <path d="M34.5 6.3c-6.1 4.5-6.1 26.9 0 31.4"/>
+        </g>
+        <circle cx="22" cy="22" r="19.4" fill="none" stroke="rgba(51,224,196,.72)" stroke-width="1.6"/>
+      </svg>
+    </div>
     <div class="leyebrow">STEPBACK · TEAM ONLY</div>
     <h1>스텝백 팀원 전용</h1>
     <p class="sub">시흥 SH스포츠센터 · 일요일<br>승률 · 개인 스탯 · 주간 결과</p>
@@ -638,6 +715,11 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     </form>
     <p class="lerr" id="lerr" role="alert" aria-live="polite"></p>
     <p class="lfoot">입장 코드는 팀 단톡방 공지를 확인해 주세요.<br>한 번 입장한 기기에서는 다시 묻지 않습니다.</p>
+    <ul class="lsec" aria-label="보안 안내">
+      <li><b>검색 차단</b>구글·네이버 등 검색엔진에 조회되지 않습니다.</li>
+      <li><b>암호화 보호</b>팀 기록과 이름은 입장 코드로 암호화되어 안전하게 보호됩니다.</li>
+      <li><b>관리자 반영</b>접속자가 바꾼 내용은 본인 기기에만 임시 적용되며, 관리자를 통해서만 전체 페이지에 반영됩니다.</li>
+    </ul>
   </div>
 </div>
 
@@ -646,10 +728,12 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
   <header class="hero">
     <div class="heroTop">
       <div class="heroLeft">
-        <span class="eyebrow">🏀 Sunday · 시흥 SH스포츠센터</span>
+        <button type="button" class="eyebrow" id="gymBtn" aria-haspopup="dialog" aria-controls="navModal"
+                aria-label="구장 정보 · 길찾기 열기 (시흥 SH스포츠센터)">🏀 Sunday · 시흥 SH스포츠센터<span class="gnav" aria-hidden="true">길찾기 ›</span></button>
         <h1>스텝백 <span class="en">STEPBACK</span></h1>
         <p class="period" id="periodLine"></p>
       </div>
+      <div class="heroRight">
       <a class="ytbadge" href="https://www.youtube.com/@stepback_basketball?sub_confirmation=1" target="_blank" rel="noopener noreferrer"
          data-yt-intent="intent://www.youtube.com/@stepback_basketball?sub_confirmation=1#Intent;scheme=https;package=com.google.android.youtube;S.browser_fallback_url=https%3A%2F%2Fwww.youtube.com%2F%40stepback_basketball%3Fsub_confirmation%3D1;end"
          data-yt-ios="youtube://www.youtube.com/@stepback_basketball"
@@ -681,6 +765,13 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
           </span>
         </span>
       </a>
+      <a class="bandbadge" href="https://band.us/band/63120390" target="_blank" rel="noopener noreferrer"
+         data-band-intent="intent://band.us/band/63120390#Intent;scheme=https;package=com.nhn.android.band;S.browser_fallback_url=https%3A%2F%2Fband.us%2Fband%2F63120390;end"
+         data-band-ios="bandapp://band/63120390"
+         aria-label="네이버 밴드 STEPBACK 바로가기 (새 창·앱)">
+        <span class="bandico" aria-hidden="true">B</span><span class="bandtx">BAND 바로가기</span><span class="ytarrow" aria-hidden="true">↗</span>
+      </a>
+    </div>
     </div>
     <div class="stats" id="heroStats" role="group" aria-label="시즌 요약 — 탭하면 해당 섹션으로 이동"></div>
   </header>
@@ -796,7 +887,6 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     위 주차 선택에서 과거 날짜를 고르면 <b>그 주차까지의 누적 승률</b>로 화면이 바뀝니다.<br>
     <span id="fNote"></span>
     <div class="footrow">
-      <button class="lockbtn" id="lockBtn">🔒 잠금</button>
       <span>검색엔진 노출 차단(noindex · robots.txt) · 데이터 암호화 저장</span>
     </div>
   </footer>
@@ -808,6 +898,43 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     <div class="grab"></div>
     <button class="x" data-close aria-label="닫기">✕</button>
     <div id="mBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="navModal" hidden>
+  <div class="bd" data-navclose></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="navTitle">
+    <div class="grab"></div>
+    <button class="x" data-navclose aria-label="닫기">✕</button>
+    <div class="nvhead">
+      <h2 id="navTitle">구장 길찾기</h2>
+      <div class="nvsub">매주 일요일 · 스텝백</div>
+    </div>
+    <div class="nvgym">
+      <div class="gname">시흥 SH스포츠센터</div>
+      <div class="gaddr">경기도 시흥시 대야동 500-2</div>
+      <button type="button" class="copyaddr" id="addrCopy">주소 복사</button>
+      <div class="addrstat" id="addrStat" role="status" aria-live="polite"></div>
+    </div>
+    <div class="navpick" id="navPick" role="group" aria-label="지도·내비 앱 선택">
+      <button type="button" data-nav="naver"
+        data-app="nmap://route/car?dlat=37.4418653&amp;dlng=126.7873274&amp;dname=%EC%8B%9C%ED%9D%A5%20SH%EC%8A%A4%ED%8F%AC%EC%B8%A0%EC%84%BC%ED%84%B0&amp;appname=stepback-basketball"
+        data-web="https://map.naver.com/p/search/%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EC%8B%9C%ED%9D%A5%EC%8B%9C%20%EB%8C%80%EC%95%BC%EB%8F%99%20500-2"
+        data-webnote="네이버지도 앱이 없어 웹 지도로 열었습니다.">
+        <span class="nvico" aria-hidden="true">N</span><span class="nvt">네이버지도</span><span class="nvd">길찾기</span></button>
+      <button type="button" data-nav="kakao"
+        data-app="kakaomap://route?ep=37.4418653,126.7873274&amp;by=CAR"
+        data-web="https://map.kakao.com/link/to/%EC%8B%9C%ED%9D%A5%20SH%EC%8A%A4%ED%8F%AC%EC%B8%A0%EC%84%BC%ED%84%B0,37.4418653,126.7873274"
+        data-webnote="카카오맵 앱이 없어 웹 지도로 열었습니다.">
+        <span class="nvico" aria-hidden="true">K</span><span class="nvt">카카오맵</span><span class="nvd">길찾기</span></button>
+      <button type="button" data-nav="tmap"
+        data-app="tmap://route?goalname=%EC%8B%9C%ED%9D%A5%20SH%EC%8A%A4%ED%8F%AC%EC%B8%A0%EC%84%BC%ED%84%B0&amp;goalx=126.7873274&amp;goaly=37.4418653"
+        data-store="https://play.google.com/store/apps/details?id=com.skt.tmap.ku"
+        data-ios-store="https://apps.apple.com/kr/app/tmap/id431589174"
+        data-note="티맵 앱이 필요합니다. 설치 후 다시 눌러 주세요.">
+        <span class="nvico" aria-hidden="true">T</span><span class="nvt">티맵</span><span class="nvd">내비게이션</span></button>
+    </div>
+    <p class="nvnote" id="navNote">앱이 설치되어 있으면 앱으로, 없으면 웹 지도로 열립니다. (티맵은 앱 설치 필요)</p>
   </div>
 </div>
 
@@ -852,6 +979,11 @@ function lockMsg(msg) {
   lockErr(msg || '입장 코드가 올바르지 않습니다.');
   $('#code').select();
 }
+/* 오입력 횟수 — 2회 이상 틀리면 제한된 공간 안내 */
+let LOCK_FAILS = 0;
+const LOCK_MSG_WRONG = '입장 코드가 올바르지 않습니다. 단톡방 공지를 다시 확인해 주세요.';
+const LOCK_MSG_LIMIT = '제한된 공간입니다. 관리자에게 입장코드를 문의해 주세요.';
+function lockFailMsg() { return LOCK_FAILS >= 2 ? LOCK_MSG_LIMIT : LOCK_MSG_WRONG; }
 function busy(on) {
   $('#go').disabled = on;
   $('#go').textContent = on ? '확인 중…' : '입장하기';
@@ -896,7 +1028,8 @@ async function tryUnlock(pin, { save = true } = {}) {
     return true;
   } catch (e) {
     busy(false);
-    lockMsg('입장 코드가 올바르지 않습니다. 단톡방 공지를 다시 확인해 주세요.');
+    LOCK_FAILS += 1;
+    lockMsg(lockFailMsg());
     return false;
   }
 }
@@ -1633,6 +1766,7 @@ function saveProf(name) {
 
 /* ---------------- modal ---------------- */
 let lastFocus = null;
+let lastNavFocus = null;
 let MODAL_MODE = 'career', MODAL_NAME = null, MODAL_DATE = null, MODAL_PERQ = 'total';
 const MODAL_MODES = [['career', '시즌 누적'], ['careerQ', '시즌 누적(쿼터당)'], ['event', '직전 경기']];
 function modalToggle() {
@@ -1784,6 +1918,85 @@ function closeModal() {
   if (lastFocus) lastFocus.focus();
 }
 
+/* ---------------- 구장 길찾기 시트 ----------------
+   상단 구장 배지 탭 → 주소 복사 + 네이버지도·카카오맵·티맵 딥링크(PC/미설치 시 웹 fallback) */
+const NAV_NOTE = '앱이 설치되어 있으면 앱으로, 없으면 웹 지도로 열립니다. (티맵은 앱 설치 필요)';
+function isAndroidOS() { return /Android/i.test(navigator.userAgent); }
+function isIOSOS() {
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+function openNav() {
+  const m = $('#navModal');
+  if (!m) return;
+  setNavNote('');
+  const st = $('#addrStat'); if (st) { st.textContent = ''; st.className = 'addrstat'; }
+  lastNavFocus = document.activeElement;
+  m.hidden = false;
+  document.body.style.overflow = 'hidden';
+  const x = $('#navModal .x'); if (x) x.focus();
+}
+function closeNav() {
+  const m = $('#navModal');
+  if (!m || m.hidden) return;
+  m.hidden = true;
+  document.body.style.overflow = '';
+  if (lastNavFocus) lastNavFocus.focus();
+}
+function setNavNote(t, wr) {
+  const el = $('#navNote');
+  if (!el) return;
+  el.textContent = t || NAV_NOTE;
+  el.className = 'nvnote' + (wr ? ' wr' : '');
+}
+function copyGymAddr() {
+  const el = $('#navModal .nvgym .gaddr');
+  const addr = el ? el.textContent.trim() : '';
+  const st = $('#addrStat');
+  if (!addr) return;
+  copyText(addr).then(ok => {
+    if (!st) return;
+    st.className = 'addrstat' + (ok ? '' : ' wr');
+    st.textContent = ok ? '주소가 복사되었습니다.' : '자동 복사가 막혔습니다. 주소를 길게 눌러 직접 복사해 주세요.';
+  });
+}
+/* kind: naver | kakao | tmap — 버튼의 data-app(딥링크)·data-web(웹 fallback) 을 읽어 실행 */
+function navGo(kind) {
+  const btn = $('#navPick [data-nav="' + kind + '"]');
+  if (!btn) return;
+  const app = btn.getAttribute('data-app') || '';
+  const web = btn.getAttribute('data-web') || '';
+  const store = isIOSOS() ? (btn.getAttribute('data-ios-store') || '') : (btn.getAttribute('data-store') || '');
+  const mobile = isAndroidOS() || isIOSOS();
+  /* PC·기타 데스크톱: 웹 지도 새 탭, 웹 지도가 없는 티맵은 안내만 */
+  if (!mobile) {
+    if (web) {
+      try { window.open(web, '_blank', 'noopener'); } catch (e) { window.location.href = web; }
+      setNavNote(btn.getAttribute('data-webnote') || '새 창에서 지도가 열립니다.');
+    } else {
+      setNavNote('티맵은 모바일 앱입니다. 폰에서 다시 열어 주세요.', true);
+    }
+    return;
+  }
+  setNavNote('');
+  let left = false;
+  const onHide = () => { left = true; };
+  document.addEventListener('visibilitychange', onHide);
+  try { window.location.href = app; } catch (e) {}
+  /* 앱이 안 열리고 페이지가 그대로 보이면 웹/스토어로 대체 */
+  setTimeout(() => {
+    document.removeEventListener('visibilitychange', onHide);
+    if (left || document.hidden) return;
+    if (web) {
+      try { window.open(web, '_blank', 'noopener'); } catch (e2) { window.location.href = web; }
+      setNavNote(btn.getAttribute('data-webnote') || '웹 지도로 열었습니다.', true);
+    } else {
+      setNavNote(btn.getAttribute('data-note') || '앱을 설치한 뒤 다시 눌러 주세요.', true);
+      if (store) { try { window.open(store, '_blank', 'noopener'); } catch (e3) {} }
+    }
+  }, 900);
+}
+
 /* ---------------- events ---------------- */
 function selectWeek(date, { scroll = false } = {}) {
   curDate = date;
@@ -1865,36 +2078,31 @@ function bind() {
     if (!b) return;
     POS_FILTER = b.dataset.pos; renderRoster();
   });
-  $('#lockBtn').addEventListener('click', () => {
-    try { localStorage.removeItem(LS_KEY); } catch (e) {}
-    location.reload();
-  });
-  /* 우측 상단 유튜브 배지 — 모바일은 유튜브 앱(구독 링크)으로 바로 열고,
-     PC·기타는 기본 https 링크를 새 탭으로 엽니다.
-       안드로이드: intent:// (Chrome이 browser_fallback_url로 앱 없음/실패를 처리)
-       아이폰: youtube:// 커스텀 스킴 → 700ms 뒤에도 페이지가 보이면 https로 대체 */
-  const ytBadge = $('.hero .ytbadge');
-  if (ytBadge) ytBadge.addEventListener('click', e => {
-    const ua = navigator.userAgent;
-    const isAndroid = /Android/i.test(ua);
-    const isIOS = /iPhone|iPad|iPod/i.test(ua)
-      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);   /* iPadOS */
-    if (!isAndroid && !isIOS) return;   /* PC·기타: 기본 동작(새 탭) */
-    const appUrl = isIOS ? ytBadge.getAttribute('data-yt-ios') : ytBadge.getAttribute('data-yt-intent');
-    if (!appUrl) return;
-    e.preventDefault();
-    let left = false;
-    const onHide = () => { left = true; };
-    document.addEventListener('visibilitychange', onHide);
-    try { window.location.href = appUrl; } catch (err) {}
-    /* 앱이 안 열리고 페이지가 그대로 보이면 기본 https 로 대체 */
-    setTimeout(() => {
-      document.removeEventListener('visibilitychange', onHide);
-      if (left || document.hidden) return;
-      if (isIOS) { window.location.href = ytBadge.href; return; }
-      try { window.open(ytBadge.href, '_blank', 'noopener'); } catch (e2) { window.location.href = ytBadge.href; }
-    }, isIOS ? 700 : 1500);
-  });
+  /* 우측 상단 앱 바로가기 배지(유튜브·밴드) — 모바일은 앱으로 바로 열고, PC·기타는 기본 https 새 탭.
+       안드로이드: intent:// (Chrome이 browser_fallback_url 로 실패를 처리)
+       아이폰: 커스텀 스킴 → 700ms 뒤에도 페이지가 보이면(!document.hidden) https 로 대체 */
+  function bindAppBadge(el, attrName) {
+    if (!el) return;
+    el.addEventListener('click', e => {
+      const ios = isIOSOS();
+      const appUrl = ios ? el.getAttribute(attrName + '-ios')
+        : (isAndroidOS() ? el.getAttribute(attrName + '-intent') : null);
+      if (!appUrl) return;   /* PC·기타: 기본 동작(새 탭) */
+      e.preventDefault();
+      let left = false;
+      const onHide = () => { left = true; };
+      document.addEventListener('visibilitychange', onHide);
+      try { window.location.href = appUrl; } catch (err) {}
+      setTimeout(() => {
+        document.removeEventListener('visibilitychange', onHide);
+        if (left || document.hidden) return;
+        if (ios) { window.location.href = el.href; return; }
+        try { window.open(el.href, '_blank', 'noopener'); } catch (e2) { window.location.href = el.href; }
+      }, ios ? 700 : 1500);
+    });
+  }
+  bindAppBadge($('.hero .ytbadge'), 'data-yt');
+  bindAppBadge($('.hero .bandbadge'), 'data-band');
   $('#critBox').addEventListener('toggle', () => {});
   document.addEventListener('click', e => {
     const pick = e.target.closest('[data-pick]');
@@ -1903,6 +2111,12 @@ function bind() {
     if (jmp) { heroJump(jmp.dataset.jump); return; }
     const sm = e.target.closest('[data-mdmode]');
     if (sm) { setModalMode(sm.dataset.mdmode); return; }
+    /* 구장 길찾기 시트 */
+    if (e.target.closest('#gymBtn')) { openNav(); return; }
+    if (e.target.closest('[data-navclose]')) { closeNav(); return; }
+    const nb = e.target.closest('#navPick [data-nav]');
+    if (nb) { navGo(nb.dataset.nav); return; }
+    if (e.target.closest('#addrCopy')) { copyGymAddr(); return; }
     /* 개인 상세정보 폼 — 열기·접기·저장·포지션 토글 */
     if (e.target.closest('[data-popen]')) { openProfForm(lastProfName); return; }
     if (e.target.closest('[data-pclose]')) { collapseProfSlot(lastProfName); return; }
@@ -1926,6 +2140,7 @@ function bind() {
     }
   });
   document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !$('#navModal').hidden) { closeNav(); return; }
     if (e.key === 'Escape' && !$('#modal').hidden) closeModal();
     if (e.target.id === 'weekSel') return;
     const row = e.target.closest && e.target.closest('tr.strow[data-person]');

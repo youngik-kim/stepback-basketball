@@ -95,10 +95,16 @@ def collect(page, sink):
     page.on("pageerror", lambda e: sink.append(f"pageerror: {e}"))
     page.on("requestfailed", lambda r: sink.append(f"requestfailed: {r.url} {r.failure}"))
 
+def stub_map(route):
+    route.fulfill(status=200, content_type="text/html", body="<title>map</title><h1>지도</h1>")
+
 with sync_playwright() as p:
     browser = p.chromium.launch()
     for tag, w, h in [("m", 390, 844), ("d", 1280, 800)]:
-        ctx = browser.new_context(viewport={"width": w, "height": h}, device_scale_factor=2 if tag == "m" else 1)
+        ctx = browser.new_context(viewport={"width": w, "height": h}, device_scale_factor=2 if tag == "m" else 1,
+                                  permissions=["clipboard-read", "clipboard-write"])
+        for host in ("**map.naver.com/**", "**map.kakao.com/**", "**play.google.com/**", "**apps.apple.com/**"):
+            ctx.route(host, stub_map)
         page = ctx.new_page()
         errs = []
         collect(page, errs)
@@ -108,18 +114,54 @@ with sync_playwright() as p:
         # 1) 잠금 화면
         ok(f"{tag}: 잠금 화면 노출", page.locator("#lock").is_visible() and not page.locator(".hero").is_visible())
         page.screenshot(path=f"{OUT}/{tag}_1_lock.png", full_page=False)
+        logo = page.evaluate("""() => {
+          const s = document.querySelector('.llogo svg');
+          if (!s) return null;
+          const r = s.getBoundingClientRect(), c = document.querySelector('.lockcard').getBoundingClientRect();
+          const ring = s.querySelectorAll('circle')[1];
+          return {w: r.width, h: r.height, cx: r.left + r.width / 2, cardCx: c.left + c.width / 2,
+                  ring: ring ? ring.getAttribute('stroke') : '', fill: s.querySelector('circle').getAttribute('fill')};
+        }""")
+        ok(f"{tag}: 게이트 상단 팀 로고(에메랄드 링 + 골드 농구공) 중앙 배치",
+           logo and logo["w"] >= 46 and abs(logo["cx"] - logo["cardCx"]) <= 1
+           and "51,224,196" in (logo["ring"] or "") and "sbBallGateG" in (logo["fill"] or "")
+           and page.locator(".lball").count() == 0,
+           str(logo)[:110])
+        lsec = page.inner_text(".lsec")
+        ok(f"{tag}: 게이트 보안 안내 3줄", page.locator(".lsec li").count() == 3
+           and "검색 차단" in lsec and "검색엔진에 조회되지 않습니다" in lsec
+           and "암호화 보호" in lsec and "입장 코드로 암호화" in lsec
+           and "관리자 반영" in lsec and "본인 기기에만 임시 적용" in lsec,
+           " / ".join(lsec.splitlines()))
+        ok(f"{tag}: 게이트 안내문 화면 안·가로 넘침 없음", page.evaluate("""() => {
+              const ul = document.querySelector('.lsec').getBoundingClientRect();
+              return ul.top >= 0 && ul.bottom <= innerHeight + 0.5
+                && document.documentElement.scrollWidth <= innerWidth + 1;
+            }"""))
 
         # HTML 소스에 평문 이름이 없는지
         src = page.content()
         ok(f"{tag}: DOM 소스에 평문 이름 없음(ENC만)", not any(n in src for n in NAMES))
 
-        # 2) 오답 거부
+        # 2) 오답 거부 → 2회째부터 제한 안내
         page.fill("#code", "1111")
         page.click("#go")
         page.wait_for_timeout(900)
         err = page.inner_text("#lerr")
-        ok(f"{tag}: 오답 거부", ("올바르지" in err) and page.locator("#lock").is_visible(), err)
+        ok(f"{tag}: 1회 오답은 일반 안내", ("올바르지" in err) and page.locator("#lock").is_visible(), err)
         page.screenshot(path=f"{OUT}/{tag}_2_wrong.png")
+        page.fill("#code", "1112")
+        page.click("#go")
+        page.wait_for_timeout(900)
+        err2 = page.inner_text("#lerr").strip()
+        ok(f"{tag}: 2회 오입력 → 제한된 공간 안내",
+           err2 == "제한된 공간입니다. 관리자에게 입장코드를 문의해 주세요." and page.locator("#lock").is_visible(), err2)
+        page.screenshot(path=f"{OUT}/{tag}_2b_limit.png")
+        page.fill("#code", "1113")
+        page.click("#go")
+        page.wait_for_timeout(900)
+        err3 = page.inner_text("#lerr").strip()
+        ok(f"{tag}: 3회째도 제한 안내 유지", err3 == "제한된 공간입니다. 관리자에게 입장코드를 문의해 주세요.", err3)
 
         # 3) 정답 입장 (Enter 사용)
         page.fill("#code", CODE)
@@ -198,6 +240,74 @@ with sync_playwright() as p:
            f"defaultPrevented={prevented}")
         ytb.screenshot(path=f"{OUT}/{tag}_3a_ytbadge.png")
         page.locator(".heroTop").screenshot(path=f"{OUT}/{tag}_3a2_herotop.png")
+
+        # 3-0b) 구장 배지 → 길찾기 시트(주소 복사 + 네이버지도·카카오맵·티맵)
+        gym = page.locator("#gymBtn")
+        ok(f"{tag}: 구장 배지는 버튼(길찾기)", gym.evaluate("el=>el.tagName") == "BUTTON"
+           and gym.get_attribute("aria-haspopup") == "dialog"
+           and gym.get_attribute("aria-controls") == "navModal"
+           and "시흥 SH스포츠센터" in gym.inner_text(), gym.inner_text().replace("\n", " "))
+        gym.click(); page.wait_for_timeout(400)
+        ok(f"{tag}: 길찾기 시트 열림", not page.locator("#navModal").is_hidden())
+        ok(f"{tag}: 시트 — 구장명·주소", page.inner_text("#navModal .nvgym .gname") == "시흥 SH스포츠센터"
+           and page.inner_text("#navModal .nvgym .gaddr") == "경기도 시흥시 대야동 500-2")
+        page.click("#addrCopy"); page.wait_for_timeout(350)
+        ok(f"{tag}: 주소 복사 → 클립보드·안내",
+           page.evaluate("navigator.clipboard.readText()") == "경기도 시흥시 대야동 500-2"
+           and "복사" in page.inner_text("#addrStat"), page.inner_text("#addrStat"))
+        navs = page.eval_on_selector_all("#navPick [data-nav]", "els=>els.map(e=>[e.dataset.nav, e.dataset.app, e.dataset.web||''])")
+        NAV_EXPECT = {
+            "naver": ("nmap://route/car?dlat=37.4418653&dlng=126.7873274&dname=%EC%8B%9C%ED%9D%A5%20SH%EC%8A%A4%ED%8F%AC%EC%B8%A0%EC%84%BC%ED%84%B0&appname=stepback-basketball",
+                      "https://map.naver.com/p/search/%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EC%8B%9C%ED%9D%A5%EC%8B%9C%20%EB%8C%80%EC%95%BC%EB%8F%99%20500-2"),
+            "kakao": ("kakaomap://route?ep=37.4418653,126.7873274&by=CAR",
+                      "https://map.kakao.com/link/to/%EC%8B%9C%ED%9D%A5%20SH%EC%8A%A4%ED%8F%AC%EC%B8%A0%EC%84%BC%ED%84%B0,37.4418653,126.7873274"),
+            "tmap": ("tmap://route?goalname=%EC%8B%9C%ED%9D%A5%20SH%EC%8A%A4%ED%8F%AC%EC%B8%A0%EC%84%BC%ED%84%B0&goalx=126.7873274&goaly=37.4418653", ""),
+        }
+        got_nav = {n: (a, w_) for n, a, w_ in navs}
+        ok(f"{tag}: 내비 3종 딥링크·웹 fallback 정확", got_nav == NAV_EXPECT, f"{list(got_nav)}")
+        page.screenshot(path=f"{OUT}/{tag}_3c_nav_sheet.png")
+        pops = []
+        page.on("popup", lambda pp: pops.append(pp.url))
+        page.click("#navPick [data-nav='naver']"); page.wait_for_timeout(700)
+        ok(f"{tag}: PC 네이버지도 → 웹 지도 새 탭", any("map.naver.com/p/search" in u for u in pops), f"{pops[:1]}")
+        page.click("#navPick [data-nav='tmap']"); page.wait_for_timeout(600)
+        ok(f"{tag}: PC 티맵 → 앱 안내", "모바일 앱" in page.inner_text("#navNote"), page.inner_text("#navNote"))
+        page.keyboard.press("Escape"); page.wait_for_timeout(300)
+        ok(f"{tag}: 길찾기 시트 닫기(Esc)", page.locator("#navModal").is_hidden())
+        ok(f"{tag}: 시트 안내문 잘림 없음", page.evaluate("""() => {
+              const sh = document.querySelector('#navModal .sheet');
+              return sh.scrollHeight <= sh.clientHeight + 1;
+            }"""))
+
+        # 3-0c) 네이버 밴드 바로가기 — 유튜브 배지 아래 stack
+        bnd = page.locator(".hero .bandbadge")
+        BAND = "https://band.us/band/63120390"
+        ok(f"{tag}: BAND 배지 1개(유튜브 아래 stack)", bnd.count() == 1 and bnd.is_visible()
+           and "BAND 바로가기" in bnd.inner_text() and "↗" in bnd.inner_text(), bnd.inner_text().replace("\n", " "))
+        bgeo = page.evaluate("""() => {
+          const y = document.querySelector('.hero .ytbadge').getBoundingClientRect();
+          const b = document.querySelector('.hero .bandbadge').getBoundingClientRect();
+          const h = document.querySelector('.hero h1').getBoundingClientRect();
+          const p = document.querySelector('.hero .period').getBoundingClientRect();
+          return {b: [b.left, b.right, b.top, b.bottom], yb: y.bottom, hr: h.right, pb: p.bottom, br: b.bottom,
+                  vw: innerWidth, doc: document.documentElement.scrollWidth};
+        }""")
+        bl, br_, bt, bb = bgeo["b"]
+        ok(f"{tag}: BAND 배지 위치 — 유튜브 아래·뷰포트 안·겹침 없음",
+           bt >= bgeo["yb"] - 1 and br_ <= bgeo["vw"] - 6 and bl >= bgeo["hr"] - 0.5 and bl >= bgeo["vw"] * 0.5,
+           f"band x={bl:.0f}~{br_:.0f} y={bt:.0f}~{bb:.0f} yt.bottom={bgeo['yb']:.0f} h1.right={bgeo['hr']:.0f}")
+        ok(f"{tag}: BAND 링크·새 창·noopener·intent·ios 스킴",
+           bnd.get_attribute("href") == BAND and bnd.get_attribute("target") == "_blank"
+           and "noopener" in (bnd.get_attribute("rel") or "") and "noreferrer" in (bnd.get_attribute("rel") or "")
+           and bnd.get_attribute("data-band-intent") == "intent://band.us/band/63120390#Intent;scheme=https;"
+                "package=com.nhn.android.band;S.browser_fallback_url=https%3A%2F%2Fband.us%2Fband%2F63120390;end"
+           and bnd.get_attribute("data-band-ios") == "bandapp://band/63120390",
+           bnd.get_attribute("data-band-intent") or "")
+        ok(f"{tag}: PC는 BAND 기본 https 새 탭 동작", page.evaluate("""() => {
+              const a = document.querySelector('.hero .bandbadge');
+              const ev = new MouseEvent('click', {bubbles: true, cancelable: true});
+              a.dispatchEvent(ev); return ev.defaultPrevented;
+            }""") is False)
 
         # 3-1) 상단 요약 카드 4개 — 클릭 이동 · 라벨 잘림 없음
         cards = page.locator("#heroStats .stat")
@@ -625,12 +735,12 @@ with sync_playwright() as p:
            and page.eval_on_selector("#mProf", "el=>el.innerText.replace(/\\s+/g,' ').trim()") == "#88 · 180cm · SG")
         page.keyboard.press("Escape"); page.wait_for_timeout(150)
 
-        # 13) 잠금 버튼
-        page.locator("#lockBtn").scroll_into_view_if_needed()
-        page.click("#lockBtn")
-        page.wait_for_timeout(900)
-        ok(f"{tag}: 잠금 버튼 → 잠금 화면", page.locator("#lock").is_visible(), "")
-        page.screenshot(path=f"{OUT}/{tag}_8_relocked.png")
+        # 13) 푸터 — 잠금 버튼 제거, 보안 안내 문구는 유지
+        page.locator("footer").scroll_into_view_if_needed(); page.wait_for_timeout(200)
+        ok(f"{tag}: 푸터 잠금 버튼 없음", page.locator("#lockBtn").count() == 0 and "잠금" not in page.inner_text("footer"))
+        ok(f"{tag}: 푸터 보안 안내 문구 유지", "noindex" in page.inner_text("footer") and "데이터 암호화" in page.inner_text("footer"),
+           page.inner_text("footer").replace("\n", " ")[-80:])
+        page.screenshot(path=f"{OUT}/{tag}_8_footer.png")
 
         # 14) 콘솔 에러
         ok(f"{tag}: JS 에러 0건", len(errs) == 0, "; ".join(errs[:4]))
@@ -655,8 +765,10 @@ with sync_playwright() as p:
     for tag, ua in [("android", UA_AND), ("ios", UA_IOS)]:
         ctx = browser.new_context(viewport={"width": 390, "height": 844}, user_agent=ua,
                                   device_scale_factor=2, is_mobile=True, has_touch=True)
-        ctx.route("**/*youtube.com/**", lambda route: route.fulfill(status=200, content_type="text/html",
-                                                                   body="<title>yt</title><h1>YouTube</h1>"))
+        for host in ("**/*youtube.com/**", "**band.us/**", "**map.naver.com/**", "**map.kakao.com/**",
+                     "**play.google.com/**", "**apps.apple.com/**"):
+            ctx.route(host, lambda route: route.fulfill(status=200, content_type="text/html",
+                                                        body="<title>stub</title><h1>stub</h1>"))
         page = ctx.new_page()
         errs, pops = [], []
         page.on("pageerror", lambda e, s=errs: s.append(str(e)))
@@ -664,6 +776,23 @@ with sync_playwright() as p:
         page.goto(URL, wait_until="load")
         page.fill("#code", CODE); page.press("#code", "Enter")
         page.wait_for_selector(".hero h1", timeout=8000); page.wait_for_timeout(400)
+
+        # 구장 길찾기 — 앱 호출 후 웹/스토어 fallback
+        page.click("#gymBtn"); page.wait_for_timeout(400)
+        ok(f"{tag}: 길찾기 시트 열림(모바일)", not page.locator("#navModal").is_hidden())
+        page.click("#navPick [data-nav='kakao']"); page.wait_for_timeout(1500)
+        ok(f"{tag}: 카카오맵 — 앱 호출 후 웹 지도 fallback",
+           any("map.kakao.com/link/to/" in u for u in pops) and "카카오맵" in page.inner_text("#navNote"),
+           f"popup={pops[:1]} note={page.inner_text('#navNote')}")
+        pops.clear()
+        page.click("#navPick [data-nav='tmap']"); page.wait_for_timeout(1600)
+        store_host = "apps.apple.com" if tag == "ios" else "play.google.com"
+        ok(f"{tag}: 티맵 — 앱 없음 안내 + 스토어 fallback",
+           "티맵 앱이 필요" in page.inner_text("#navNote") and any(store_host in u for u in pops),
+           f"popup={pops[:1]} note={page.inner_text('#navNote')}")
+        page.keyboard.press("Escape"); page.wait_for_timeout(250)
+        ok(f"{tag}: 길찾기 시트 닫힘(모바일)", page.locator("#navModal").is_hidden())
+
         ok(f"{tag}: 유튜브 배지 — 앱 호출을 위해 기본 이동 가로챔", page.evaluate("""() => {
               const a = document.querySelector('.hero .ytbadge');
               const ev = new MouseEvent('click', {bubbles: true, cancelable: true});
@@ -671,8 +800,23 @@ with sync_playwright() as p:
             }""") is True)
         page.click(".hero .ytbadge")
         page.wait_for_timeout(2300)
-        landed = page.url if "youtube.com" in page.url else (pops[0] if pops else "")
-        ok(f"{tag}: 앱 미설치/미지원 시 https 구독 페이지로 대체", YT_SUB in landed, f"main={page.url[:60]} popup={pops[:1]}")
+        landed = page.url if "youtube.com" in page.url else (pops[-1] if pops else "")
+        ok(f"{tag}: 앱 미설치/미지원 시 https 구독 페이지로 대체", YT_SUB in landed, f"main={page.url[:60]} popup={pops[-1:]}")
+
+        # 네이버 밴드 배지 — 앱 호출 후 https fallback
+        page.goto(URL, wait_until="load")
+        page.wait_for_selector(".hero h1", timeout=8000); page.wait_for_timeout(400)
+        ok(f"{tag}: BAND 배지 — 앱 호출을 위해 기본 이동 가로챔", page.evaluate("""() => {
+              const a = document.querySelector('.hero .bandbadge');
+              const ev = new MouseEvent('click', {bubbles: true, cancelable: true});
+              a.dispatchEvent(ev); return ev.defaultPrevented;
+            }""") is True)
+        pops.clear()
+        page.click(".hero .bandbadge")
+        page.wait_for_timeout(1900)
+        band_landed = page.url if "band.us/band/63120390" in page.url else (pops[-1] if pops else "")
+        ok(f"{tag}: BAND 앱 미설치/미지원 시 https 바로가기로 대체", "https://band.us/band/63120390" in band_landed,
+           f"main={page.url[:60]} popup={pops[-1:]}")
         ok(f"{tag}: JS 에러 0건", len(errs) == 0, "; ".join(errs[:3]))
         ctx.close()
     browser.close()
