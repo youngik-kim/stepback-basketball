@@ -1174,7 +1174,7 @@ function scrollStatCol(k) {
   const th = $('#statHead').querySelector(`th[data-col="${k}"]`);
   if (!th) return;
   const pin = ($('#statHead th.pcol') || {}).offsetWidth || 0;
-  const left = th.getBoundingClientRect().left - sc.getBoundingClientRect().left + sc.scrollLeft - pin - 8;
+  const left = th.getBoundingClientRect().left - sc.getBoundingClientRect().left + sc.scrollLeft - pin;
   sc.scrollTo({ left: Math.max(0, Math.min(over, left)), behavior: 'smooth' });
 }
 function renderStats() {
