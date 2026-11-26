@@ -77,6 +77,33 @@ body.locked .wrap{display:none}
 .hero h1 .en{font-size:10px;letter-spacing:.38em;color:var(--tx3);font-weight:800}
 .hero .period{color:var(--tx2);font-size:12px;margin:4px 0 0}
 .hero .period b{color:var(--tx);font-weight:700}
+/* hero 상단 좌우 배치 — 오른쪽 상단 로고·유튜브 배지 */
+.heroTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.heroLeft{flex:1 1 auto;min-width:0}
+.hero h1{flex-wrap:wrap;row-gap:0}
+.ytbadge{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;
+  margin-top:1px;padding:5px 9px 5px 5px;border-radius:13px;overflow:hidden;
+  background:linear-gradient(150deg,#1d2c47 0%,#111b2d 58%,#0a1120 100%);
+  border:1px solid rgba(51,224,196,.36);
+  box-shadow:0 6px 16px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07);
+  text-decoration:none;color:var(--tx);
+  transition:transform .13s ease,border-color .15s ease,box-shadow .15s ease}
+.ytbadge::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(200deg,rgba(255,209,102,.16),transparent 58%)}
+.ytbadge>*{position:relative;z-index:1}
+.ytball{width:26px;height:26px;flex:0 0 auto;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+.ytmeta{display:flex;flex-direction:column;gap:2px;line-height:1;min-width:0}
+.ytname{font-size:8.5px;font-weight:900;letter-spacing:.17em;color:var(--gold);white-space:nowrap}
+.ytplay{display:inline-flex;align-items:center;gap:3px;font-size:9.5px;font-weight:800;
+  color:#cfdff6;white-space:nowrap;letter-spacing:.01em}
+.ytplay .pl{width:12px;height:9px;flex:0 0 auto;display:block}
+.ytarrow{font-size:9px;font-weight:900;color:var(--acc)}
+.ytbadge:active{transform:scale(.96)}
+@media (hover:hover){.ytbadge:hover{border-color:rgba(255,209,102,.62);
+  box-shadow:0 8px 22px rgba(0,0,0,.5),0 0 0 3px rgba(51,224,196,.12)}}
+.ytbadge:focus-visible{outline:2px solid rgba(51,224,196,.65);outline-offset:2px}
+@media (max-width:370px){.ytball{width:23px;height:23px}.ytname{font-size:8px;letter-spacing:.12em}
+  .ytplay{font-size:9px}.ytplay .pl{width:11px;height:8.5px}}
 /* 상단 요약 카드 — 탭하면 해당 섹션으로 이동 · 390px 에서 라벨 잘림 없도록 여백/글자 크기 보정 */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:12px 0 2px}
 .stat{appearance:none;-webkit-appearance:none;width:100%;min-width:0;display:flex;flex-direction:column;
@@ -502,6 +529,12 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
   .hero{padding:34px 0 8px}
   .hero h1{font-size:38px}
   .hero h1 .en{font-size:12px}
+  .ytbadge{gap:8px;padding:7px 12px 7px 7px;border-radius:15px;margin-top:2px}
+  .ytball{width:34px;height:34px}
+  .ytname{font-size:10px;letter-spacing:.18em}
+  .ytplay{font-size:11px;gap:4px}
+  .ytplay .pl{width:14px;height:10.5px}
+  .ytarrow{font-size:10.5px}
   .stat .v{font-size:19px}
   .selbar{margin:14px -22px 0;padding:9px 22px;justify-content:center}
   .selwrap{flex:0 1 440px;max-width:440px;margin:0}
@@ -554,9 +587,42 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
 <div class="wrap">
 
   <header class="hero">
-    <span class="eyebrow">🏀 Sunday · 시흥 SH스포츠센터</span>
-    <h1>스텝백 <span class="en">STEPBACK</span></h1>
-    <p class="period" id="periodLine"></p>
+    <div class="heroTop">
+      <div class="heroLeft">
+        <span class="eyebrow">🏀 Sunday · 시흥 SH스포츠센터</span>
+        <h1>스텝백 <span class="en">STEPBACK</span></h1>
+        <p class="period" id="periodLine"></p>
+      </div>
+      <a class="ytbadge" href="https://youtube.com/@stepback_basketball" target="_blank" rel="noopener noreferrer"
+         aria-label="스텝백 STEPBACK 유튜브 채널 열기 (새 창)">
+        <svg class="ytball" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+          <defs>
+            <radialGradient id="sbBallG" cx="34%" cy="26%" r="80%">
+              <stop offset="0" stop-color="#ffeaa8"/>
+              <stop offset=".52" stop-color="#ffc94d"/>
+              <stop offset="1" stop-color="#bf750f"/>
+            </radialGradient>
+          </defs>
+          <circle cx="22" cy="22" r="19.4" fill="url(#sbBallG)"/>
+          <g fill="none" stroke="#2a1503" stroke-width="1.8" stroke-linecap="round" opacity=".9">
+            <path d="M22 2.7v38.6M2.7 22h38.6"/>
+            <path d="M9.5 6.3c6.1 4.5 6.1 26.9 0 31.4"/>
+            <path d="M34.5 6.3c-6.1 4.5-6.1 26.9 0 31.4"/>
+          </g>
+          <circle cx="22" cy="22" r="19.4" fill="none" stroke="rgba(51,224,196,.72)" stroke-width="1.6"/>
+        </svg>
+        <span class="ytmeta">
+          <span class="ytname">STEPBACK</span>
+          <span class="ytplay">
+            <svg class="pl" viewBox="0 0 16 12" aria-hidden="true" focusable="false">
+              <rect x=".5" y=".5" width="15" height="11" rx="3.2" fill="#ffd166"/>
+              <path d="M6.3 3.5 10.6 6 6.3 8.5z" fill="#0b1120"/>
+            </svg>
+            <span>YouTube</span><span class="ytarrow" aria-hidden="true">↗</span>
+          </span>
+        </span>
+      </a>
+    </div>
     <div class="stats" id="heroStats" role="group" aria-label="시즌 요약 — 탭하면 해당 섹션으로 이동"></div>
   </header>
 

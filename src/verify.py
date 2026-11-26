@@ -132,6 +132,57 @@ with sync_playwright() as p:
            page.locator("#memberRows .rrow").first.inner_text().replace("\n", " | ")[:70])
         page.screenshot(path=f"{OUT}/{tag}_3_home.png")
 
+        # 3-0) 우측 상단 로고·유튜브 배지
+        ytb = page.locator(".hero .ytbadge")
+        ok(f"{tag}: 상단 유튜브 배지 1개", ytb.count() == 1 and ytb.is_visible(), f"count={ytb.count()}")
+        ok(f"{tag}: 배지 링크 주소·새 창·noopener",
+           ytb.get_attribute("href") == "https://youtube.com/@stepback_basketball"
+           and ytb.get_attribute("target") == "_blank"
+           and "noopener" in (ytb.get_attribute("rel") or "") and "noreferrer" in (ytb.get_attribute("rel") or ""),
+           ytb.get_attribute("href") or "")
+        ygeo = page.evaluate("""() => {
+          const b = document.querySelector('.hero .ytbadge').getBoundingClientRect();
+          const h = document.querySelector('.hero h1').getBoundingClientRect();
+          const l = document.querySelector('.heroLeft').getBoundingClientRect();
+          const e = document.querySelector('.hero .eyebrow').getBoundingClientRect();
+          const p = document.querySelector('.hero .period').getBoundingClientRect();
+          const cs = getComputedStyle(document.querySelector('.hero h1'));
+          const h1 = document.querySelector('.hero h1');
+          return {bx: b.left, by: b.top, bw: b.width, bh: b.height, br: b.right,
+                  hx: h.left, hy: h.top, hw: h.width, hh: h.height, hr: h.right,
+                  lr: l.right, ex: e.left, py: p.top, ph: p.height,
+                  vw: innerWidth, vh: innerHeight, lines: Math.round(h1.getBoundingClientRect().height / parseFloat(cs.lineHeight)),
+                  h1ov: h1.scrollWidth - h1.clientWidth,
+                  docov: document.documentElement.scrollWidth - innerWidth};
+        }""")
+        ok(f"{tag}: 배지 우측 상단 배치(뷰포트 안)",
+           ygeo["br"] <= ygeo["vw"] - 8 and ygeo["bx"] >= ygeo["vw"] * 0.55
+           and ygeo["by"] >= 0 and ygeo["by"] < (130 if w >= 760 else 90)
+           and ygeo["bw"] >= 70 and ygeo["bh"] >= 30,
+           f"x={ygeo['bx']:.0f}~{ygeo['br']:.0f} y={ygeo['by']:.0f} {ygeo['bw']:.0f}x{ygeo['bh']:.0f} vw={ygeo['vw']}")
+        ok(f"{tag}: 배지·제목 겹침 없음(좌우 분리)",
+           ygeo["bx"] >= ygeo["hr"] + 4 and ygeo["bx"] >= ygeo["lr"] - 0.5,
+           f"badge.left={ygeo['bx']:.1f} h1.right={ygeo['hr']:.1f}")
+        ok(f"{tag}: 제목·기간 한 줄 유지(잘림 없음)",
+           ygeo["lines"] == 1 and ygeo["h1ov"] <= 0 and ygeo["hw"] >= 140,
+           f"lines={ygeo['lines']} ov={ygeo['h1ov']} w={ygeo['hw']:.0f}")
+        ok(f"{tag}: 좌측 eyebrow·기간 정상 흐름", ygeo["ex"] < ygeo["bx"] and ygeo["py"] > ygeo["hy"],
+           f"eyebrow.x={ygeo['ex']:.0f} period.y={ygeo['py']:.0f}")
+        yparts = page.evaluate("""() => {
+          const b = document.querySelector('.hero .ytbadge');
+          const ball = b.querySelector('svg.ytball'), pl = b.querySelector('svg.pl');
+          return {name: (b.querySelector('.ytname')||{}).textContent || '',
+                  play: (b.querySelector('.ytplay')||{}).innerText || '',
+                  ball: !!ball && ball.getBoundingClientRect().width > 15,
+                  pl: !!pl && pl.getBoundingClientRect().width > 8};
+        }""")
+        ok(f"{tag}: 배지 구성(농구공·STEPBACK·YouTube ↗)",
+           yparts["ball"] and yparts["pl"] and yparts["name"].strip() == "STEPBACK"
+           and "YouTube" in yparts["play"] and "↗" in yparts["play"],
+           f"{yparts}")
+        ytb.screenshot(path=f"{OUT}/{tag}_3a_ytbadge.png")
+        page.locator(".heroTop").screenshot(path=f"{OUT}/{tag}_3a2_herotop.png")
+
         # 3-1) 상단 요약 카드 4개 — 클릭 이동 · 라벨 잘림 없음
         cards = page.locator("#heroStats .stat")
         ok(f"{tag}: 요약 카드 4개(버튼)", cards.count() == 4 and page.eval_on_selector_all("#heroStats .stat", "els=>els.every(e=>e.tagName==='BUTTON')"),
