@@ -159,9 +159,16 @@ for b in blocks:
             rosters[team] = cells
 
     order = {s["team"]: i for i, s in enumerate(standings)}
-    standings.sort(key=lambda s: (-s["w"], -s["d"], -s["diff"], order[s["team"]]))
-    for i, s in enumerate(standings):
-        s["pos"] = i + 1
+    # 미출전(백업 등)은 항상 뒤로, 출전 팀만 순위를 매긴다
+    standings.sort(key=lambda s: (0 if (s["w"] + s["d"] + s["l"]) > 0 else 1,
+                                  -s["w"], -s["d"], -s["diff"], order[s["team"]]))
+    pos = 0
+    for s in standings:
+        if (s["w"] + s["d"] + s["l"]) > 0:
+            pos += 1
+            s["pos"] = pos
+        else:
+            s["pos"] = None
 
     sheet = dict(standings=standings, games=games, rosters=rosters,
                  labeled=bool(rosters), note=memos[-1] if memos else "")

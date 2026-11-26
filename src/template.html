@@ -149,6 +149,8 @@ section{scroll-margin-top:62px}
 .sb .h .pos{font-size:9px;color:var(--tx3);font-weight:700}
 .sb .r{font-size:12.5px;font-weight:900;margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .sb .c{font-size:9.5px;color:var(--tx3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb.bench{opacity:.72;border-style:dashed}
+.standrow-lite.bench{opacity:.7}
 .scoreline{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
 .scoreline span{font-size:10.5px;font-weight:700;color:var(--tx2);background:rgba(255,255,255,.045);
   border:1px solid var(--line);border-radius:7px;padding:3px 7px;font-variant-numeric:tabular-nums}
@@ -796,13 +798,17 @@ function sheetHtml(sh, multi, idx) {
   const badge = tied.length > 1
     ? `<span class="champ tie">동률 ${tied.map(t => esc(t.team)).join('·')}</span>`
     : `<span class="champ">1위 ${esc(top.team)}</span>`;
+  const cols = s.length <= 3 ? s.length : 2;
   return `<div class="sheetblk">
     ${multi ? `<div class="sheetlbl">기록지 ${idx + 1}</div>` : ''}
-    <div class="standstrip ${s.length === 2 ? 'two' : ''}">
-      ${s.map(x => `<div class="sb">
-        <div class="h"><i class="dot ${dotCls(x.team)}"></i>${esc(x.team)}<span class="pos">${x.pos}위</span></div>
-        <div class="r">${x.w}승 ${x.d ? x.d + '무 ' : ''}${x.l}패</div>
-        <div class="c">득실 ${x.diff > 0 ? '+' : ''}${x.diff}</div></div>`).join('')}
+    <div class="standstrip" style="grid-template-columns:repeat(${cols},1fr)">
+      ${s.map(x => {
+        const played = (x.w + x.d + x.l) > 0;
+        return `<div class="sb ${played ? '' : 'bench'}">
+        <div class="h"><i class="dot ${dotCls(x.team)}"></i>${esc(x.team)}<span class="pos">${played ? x.pos + '위' : '미출전'}</span></div>
+        <div class="r">${played ? `${x.w}승 ${x.d ? x.d + '무 ' : ''}${x.l}패` : '—'}</div>
+        <div class="c">${played ? `득실 ${x.diff > 0 ? '+' : ''}${x.diff}` : '경기 미출전'}</div></div>`;
+      }).join('')}
     </div>
     <div class="scoreline">${sh.games.map(g => {
       const winA = g.win === g.a, winB = g.win === g.b;
@@ -1019,11 +1025,14 @@ function renderWeeks() {
         ${w.sheets.map((sh, k) => `<div class="sheetblk">
           ${w.sheets.length > 1 ? `<div class="sheetlbl">기록지 ${k + 1}</div>` : ''}
           <div class="subhead">팀 성적</div>
-          ${sh.standings.map(s => `<div class="standrow-lite">
-            <span class="rk">${s.pos}</span><i class="dot ${dotCls(s.team)}"></i>
+          ${sh.standings.map(s => {
+            const played = (s.w + s.d + s.l) > 0;
+            return `<div class="standrow-lite ${played ? '' : 'bench'}">
+            <span class="rk">${played ? s.pos : '–'}</span><i class="dot ${dotCls(s.team)}"></i>
             <span class="tp">${esc(s.team)}</span>
-            <span class="r">${s.w}승 ${s.d ? s.d + '무 ' : ''}${s.l}패</span>
-            <span class="df">${s.diff > 0 ? '+' : ''}${s.diff}</span></div>`).join('')}
+            <span class="r">${played ? `${s.w}승 ${s.d ? s.d + '무 ' : ''}${s.l}패` : '미출전'}</span>
+            <span class="df">${played ? (s.diff > 0 ? '+' : '') + s.diff : ''}</span></div>`;
+          }).join('')}
           <div class="subhead">스코어</div>
           <div class="games">${sh.games.map(g => `<div class="game">
             <span class="a ${g.win === g.a ? 'win' : ''}">${esc(g.a)}</span><span class="sc">${g.as_} : ${g.bs}</span>
