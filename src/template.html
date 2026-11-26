@@ -553,14 +553,27 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 #navModal .sheet{max-width:520px}
 .nvhead h2{margin:6px 40px 2px 0;font-size:20px;font-weight:900;letter-spacing:-.02em}
 .nvsub{font-size:11.5px;color:var(--acc);font-weight:800}
-.nvgym{margin:13px 0 12px;padding:12px;border:1px solid var(--line2);border-radius:14px;background:rgba(255,255,255,.04)}
-.nvgym .gname{font-size:15px;font-weight:900;letter-spacing:-.01em}
+.nvgym{margin:13px 0 12px;padding:12px;border:1px solid var(--line2);border-radius:14px;background:rgba(255,255,255,.04)}.nvgym .gname{font-size:15px;font-weight:900;letter-spacing:-.01em}
 .nvgym .gaddr{font-size:12px;color:var(--tx2);margin-top:3px;font-weight:700;word-break:keep-all}
 .nvgym .copyaddr{margin-top:9px;height:34px;padding:0 12px;border-radius:9px;border:1px solid rgba(51,224,196,.4);
   background:rgba(51,224,196,.12);color:var(--acc);font-size:11.5px;font-weight:900;cursor:pointer;font-family:inherit}
 .nvgym .addrstat{font-size:10.5px;font-weight:800;color:var(--green);margin-top:7px;min-height:0;line-height:1.4}
 .nvgym .addrstat:empty{display:none}
 .nvgym .addrstat.wr{color:var(--amber)}
+/* 시흥 현재 날씨 + 다가오는 일요일 예보 (Open-Meteo) */
+.nvwx{margin:12px 0 0;padding:10px 11px;border:1px solid rgba(91,156,255,.30);border-radius:12px;
+  background:rgba(91,156,255,.09);line-height:1.4}
+.nvwx[hidden]{display:none}
+.nvwx .wxhead{font-size:11px;font-weight:900;color:#dce9ff;letter-spacing:-.01em}
+.nvwx .wxgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
+.nvwx .wxcell{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:9px;
+  padding:6px 3px;text-align:center;min-width:0}
+.nvwx .wxcell .v{font-size:12.5px;font-weight:900;color:#eaf2ff;white-space:nowrap;font-variant-numeric:tabular-nums}
+.nvwx .wxcell .k{font-size:9.5px;color:var(--tx2);font-weight:800;margin-top:1px}
+.nvwx .wxsub{margin-top:7px;font-size:10.5px;font-weight:800;color:#bcd0ef;line-height:1.45}
+.nvwx .wxsub b{color:#eaf2ff;font-variant-numeric:tabular-nums}
+.nvwx.wr{color:var(--amber);background:rgba(255,179,71,.09);border-color:rgba(255,179,71,.32);
+  font-size:10.5px;font-weight:800}
 .navpick{display:grid;gap:7px}
 .navpick button{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:9px;
   width:100%;padding:10px 12px;border-radius:13px;border:1px solid var(--line2);background:rgba(255,255,255,.05);
@@ -910,6 +923,7 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
       <h2 id="navTitle">구장 길찾기</h2>
       <div class="nvsub">매주 일요일 · 스텝백</div>
     </div>
+    <div class="nvwx" id="navWx" hidden role="status" aria-live="polite"></div>
     <div class="nvgym">
       <div class="gname">시흥 SH스포츠센터</div>
       <div class="gaddr">경기도 시흥시 대야동 500-2</div>
@@ -1935,6 +1949,76 @@ function openNav() {
   m.hidden = false;
   document.body.style.overflow = 'hidden';
   const x = $('#navModal .x'); if (x) x.focus();
+  loadWeather();   /* 열 때마다 시흥 날씨·일요일 예보 새로 조회(실패해도 모달은 그대로) */
+}
+/* ---------- 경기일(일요일) 날씨 예보 (Open-Meteo · 키 불필요 · CORS 허용) ---------- */
+const WX_URL = 'https://api.open-meteo.com/v1/forecast?latitude=37.4419&longitude=126.7873'
+  + '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max'
+  + '&hourly=temperature_2m,weather_code,precipitation_probability'
+  + '&timezone=Asia%2FSeoul&forecast_days=8';
+const WX_LABEL = {0: '맑음', 1: '대체로 맑음', 2: '구름 조금', 3: '구름많음', 45: '안개', 48: '안개',
+  51: '이슬비', 53: '이슬비', 55: '이슬비', 56: '어는 이슬비', 57: '어는 이슬비',
+  61: '비', 63: '비', 65: '비', 66: '어는 비', 67: '어는 비', 71: '눈', 73: '눈', 75: '눈', 77: '눈알갱이',
+  80: '소나기', 81: '소나기', 82: '소나기', 85: '소낙눈', 86: '소낙눈', 95: '뇌우', 96: '뇌우', 99: '뇌우'};
+const WX_EMOJI = {0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '🌫️', 51: '🌦️', 53: '🌦️', 55: '🌦️',
+  56: '🌧️', 57: '🌧️', 61: '🌧️', 63: '🌧️', 65: '🌧️', 66: '🌨️', 67: '🌨️', 71: '🌨️', 73: '🌨️', 75: '❄️',
+  77: '❄️', 80: '🌦️', 81: '🌧️', 82: '⛈️', 85: '🌨️', 86: '🌨️', 95: '⛈️', 96: '⛈️', 99: '⛈️'};
+const WX_ERR = '경기일 예보를 불러오지 못했습니다. 잠시 후 다시 열어 주세요.';
+function wxLabel(code) { return WX_LABEL[code] || '–'; }
+function wxIcon(code) { return WX_EMOJI[code] || '🌡️'; }
+function loadWeather() {
+  const box = $('#navWx');
+  if (!box) return;
+  box.hidden = false;
+  box.className = 'nvwx';
+  box.textContent = '경기일 예보 불러오는 중…';
+  let ctrl = null, timer = null;
+  try {
+    if (typeof AbortController === 'function') {
+      ctrl = new AbortController();
+      timer = setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 8000);
+    }
+    fetch(WX_URL, ctrl ? { signal: ctrl.signal } : {}).then(r => {
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    }).then(d => {
+      const day = (d && d.daily) || {}, hr = (d && d.hourly) || {};
+      if (!Array.isArray(day.time) || !day.time.length) throw new Error('bad payload');
+      /* 다가오는 일요일(경기일) — 오늘이 일요일이면 오늘 */
+      const i = day.time.findIndex(ds => new Date(ds + 'T00:00:00').getDay() === 0);
+      if (i < 0) throw new Error('no sunday');
+      const ds = day.time[i], mmdd = ds.slice(5, 7) + '/' + ds.slice(8, 10);
+      const code = day.weather_code ? day.weather_code[i] : null;
+      const lo = Math.round(day.temperature_2m_min[i]), hi = Math.round(day.temperature_2m_max[i]);
+      const pp = day.precipitation_probability_max ? day.precipitation_probability_max[i] : null;
+      /* 오전 07~10시 — 경기 시간대 기온 */
+      const temps = [];
+      if (Array.isArray(hr.time)) {
+        [7, 8, 9, 10].forEach(h => {
+          const key = ds + 'T' + (h < 10 ? '0' + h : h) + ':00';
+          const k = hr.time.indexOf(key);
+          if (k >= 0 && hr.temperature_2m && hr.temperature_2m[k] != null) {
+            temps.push({ h: h, t: Math.round(hr.temperature_2m[k]) });
+          }
+        });
+      }
+      box.className = 'nvwx ok';
+      box.innerHTML = '<div class="wxhead">' + wxIcon(code) + ' ' + mmdd + '(일) 경기일 예보 · 시흥 대야동</div>'
+        + '<div class="wxgrid">'
+        + '<div class="wxcell"><div class="v">' + wxLabel(code) + '</div><div class="k">날씨</div></div>'
+        + '<div class="wxcell"><div class="v">' + lo + '~' + hi + '°C</div><div class="k">최저~최고</div></div>'
+        + '<div class="wxcell"><div class="v">' + (pp == null ? '–' : Math.round(pp) + '%') + '</div><div class="k">강수확률</div></div>'
+        + '</div>'
+        + (temps.length ? '<div class="wxsub">오전 07~10시 <b>'
+            + temps.map(x => (x.h < 10 ? '0' + x.h : x.h) + '시 ' + x.t + '°').join(' · ') + '</b></div>' : '');
+    }).catch(() => {
+      box.className = 'nvwx wr';
+      box.textContent = WX_ERR;
+    }).then(() => { if (timer) clearTimeout(timer); });
+  } catch (e) {
+    box.className = 'nvwx wr';
+    box.textContent = WX_ERR;
+  }
 }
 function closeNav() {
   const m = $('#navModal');

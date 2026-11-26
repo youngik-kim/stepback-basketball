@@ -17,6 +17,29 @@ ASSOC = [r['name'] for r in DATA['roster'] if r.get('role') == '준회원']
 REG_N = sum(1 for r in DATA['roster'] if r.get('role') == '정회원')
 REB_LEAD = max(DATA['stats']['career']['rows'], key=lambda r: r['reb'])
 
+# ---- 경기일(일요일) 날씨 예보 픽스처 (Open-Meteo 응답 대체) ----
+import datetime, math
+TZ = datetime.timezone(datetime.timedelta(hours=9))
+WX_DATES = [(datetime.datetime.now(TZ).date() + datetime.timedelta(days=i)) for i in range(8)]
+WX_SUN = next(d for d in WX_DATES if d.weekday() == 6)
+WX_IDX = WX_DATES.index(WX_SUN)
+WX_TS = [f"{WX_SUN.isoformat()}T{h:02d}:00" for h in range(24)]
+WX_TEMP = [3 + h * 0.7 for h in range(24)]
+WX_PAYLOAD = {
+    "daily": {"time": [d.isoformat() for d in WX_DATES], "weather_code": [1] * 8,
+              "temperature_2m_max": [10 + i for i in range(8)],
+              "temperature_2m_min": [1 + i for i in range(8)],
+              "precipitation_probability_max": [10 + i for i in range(8)]},
+    "hourly": {"time": WX_TS, "temperature_2m": WX_TEMP, "weather_code": [1] * 24,
+               "precipitation_probability": [5] * 24},
+}
+js_round = lambda v: math.floor(v + 0.5)
+WX_HEAD = f"{WX_SUN.month:02d}/{WX_SUN.day:02d}(일) 경기일 예보 · 시흥 대야동"
+WX_RANGE = f"{1 + WX_IDX}~{10 + WX_IDX}°C"
+WX_PP = f"{10 + WX_IDX}%"
+WX_HOURS = " · ".join(f"{h:02d}시 {js_round(WX_TEMP[h])}°" for h in (7, 8, 9, 10))
+
+
 # ---- 개인 스탯 표 기대값 (basketball/2026-11-22-스텝백-개인스탯.md 원본 기준)
 STAT_HEADS = ['선수', '득점', '리바', 'ORB', 'DRB', '어시', '스틸', '블락', '턴오버', '파울', '2점', '3점', '자유투', 'MVP', '출전']
 STAT_KEYS = ['pts', 'reb', 'orb', 'drb', 'ast', 'stl', 'blk', 'to', 'pf', 'fg2', 'fg3', 'ft', 'mvp', 'gp']
@@ -105,6 +128,9 @@ with sync_playwright() as p:
                                   permissions=["clipboard-read", "clipboard-write"])
         for host in ("**map.naver.com/**", "**map.kakao.com/**", "**play.google.com/**", "**apps.apple.com/**"):
             ctx.route(host, stub_map)
+        ctx.route("**api.open-meteo.com/**",
+                  lambda route: route.fulfill(status=200, content_type="application/json",
+                                              body=json.dumps(WX_PAYLOAD, ensure_ascii=False)))
         page = ctx.new_page()
         errs = []
         collect(page, errs)
@@ -249,6 +275,18 @@ with sync_playwright() as p:
            and "시흥 SH스포츠센터" in gym.inner_text(), gym.inner_text().replace("\n", " "))
         gym.click(); page.wait_for_timeout(400)
         ok(f"{tag}: 길찾기 시트 열림", not page.locator("#navModal").is_hidden())
+        page.wait_for_selector("#navWx.ok", timeout=6000)
+        wx = page.inner_text("#navWx")
+        ok(f"{tag}: 경기일(일요일) 예보 헤더", WX_HEAD in wx and "🌤️" in wx, wx.splitlines()[0] if wx else "")
+        ok(f"{tag}: 예보 수치 — 날씨·기온·강수확률", "대체로 맑음" in wx and WX_RANGE in wx and WX_PP in wx
+           and "강수확률" in wx, wx.replace("\n", " | "))
+        ok(f"{tag}: 오전 07~10시 시간대 기온", WX_HOURS in wx, wx.splitlines()[-1] if wx else "")
+        ok(f"{tag}: 날씨 카드가 주소 박스 위·넘침 없음", page.evaluate("""() => {
+              const w = document.querySelector('#navWx').getBoundingClientRect();
+              const g = document.querySelector('#navModal .nvgym').getBoundingClientRect();
+              const sh = document.querySelector('#navModal .sheet');
+              return w.bottom <= g.top + 0.5 && sh.scrollWidth <= sh.clientWidth + 1;
+            }"""))
         ok(f"{tag}: 시트 — 구장명·주소", page.inner_text("#navModal .nvgym .gname") == "시흥 SH스포츠센터"
            and page.inner_text("#navModal .nvgym .gaddr") == "경기도 시흥시 대야동 500-2")
         page.click("#addrCopy"); page.wait_for_timeout(350)
@@ -274,9 +312,13 @@ with sync_playwright() as p:
         ok(f"{tag}: PC 티맵 → 앱 안내", "모바일 앱" in page.inner_text("#navNote"), page.inner_text("#navNote"))
         page.keyboard.press("Escape"); page.wait_for_timeout(300)
         ok(f"{tag}: 길찾기 시트 닫기(Esc)", page.locator("#navModal").is_hidden())
-        ok(f"{tag}: 시트 안내문 잘림 없음", page.evaluate("""() => {
+        ok(f"{tag}: 시트 안내문 잘림 없음(끝까지 스크롤 시 보임)", page.evaluate("""() => {
               const sh = document.querySelector('#navModal .sheet');
-              return sh.scrollHeight <= sh.clientHeight + 1;
+              sh.scrollTop = sh.scrollHeight;
+              const n = document.querySelector('#navNote').getBoundingClientRect();
+              const r = sh.getBoundingClientRect();
+              return n.bottom <= r.bottom + 1 && n.top >= r.top - 1
+                && sh.scrollWidth <= sh.clientWidth + 1;
             }"""))
 
         # 3-0c) 네이버 밴드 바로가기 — 유튜브 배지 아래 stack
@@ -819,6 +861,24 @@ with sync_playwright() as p:
            f"main={page.url[:60]} popup={pops[-1:]}")
         ok(f"{tag}: JS 에러 0건", len(errs) == 0, "; ".join(errs[:3]))
         ctx.close()
+
+    # 날씨 API 실패 시 — 시트 UI 유지·JS 에러 없음 (앱 링크 테스트는 별도 컨텍스트)
+    ctx = browser.new_context(viewport={"width": 390, "height": 844}, device_scale_factor=2)
+    ctx.route("**api.open-meteo.com/**", lambda route: route.abort())
+    page = ctx.new_page()
+    wxerrs = []
+    page.on("pageerror", lambda e: wxerrs.append(str(e)))
+    page.goto(URL, wait_until="load")
+    page.fill("#code", CODE); page.press("#code", "Enter")
+    page.wait_for_selector(".hero h1", timeout=8000)
+    page.click("#gymBtn"); page.wait_for_timeout(1800)
+    ok("날씨 실패: 대체 안내 표시", "불러오지 못했습니다" in page.inner_text("#navWx"), page.inner_text("#navWx"))
+    ok("날씨 실패: 시트·내비 버튼 정상 유지",
+       not page.locator("#navModal").is_hidden() and page.locator("#navPick [data-nav]").count() == 3
+       and page.inner_text("#navModal .nvgym .gaddr") == "경기도 시흥시 대야동 500-2")
+    page.screenshot(path=f"{OUT}/wx_fail.png")
+    ok("날씨 실패: JS 에러 0건", len(wxerrs) == 0, "; ".join(wxerrs[:2]))
+    ctx.close()
     browser.close()
 if httpd: httpd.shutdown()
 
