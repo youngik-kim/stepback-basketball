@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """로컬 검증: 390x844 / 1280x800 — 잠금 화면, 오답 거부, 정답 입장, 새로고침 유지, 상단 요약 카드 4개 이동,
 주차 전환, 검색, 개인 카드, 정/준회원 표기, JS 에러, 가로 스크롤."""
-import io, os, re, sys, json, threading, functools
+import io, os, re, sys, json, threading, functools, itertools
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from playwright.sync_api import sync_playwright
 
@@ -75,6 +75,102 @@ CAREER_Q = [(f"{CAREER_P[k] / CAREER_P['gp']:.1f}" if CAREER_P['gp'] else '–')
 BOTH_ROWS = [r for r in CAREER_ROWS if any(e['name'] == r['name'] for e in DATA['stats']['event']['rows'])]
 MODAL_P = sorted(BOTH_ROWS, key=lambda r: (-r['pts'], r['name']))[0]
 MODAL_EV = [r for r in DATA['stats']['event']['rows'] if r['name'] == MODAL_P['name']][0]
+
+# ---- 🤝 짝꿍 승률 계산기 기대값 (template.html 과 독립 구현) ----
+# 주차별·기록지별 로스터×팀 성적을 그대로 합산 — 같은 팀으로 함께 출전한 경기만 셉니다.
+# 동반경기 = 승+무+패, 승률 = 동반승 / 동반경기.
+PAIR_TBL, PAIR_TOT = {}, {}
+for _w in DATA['weeks']:
+    for _sh in _w['sheets']:
+        _st = {s['team']: s for s in _sh['standings']}
+        for _team, _ns in _sh['rosters'].items():
+            _s = _st.get(_team, {'w': 0, 'd': 0, 'l': 0})
+            _g = _s['w'] + _s.get('d', 0) + _s['l']
+            for _n in _ns:
+                _o = PAIR_TOT.setdefault(_n, {'w': 0, 'd': 0, 'l': 0, 'g': 0})
+                _o['w'] += _s['w']; _o['d'] += _s.get('d', 0)
+                _o['l'] += _s['l']; _o['g'] += _g
+            for _a, _b in itertools.combinations(sorted(_ns), 2):
+                _o = PAIR_TBL.setdefault((_a, _b), {'w': 0, 'g': 0})
+                _o['w'] += _s['w']; _o['g'] += _g
+
+def pk(a, b):
+    return (a, b) if a < b else (b, a)
+
+def p_combo(names, fakes=None):
+    """(동반승, 동반경기, 표본 짝 수) — fakes = {이름: {'rate':55,'games':5}} 가정값"""
+    fakes = fakes or {}
+    if len(names) == 1:
+        f = fakes.get(names[0])
+        if f:
+            return f['rate'] / 100.0 * f['games'], f['games'], 0
+        t = PAIR_TOT.get(names[0], {'w': 0, 'g': 0})
+        return t['w'], t['g'], 0
+    w, g = 0.0, 0
+    s = 0
+    for a, b in itertools.combinations(names, 2):
+        fa, fb = fakes.get(a), fakes.get(b)
+        if fa or fb:
+            if fa and fb:
+                rt, gg = (fa['rate'] + fb['rate']) / 2.0, min(fa['games'], fb['games'])
+            else:
+                f = fa or fb
+                rt, gg = f['rate'], f['games']
+            w += rt / 100.0 * gg; g += gg; s += 1
+            continue
+        e = PAIR_TBL.get(pk(a, b))
+        if e and e['g']:
+            w += e['w']; g += e['g']; s += 1
+    return w, g, s
+
+def p_rate(names, fakes=None):
+    w, g, s = p_combo(names, fakes)
+    return (w / g * 100 if g else None), g, s
+
+POS_OF = {r['name']: [p for p in str(r.get('pos') or '').split('/') if p] for r in DATA['roster']}
+
+def pos_tokens(n):
+    return POS_OF.get(n, [])
+
+def pos_balanced(names):
+    """가드(PG+SG) 2~3명 · 포워드(SF+PF) 2~3명 — 복수 포지션은 조건을 만족하도록 유연 배정"""
+    g = f = flex = 0
+    for n in names:
+        t = pos_tokens(n)
+        isg = 'PG' in t or 'SG' in t
+        isf = 'SF' in t or 'PF' in t
+        if isg and isf:
+            flex += 1
+        elif isg:
+            g += 1
+        elif isf:
+            f += 1
+    return any(2 <= g + x <= 3 and 2 <= f + (flex - x) <= 3 for x in range(flex + 1))
+
+def p_ranking(balance=True, relaxed=False, must=()):
+    pool = [m['name'] for m in DATA['members']]
+    min_pg = 1 if relaxed else 6
+    min_pairs = 0 if relaxed else 8
+    rows = []
+    for combo in itertools.combinations(pool, 5):
+        if must and not all(n in combo for n in must):
+            continue
+        if balance and not pos_balanced(combo):
+            continue
+        w, g, s = p_combo(list(combo))
+        if not g or g < min_pg or s < min_pairs:
+            continue
+        rows.append((w / g * 100, g, s, combo))
+    top = sorted(rows, key=lambda r: (-r[0], -r[1]))[:5]
+    bot = sorted(rows, key=lambda r: (r[0], -r[1]))[:5]
+    return rows, top, bot
+
+RANK_ROWS, RANK_TOP, RANK_BOT = p_ranking(True)
+RANK_ROWS_NB, RANK_TOP_NB, _ = p_ranking(False)
+POS_UNKNOWN = [m['name'] for m in DATA['members'] if not pos_tokens(m['name'])]
+
+print("짝꿍 기대값 — 짝 %d · 균형 후보 %d · 전체 후보 %d · 포지션 미등록 %d"
+      % (len(PAIR_TBL), len(RANK_ROWS), len(RANK_ROWS_NB), len(POS_UNKNOWN)))
 
 URL = os.environ.get("SITE_URL")
 httpd = None
@@ -873,6 +969,291 @@ with sync_playwright() as p:
     page.wait_for_timeout(600)
     page.screenshot(path=f"{OUT}/d_9_full.png", full_page=True)
     ctx.close()
+
+    # ---- 🤝 짝꿍 승률 계산기 (새 컨텍스트 — 개인정보 localStorage 영향 없음) ----
+    N_PICK = len(DATA['members']) + len(DATA['outsiders']) + len(DATA['guests'])
+    for tag, vw_, vh_ in [("m", 390, 844), ("d", 1280, 800)]:
+        ctx = browser.new_context(viewport={"width": vw_, "height": vh_},
+                                  device_scale_factor=2 if tag == "m" else 1)
+        page = ctx.new_page()
+        perrs = []
+        collect(page, perrs)
+        page.goto(URL, wait_until="load")
+        page.fill("#code", CODE); page.press("#code", "Enter")
+        page.wait_for_selector(".hero h1", timeout=8000); page.wait_for_timeout(350)
+
+        bb = page.locator("#pairBtn")
+        ok(f"{tag}: 짝꿍 — 히어로 버튼 1개·문구·dialog",
+           bb.count() == 1 and bb.is_visible() and "짝꿍 승률 계산하기" in bb.inner_text()
+           and page.get_attribute("#pairBtn", "aria-controls") == "pairModal",
+           bb.inner_text().replace("\n", " "))
+        geo = page.evaluate("""() => {
+          const b = document.querySelector('#pairBtn').getBoundingClientRect();
+          const s = document.querySelector('#heroStats').getBoundingClientRect();
+          const t = document.querySelector('#pairBtn .pbtxt');
+          return {h: b.height, w: b.width, sw: s.width, gap: b.top - s.bottom, oneLine: t.scrollWidth <= t.clientWidth + 1,
+                  left: b.left, right: b.right};
+        }""")
+        ok(f"{tag}: 짝꿍 — 요약 카드 바로 아래·같은 폭·한 줄",
+           38 <= geo["h"] <= 46 and abs(geo["w"] - geo["sw"]) <= 1 and 0 <= geo["gap"] <= 14
+           and geo["oneLine"] and geo["left"] >= 0 and geo["right"] <= vw_, str(geo))
+        page.screenshot(path=f"{OUT}/{tag}_pair_btn.png")
+
+        page.click("#pairBtn"); page.wait_for_timeout(400)
+        ok(f"{tag}: 짝꿍 시트 열림 — 제목·안내",
+           not page.locator("#pairModal").is_hidden()
+           and page.inner_text("#pTitle").strip() == "🤝 짝꿍 승률 계산하기"
+           and "같은 팀으로 함께 출전한 경기" in page.inner_text("#pairModal .plead"))
+        PMOD = page.inner_text("#pairModal")
+        ok(f"{tag}: 짝꿍 — 팀 수(2·3파전) 구분 UI 없음(단일 계산)",
+           "2파전" not in PMOD and "3파전" not in PMOD and "모든 회차 통합" in PMOD)
+        ok(f"{tag}: 짝꿍 — 선택 칩 {N_PICK}명(회원 20 + 게스트 71)",
+           page.locator("#pChips .pchip").count() == N_PICK, str(page.locator("#pChips .pchip").count()))
+        ok(f"{tag}: 짝꿍 — 시작 상태 안내·선택 0/7", page.inner_text("#pCount").strip() == "0"
+           and "예상 승률이 바로 계산됩니다" in page.inner_text("#pResult"))
+        page.screenshot(path=f"{OUT}/{tag}_pair_sheet.png")
+
+        def p_reset():
+            if page.locator("#pReset").is_visible():
+                page.click("#pReset"); page.wait_for_timeout(60)
+
+        def p_pick(names):
+            p_reset()
+            for n in names:
+                page.click('#pChips [data-pick2="%s"]' % n)
+            page.wait_for_timeout(160)
+
+        def p_val():
+            return page.inner_text("#pResult .pval").strip()
+
+        def p_meta_text():
+            return page.eval_on_selector_all(
+                "#pResult .pmeta", "els=>els.map(e=>e.innerText.replace(/\\s+/g,' ').trim()).join(' | ')")
+
+        def num(t):
+            m = re.search(r'([\d.]+)%', t or '')
+            return float(m.group(1)) if m else None
+
+        def near(t, e):
+            v = num(t)
+            return v is not None and abs(v - e) < 0.06
+
+        # 1명
+        p_pick(["이신효"])
+        e1, g1, _ = p_rate(["이신효"])
+        ok(f"{tag}: 짝꿍 1명 — 누적 승률 {e1:.1f}% · {g1}경기",
+           near(p_val(), e1) and f"{g1}경기" in p_meta_text(), f"{p_val()} / {p_meta_text()}")
+        # 2명 (동반 표본 1쌍)
+        p_pick(["이신효", "김영익"])
+        e2, g2, s2 = p_rate(["이신효", "김영익"])
+        ok(f"{tag}: 짝꿍 2명 — {e2:.1f}% · 동반 {g2}경기 · 1/1쌍",
+           near(p_val(), e2) and f"동반 출전 {g2}경기" in p_meta_text() and "1쌍 중 1쌍" in p_meta_text(),
+           f"{p_val()} / {p_meta_text()}")
+        # 5명 (표본 많은 조합)
+        FIVE = ["박덕원", "빈기호", "양정열", "정동현", "이승진"]
+        p_pick(FIVE)
+        e5, g5, s5 = p_rate(FIVE)
+        ok(f"{tag}: 짝꿍 5명 — {e5:.1f}% · 동반 {g5}경기 · 10/10쌍 · 포지션 요약",
+           near(p_val(), e5) and f"동반 출전 {g5}경기" in p_meta_text()
+           and f"짝 10쌍 중 {s5}쌍 표본" in p_meta_text()
+           and "PG" in page.inner_text("#pResult .ppos") and "표본 충분" in page.inner_text("#pResult"),
+           f"{p_val()} / {p_meta_text()}")
+        page.screenshot(path=f"{OUT}/{tag}_pair_five.png")
+        # 7명
+        SEVEN = ["이신효", "박덕원", "양정열", "정동현", "정승필", "빈기호", "이승진"]
+        p_pick(SEVEN)
+        e7, g7, s7 = p_rate(SEVEN)
+        ok(f"{tag}: 짝꿍 7명 — {e7:.1f}% · 동반 {g7}경기 · 21/21쌍",
+           near(p_val(), e7) and f"동반 출전 {g7}경기" in p_meta_text()
+           and f"짝 21쌍 중 {s7}쌍 표본" in p_meta_text() and page.inner_text("#pCount").strip() == "7",
+           f"{p_val()} / {p_meta_text()}")
+        # 8명 제한
+        page.click('#pChips [data-pick2="김재욱"]'); page.wait_for_timeout(120)
+        ok(f"{tag}: 짝꿍 — 최대 7명 제한 안내", page.inner_text("#pCount").strip() == "7"
+           and "최대 7명" in page.inner_text("#pMsg"), page.inner_text("#pMsg"))
+        # 표본 없음 (함께 출전한 기록이 없는 짝)
+        p_pick(["이신효", "유근우"])
+        w0, g0, _ = p_combo(["이신효", "유근우"])
+        av0 = (p_rate(["이신효"])[0] + p_rate(["유근우"])[0]) / 2
+        ok(f"{tag}: 짝꿍 — 표본 없음 + 참고값(개별 승률 평균 {av0:.1f}%)",
+           g0 == 0 and p_val() == "표본 없음" and f"참고값 · 개별 승률 평균 {av0:.1f}%" in p_meta_text()
+           and "예측이 아닙니다" in p_meta_text(), f"{p_val()} / {p_meta_text()}")
+        # 게스트 단독·게스트 포함
+        p_pick(["권태인"])
+        eg, gg, _ = p_rate(["권태인"])
+        ok(f"{tag}: 짝꿍 게스트 1명 — 누적 {eg:.1f}% · {gg}경기",
+           near(p_val(), eg) and f"{gg}경기" in p_meta_text(), f"{p_val()} / {p_meta_text()}")
+        p_pick(["권태인", "김현준"])
+        egt, ggt, sgt = p_rate(["권태인", "김현준"])
+        ok(f"{tag}: 짝꿍 게스트 조합 — {egt:.1f}% · 게스트 표본 안내",
+           near(p_val(), egt) and "게스트 포함" in p_meta_text() and f"게스트 동반 표본 {ggt}경기" in p_meta_text(),
+           f"{p_val()} / {p_meta_text()}")
+        # 게스트 포함 토글 OFF → 정회원+순위외 20명만
+        page.uncheck("#pGuest"); page.wait_for_timeout(200)
+        ok(f"{tag}: 짝꿍 — '게스트 포함' 해제 시 20명",
+           page.locator("#pChips .pchip").count() == len(DATA['members']) + len(DATA['outsiders']),
+           str(page.locator("#pChips .pchip").count()))
+        page.check("#pGuest"); page.wait_for_timeout(200)
+        ok(f"{tag}: 짝꿍 — '게스트 포함' 다시 켜면 91명", page.locator("#pChips .pchip").count() == N_PICK)
+
+        # 칩 말줄임·가로 넘침 없음
+        trunc = page.evaluate("""() => {
+          const bad = [];
+          document.querySelectorAll('#pChips .pchip .pn').forEach(n => {
+            if (n.scrollWidth > n.clientWidth + 1) bad.push(n.textContent);
+          });
+          const s = document.querySelector('#pairModal .sheet');
+          return {bad: bad, sw: s.scrollWidth, cw: s.clientWidth};
+        }""")
+        ok(f"{tag}: 짝꿍 — 칩 이름 잘림 0건·시트 가로 넘침 0",
+           not trunc["bad"] and trunc["sw"] <= trunc["cw"] + 1, str(trunc))
+
+        # ---- 5인 자동 랭킹 ----
+        def rows_of(sel):
+            return page.eval_on_selector_all(sel + " .prrow", """els => els.map(e => ({
+              names: e.querySelector('.pnames').innerText.replace(/\\s+/g,' ').trim(),
+              rate: e.querySelector('.prate2').innerText.trim(),
+              meta: e.querySelector('.pmeta2').innerText.replace(/\\s+/g,' ').trim(),
+              pos: e.querySelector('.ppos2').innerText.replace(/\\s+/g,' ').trim()
+            }))""")
+
+        page.evaluate("()=>document.querySelector('#pRankTitle').scrollIntoView({block:'center'})")
+        page.wait_for_timeout(200)
+        top_rows, bot_rows = rows_of("#pRankTop"), rows_of("#pRankBot")
+        ok(f"{tag}: 랭킹 — 최고·최저 각 5행", len(top_rows) == 5 and len(bot_rows) == 5,
+           f"{len(top_rows)}/{len(bot_rows)}")
+        ok(f"{tag}: 랭킹 최고 1위 — {' · '.join(RANK_TOP[0][3])} {RANK_TOP[0][0]:.1f}%",
+           top_rows and top_rows[0]["names"] == " · ".join(RANK_TOP[0][3])
+           and near(top_rows[0]["rate"], RANK_TOP[0][0]),
+           top_rows[0]["names"] + " " + top_rows[0]["rate"] if top_rows else "")
+        ok(f"{tag}: 랭킹 최저 1위 — {' · '.join(RANK_BOT[0][3])} {RANK_BOT[0][0]:.1f}%",
+           bot_rows and bot_rows[0]["names"] == " · ".join(RANK_BOT[0][3])
+           and near(bot_rows[0]["rate"], RANK_BOT[0][0]),
+           bot_rows[0]["names"] + " " + bot_rows[0]["rate"] if bot_rows else "")
+        bad_rows = []
+        for r in top_rows + bot_rows:
+            names = tuple(r["names"].split(" · "))
+            if len(names) != 5:
+                bad_rows.append(r["names"]); continue
+            w_, g_, s_ = p_combo(list(names))
+            if not pos_balanced(names) or s_ < 8 or g_ < 6 or not near(r["rate"], w_ / g_ * 100) \
+               or "표본 충분" not in r["meta"] or "균형" not in r["meta"]:
+                bad_rows.append(r["names"] + " " + r["meta"])
+        ok(f"{tag}: 랭킹 — 10행 모두 포지션 균형·표본 조건·계산 일치", not bad_rows, "; ".join(bad_rows[:3]))
+        ok(f"{tag}: 랭킹 — 상단 조건 문구·후보 수({len(RANK_ROWS):,}개)",
+           page.inner_text("#pRankCond").strip() == "5인 · 가드 2~3 · 포워드 2~3"
+           and f"후보 {len(RANK_ROWS):,}개" in page.inner_text("#pRankNote"),
+           page.inner_text("#pRankCond") + " / " + page.inner_text("#pRankNote")[:90])
+        ok(f"{tag}: 랭킹 — 행 구성 요약(PG·SG…)·균형 배지",
+           all(re.search(r'PG|SG|SF|PF', r["pos"]) for r in top_rows))
+        page.screenshot(path=f"{OUT}/{tag}_pair_rank.png")
+
+        # 균형 조건 해제
+        page.uncheck("#pBal"); page.wait_for_timeout(250)
+        top_nb = rows_of("#pRankTop")
+        ok(f"{tag}: 랭킹 — 균형 조건 해제 시 전체 후보({len(RANK_ROWS_NB):,}개)·1위 유지",
+           "포지션 조건 없음" in page.inner_text("#pRankNote")
+           and f"후보 {len(RANK_ROWS_NB):,}개" in page.inner_text("#pRankNote")
+           and top_nb and top_nb[0]["names"] == " · ".join(RANK_TOP_NB[0][3])
+           and "균형" not in top_nb[0]["meta"], page.inner_text("#pRankNote")[:120])
+        page.check("#pBal"); page.wait_for_timeout(200)
+        ok(f"{tag}: 랭킹 — 균형 조건 복원", page.inner_text("#pRankCond").strip() == "5인 · 가드 2~3 · 포워드 2~3")
+
+        # 표본 필터 완화 토글
+        page.check("#pLowSample"); page.wait_for_timeout(200)
+        ok(f"{tag}: 랭킹 — '표본 적은 조합 포함' 토글", "표본 적은 조합 포함" in page.inner_text("#pRankNote"))
+        page.uncheck("#pLowSample"); page.wait_for_timeout(150)
+
+        # 선택 선수 포함 조합만
+        p_pick(["이신효"])
+        ok(f"{tag}: 랭킹 — 1명 선택 시 '선택한 선수 포함' 토글 노출", page.locator("#pFixWrap").is_visible())
+        page.check("#pFix"); page.wait_for_timeout(250)
+        fx = rows_of("#pRankTop")
+        ok(f"{tag}: 랭킹 — 선택 선수 포함 조합만(이신효)", fx and all("이신효" in r["names"] for r in fx)
+           and "선택한 1명을 포함한 조합만" in page.inner_text("#pRankNote"), str(len(fx)))
+        page.uncheck("#pFix"); page.wait_for_timeout(150)
+
+        # ---- 가상 선수 ----
+        p_reset()
+        page.click("#pAddFake"); page.wait_for_timeout(200)
+        ok(f"{tag}: 가상 선수 — 입력 폼(이름·포지션·가정 승률·가정 표본)", page.locator("#pFakeForm").is_visible()
+           and page.get_attribute("#pfName", "maxlength") == "8"
+           and page.get_attribute("#pfGames", "min") == "1" and page.get_attribute("#pfGames", "max") == "30")
+        page.fill("#pfName", "용병A"); page.fill("#pfRate", "55"); page.fill("#pfGames", "5")
+        page.click('#pfPos [data-fpos="SG"]')
+        page.click("#pfSave"); page.wait_for_timeout(250)
+        ok(f"{tag}: 가상 선수 1명 — 가정 승률 55.0% · 시뮬레이션 안내",
+           page.locator('#pFakeChips [data-pick2="용병A"]').count() == 1)
+        page.click('#pFakeChips [data-pick2="용병A"]'); page.wait_for_timeout(200)
+        ok(f"{tag}: 가상 1명 — 가정 승률 55.0%·가정 5경기·시뮬레이션 배지",
+           near(p_val(), 55.0) and "가정 표본 5경기" in p_meta_text()
+           and page.locator("#pResult .pbadge.sim").count() >= 1
+           and "실제 경기 기록이 아닌 가정값" in page.inner_text("#pResult"),
+           f"{p_val()} / {p_meta_text()}")
+        # 가상 2명 추가 (가상+실제 조합용)
+        for nm, rt, gm, ps in [("용병B", "70", "10", "PF"), ("용병C", "40", "4", "PG")]:
+            page.click("#pAddFake"); page.wait_for_timeout(150)
+            page.fill("#pfName", nm); page.fill("#pfRate", rt); page.fill("#pfGames", gm)
+            page.click('#pfPos [data-fpos="%s"]' % ps)
+            page.click("#pfSave"); page.wait_for_timeout(200)
+        FAKES = {"용병A": {"rate": 55, "games": 5}, "용병B": {"rate": 70, "games": 10}, "용병C": {"rate": 40, "games": 4}}
+        # 가상 2명 + 실제 1명
+        p_reset()
+        page.click('#pFakeChips [data-pick2="용병A"]')
+        page.click('#pFakeChips [data-pick2="용병B"]')
+        page.click('#pChips [data-pick2="이신효"]'); page.wait_for_timeout(200)
+        efa, gfa, sfa = p_rate(["용병A", "용병B", "이신효"], FAKES)
+        ok(f"{tag}: 가상 2명+실제 1명 — {efa:.1f}% · 동반 {gfa:g}경기 · 3/3쌍 가정",
+           near(p_val(), efa) and f"동반 출전 {gfa:g}경기" in p_meta_text() and "3쌍 중 3쌍" in p_meta_text()
+           and "시뮬레이션" in page.inner_text("#pResult"), f"{p_val()} / {p_meta_text()}")
+        page.screenshot(path=f"{OUT}/{tag}_pair_fake.png")
+        # 가상 3명
+        p_reset()
+        for nm in ("용병A", "용병B", "용병C"):
+            page.click('#pFakeChips [data-pick2="%s"]' % nm)
+        page.wait_for_timeout(200)
+        ef3, gf3, sf3 = p_rate(["용병A", "용병B", "용병C"], FAKES)
+        ok(f"{tag}: 가상 3명 — {ef3:.1f}% · 3쌍 가정",
+           near(p_val(), ef3) and f"짝 3쌍 중 {sf3}쌍 표본" in p_meta_text(), f"{p_val()} / {p_meta_text()}")
+        # 저장·삭제·새로고침 유지
+        ok(f"{tag}: 가상 선수 — 3명 저장(기기 localStorage)", page.locator("#pFakeChips .frow").count() == 3)
+        page.evaluate("()=>document.querySelector('#pAddFake').scrollIntoView({block:'center'})")
+        page.click('[data-fdel]'); page.wait_for_timeout(200)
+        ok(f"{tag}: 가상 선수 — 삭제 시 목록·선택 정리", page.locator("#pFakeChips .frow").count() == 2
+           and page.inner_text("#pCount").strip() == "2")
+        page.keyboard.press("Escape"); page.wait_for_timeout(250)
+        ok(f"{tag}: 짝꿍 시트 — ESC 닫힘·스크롤 복구", page.locator("#pairModal").is_hidden()
+           and page.evaluate("()=>document.body.style.overflow") == "")
+        # 새로고침 후에도 가상 선수 유지 (localStorage)
+        page.reload(wait_until="load"); page.wait_for_timeout(600)
+        page.click("#pairBtn"); page.wait_for_timeout(350)
+        ok(f"{tag}: 가상 선수 — 새로고침 후 유지(2명)", page.locator("#pFakeChips .frow").count() == 2,
+           str(page.locator("#pFakeChips .frow").count()))
+        # 배경 탭 닫기
+        page.mouse.click(vw_ // 2, 8); page.wait_for_timeout(250)
+        ok(f"{tag}: 짝꿍 시트 — 배경 탭 닫힘", page.locator("#pairModal").is_hidden())
+
+        # ---- 포지션 미등록 시 자동 비활성 ----
+        blank = DATA['members'][0]['name']
+        page.evaluate("n => localStorage.setItem('stepback-profile-v1', JSON.stringify({[n]: {position: ''}}))", blank)
+        page.reload(wait_until="load"); page.wait_for_timeout(700)
+        page.click("#pairBtn"); page.wait_for_timeout(350)
+        ok(f"{tag}: 포지션 미등록 — 안내 문구·미등록자 표시",
+           page.locator("#pPosWarn").is_visible()
+           and "포지션 정보 없음" in page.inner_text("#pPosWarn")
+           and "균형 조건 미적용" in page.inner_text("#pPosWarn")
+           and blank in page.inner_text("#pPosWarn"), page.inner_text("#pPosWarn").replace("\n", " "))
+        ok(f"{tag}: 포지션 미등록 — 균형 토글 자동 해제·비활성",
+           page.locator("#pBal").is_disabled() and not page.locator("#pBal").is_checked()
+           and "포지션 조건 없음" in page.inner_text("#pRankCond"))
+        nb = rows_of("#pRankTop")
+        ok(f"{tag}: 포지션 미등록 상태에서도 랭킹 정상(5행)·수동 계산 정상",
+           len(nb) == 5 and f"후보 {len(RANK_ROWS_NB):,}개" in page.inner_text("#pRankNote"))
+        p_pick(["박덕원", "빈기호", "양정열", "정동현", "이승진"])
+        ok(f"{tag}: 포지션 미등록 상태에서도 5인 계산 정상", near(p_val(), e5), p_val())
+        page.evaluate("()=>localStorage.removeItem('stepback-profile-v1')")
+        ok(f"{tag}: 짝꿍 — JS 에러 0건", len(perrs) == 0, "; ".join(perrs[:4]))
+        ctx.close()
 
     # 모바일 유튜브 배지 — 앱 링크 분기 (안드로이드 intent / 아이폰 youtube:// → https fallback)
     UA_AND = ("Mozilla/5.0 (Linux; Android 14; SM-S921N) AppleWebKit/537.36 (KHTML, like Gecko) "
