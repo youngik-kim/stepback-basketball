@@ -34,10 +34,10 @@ WX_PAYLOAD = {
                "precipitation_probability": [5] * 24},
 }
 js_round = lambda v: math.floor(v + 0.5)
-WX_HEAD = f"{WX_SUN.month:02d}/{WX_SUN.day:02d}(일) 경기일 예보 · 시흥 대야동"
+WX_HEAD = f"{WX_SUN.month:02d}/{WX_SUN.day:02d}(일) 경기일"
 WX_RANGE = f"{1 + WX_IDX}~{10 + WX_IDX}°C"
 WX_PP = f"{10 + WX_IDX}%"
-WX_HOURS = " · ".join(f"{h:02d}시 {js_round(WX_TEMP[h])}°" for h in (7, 8, 9, 10))
+WX_HOURS = "오전 " + "·".join(f"{js_round(WX_TEMP[h])}°" for h in (7, 8, 9, 10))
 
 
 # ---- 개인 스탯 표 기대값 (basketball/2026-11-22-스텝백-개인스탯.md 원본 기준)
@@ -275,18 +275,8 @@ with sync_playwright() as p:
            and "시흥 SH스포츠센터" in gym.inner_text(), gym.inner_text().replace("\n", " "))
         gym.click(); page.wait_for_timeout(400)
         ok(f"{tag}: 길찾기 시트 열림", not page.locator("#navModal").is_hidden())
-        page.wait_for_selector("#navWx.ok", timeout=6000)
-        wx = page.inner_text("#navWx")
-        ok(f"{tag}: 경기일(일요일) 예보 헤더", WX_HEAD in wx and "🌤️" in wx, wx.splitlines()[0] if wx else "")
-        ok(f"{tag}: 예보 수치 — 날씨·기온·강수확률", "대체로 맑음" in wx and WX_RANGE in wx and WX_PP in wx
-           and "강수확률" in wx, wx.replace("\n", " | "))
-        ok(f"{tag}: 오전 07~10시 시간대 기온", WX_HOURS in wx, wx.splitlines()[-1] if wx else "")
-        ok(f"{tag}: 날씨 카드가 주소 박스 위·넘침 없음", page.evaluate("""() => {
-              const w = document.querySelector('#navWx').getBoundingClientRect();
-              const g = document.querySelector('#navModal .nvgym').getBoundingClientRect();
-              const sh = document.querySelector('#navModal .sheet');
-              return w.bottom <= g.top + 0.5 && sh.scrollWidth <= sh.clientWidth + 1;
-            }"""))
+        ok(f"{tag}: 길찾기 시트에는 날씨 블록 없음(히어로로 이동)",
+           page.locator("#navModal #navWx").count() == 0 and "경기일 예보" not in page.inner_text("#navModal"))
         ok(f"{tag}: 시트 — 구장명·주소", page.inner_text("#navModal .nvgym .gname") == "시흥 SH스포츠센터"
            and page.inner_text("#navModal .nvgym .gaddr") == "경기도 시흥시 대야동 500-2")
         page.click("#addrCopy"); page.wait_for_timeout(350)
@@ -350,6 +340,31 @@ with sync_playwright() as p:
               const ev = new MouseEvent('click', {bubbles: true, cancelable: true});
               a.dispatchEvent(ev); return ev.defaultPrevented;
             }""") is False)
+
+        # 3-0d) 히어로 경기일(일요일) 예보 배지 — 유튜브·밴드 아래
+        page.wait_for_selector("#heroWx.ok", timeout=8000)
+        wx = page.inner_text("#heroWx")
+        ok(f"{tag}: 히어로 경기일 예보 헤더", WX_HEAD in wx and "🌤️" in wx, wx.splitlines()[0] if wx else "")
+        ok(f"{tag}: 예보 — 날씨·최저~최고·강수확률", "대체로 맑음" in wx and WX_RANGE in wx and WX_PP in wx,
+           wx.replace("\n", " | "))
+        ok(f"{tag}: 오전 07~10시 시간대 기온", WX_HOURS in wx, wx.splitlines()[-1] if wx else "")
+        wgeo = page.evaluate("""() => {
+          const w = document.querySelector('#heroWx').getBoundingClientRect();
+          const b = document.querySelector('.hero .bandbadge').getBoundingClientRect();
+          const h = document.querySelector('.hero h1').getBoundingClientRect();
+          const p = document.querySelector('.hero .period').getBoundingClientRect();
+          const cs = getComputedStyle(document.querySelector('.hero h1'));
+          return {wl: w.left, wr: w.right, wt: w.top, wb: w.bottom, bw: b.bottom,
+                  hr: h.right, hb: h.bottom, pl: p.left, pb: p.bottom,
+                  lines: Math.round(h.height / parseFloat(cs.lineHeight)), vw: innerWidth,
+                  doc: document.documentElement.scrollWidth};
+        }""")
+        ok(f"{tag}: 예보 배지 위치 — 밴드 아래·오른쪽 정렬·제목/기간 겹침 없음",
+           wgeo["wt"] >= wgeo["bw"] - 1 and wgeo["wr"] <= wgeo["vw"] - 6 and wgeo["wl"] > wgeo["hr"]
+           and wgeo["wl"] > wgeo["vw"] * 0.5 and wgeo["lines"] == 1
+           and wgeo["doc"] <= wgeo["vw"] + 1,
+           f"wx x={wgeo['wl']:.0f}~{wgeo['wr']:.0f} y={wgeo['wt']:.0f}~{wgeo['wb']:.0f} "
+           f"band.bottom={wgeo['bw']:.0f} h1.right={wgeo['hr']:.0f} lines={wgeo['lines']}")
 
         # 3-1) 상단 요약 카드 4개 — 클릭 이동 · 라벨 잘림 없음
         cards = page.locator("#heroStats .stat")
@@ -811,6 +826,9 @@ with sync_playwright() as p:
                      "**play.google.com/**", "**apps.apple.com/**"):
             ctx.route(host, lambda route: route.fulfill(status=200, content_type="text/html",
                                                         body="<title>stub</title><h1>stub</h1>"))
+        ctx.route("**api.open-meteo.com/**",
+                  lambda route: route.fulfill(status=200, content_type="application/json",
+                                              body=json.dumps(WX_PAYLOAD, ensure_ascii=False)))
         page = ctx.new_page()
         errs, pops = [], []
         page.on("pageerror", lambda e, s=errs: s.append(str(e)))
@@ -871,12 +889,20 @@ with sync_playwright() as p:
     page.goto(URL, wait_until="load")
     page.fill("#code", CODE); page.press("#code", "Enter")
     page.wait_for_selector(".hero h1", timeout=8000)
-    page.click("#gymBtn"); page.wait_for_timeout(1800)
-    ok("날씨 실패: 대체 안내 표시", "불러오지 못했습니다" in page.inner_text("#navWx"), page.inner_text("#navWx"))
-    ok("날씨 실패: 시트·내비 버튼 정상 유지",
+    page.wait_for_selector("#heroWx.wr", timeout=8000)
+    ok("날씨 실패: 히어로 배지에 짧은 안내", "예보 불러오기 실패" in page.inner_text("#heroWx"), page.inner_text("#heroWx"))
+    ok("날씨 실패: 히어로·길찾기 시트 정상", page.evaluate("""() => {
+          const w = document.querySelector('#heroWx').getBoundingClientRect();
+          const sh = document.querySelector('#navModal .sheet').getBoundingClientRect();
+          return w.width <= 140 && w.right <= innerWidth - 6
+            && document.documentElement.scrollWidth <= innerWidth + 1;
+        }"""))
+    page.click("#gymBtn"); page.wait_for_timeout(500)
+    ok("날씨 실패: 길찾기 시트 정상(내비 3종)",
        not page.locator("#navModal").is_hidden() and page.locator("#navPick [data-nav]").count() == 3
        and page.inner_text("#navModal .nvgym .gaddr") == "경기도 시흥시 대야동 500-2")
     page.screenshot(path=f"{OUT}/wx_fail.png")
+    page.keyboard.press("Escape"); page.wait_for_timeout(200)
     ok("날씨 실패: JS 에러 0건", len(wxerrs) == 0, "; ".join(wxerrs[:2]))
     ctx.close()
     browser.close()
