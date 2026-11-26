@@ -594,11 +594,35 @@ with sync_playwright() as p:
         open_card(ASSOC_NM)
         ok(f"{tag}: 준회원({ASSOC_NM})도 '개인정보 업데이트하기'", page.locator("#pInfoSlot .openbtn").count() == 1)
         page.keyboard.press("Escape"); page.wait_for_timeout(150)
-        page.evaluate("""(n) => { document.querySelector('#guestBox').open = true;
-          [...document.querySelectorAll('#guestRows .grow')].find(e => e.dataset.person === n).click(); }""", GST_NM)
-        page.wait_for_selector("#modal:not([hidden])", timeout=4000); page.wait_for_timeout(220)
-        ok(f"{tag}: 게스트({GST_NM}) 카드 — 폼/버튼 없음", page.locator("#pInfoSlot .openbtn").count() == 0
-           and page.locator("#pInfo").count() == 0 and page.eval_on_selector("#mProf", "el=>el.hidden"))
+        def open_guest(nm):
+            page.evaluate("""(n) => { document.querySelector('#guestBox').open = true;
+              [...document.querySelectorAll('#guestRows .grow')].find(e => e.dataset.person === n).click(); }""", nm)
+            page.wait_for_selector("#modal:not([hidden])", timeout=4000)
+            page.wait_for_timeout(220)
+
+        open_guest(GST_NM)
+        ok(f"{tag}: 게스트({GST_NM}) 카드 — '정보 입력하기' 버튼(자동 오픈 없음)",
+           page.locator("#pInfoSlot .openbtn").count() == 1 and page.locator("#pInfo").count() == 0
+           and page.inner_text("#pInfoSlot").strip() == "정보 입력하기" and page.eval_on_selector("#mProf", "el=>el.hidden"),
+           page.inner_text("#pInfoSlot"))
+        page.click("#pInfoSlot [data-popen]"); page.wait_for_timeout(200)
+        ok(f"{tag}: 게스트 폼 — 이름 고정·'다음에 하기'", page.inner_text("#pInfo .fixed") == GST_NM
+           and page.inner_text("#pInfo [data-pclose]") == "다음에 하기")
+        page.fill("#pHeight", "180"); page.fill("#pNumber", "88")
+        page.click("#pInfo [data-ppos='SG']")
+        page.click("#pInfo [data-psave]"); page.wait_for_timeout(400)
+        ok(f"{tag}: 게스트 카드 배지 반영(#88 · 180cm · SG)",
+           page.eval_on_selector("#mProf", "el=>el.innerText.replace(/\\s+/g,' ').trim()") == "#88 · 180cm · SG",
+           page.eval_on_selector("#mProf", "el=>el.innerText.replace(/\\s+/g,' ').trim()"))
+        ok(f"{tag}: 게스트 카톡 양식 동일 형식",
+           page.input_value("#pCopy") == f"스텝백 정보 업데이트 요청 드립니다.\n[{GST_NM} / 180cm / 88번 / SG]",
+           repr(page.input_value("#pCopy")))
+        page.screenshot(path=f"{OUT}/{tag}_12b_guest_saved.png")
+        page.keyboard.press("Escape"); page.wait_for_timeout(150)
+        open_guest(GST_NM)
+        ok(f"{tag}: 저장 후 게스트는 '개인정보 업데이트하기' + 배지 유지",
+           page.inner_text("#pInfoSlot").strip() == "개인정보 업데이트하기"
+           and page.eval_on_selector("#mProf", "el=>el.innerText.replace(/\\s+/g,' ').trim()") == "#88 · 180cm · SG")
         page.keyboard.press("Escape"); page.wait_for_timeout(150)
 
         # 13) 잠금 버튼

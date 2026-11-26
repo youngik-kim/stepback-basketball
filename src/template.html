@@ -1481,8 +1481,9 @@ function hasFullProfile(pf) {
     && pf.position !== undefined && pf.position !== null && pf.position !== ''
     && pf.number !== undefined;   /* null(=없음) 은 입력한 값으로 봅니다 */
 }
-/* 정회원·준회원만 — 게스트(로스터 밖)는 제외 */
-function canEditProfile(name) { return !!rosterOf(name); }
+/* 정회원·준회원·게스트 모두 — 로스터 밖(게스트)은 자동 오픈 없이 버튼으로만 */
+function isGuest(name) { return !rosterOf(name); }
+function canEditProfile(name) { return true; }
 function profNumberText(pf) {
   if (pf.number === null) return '번호없음';
   if (pf.number === undefined || pf.number === '') return '';
@@ -1542,9 +1543,10 @@ function renderProfSlot(name) {
   const slot = $('#pInfoSlot');
   if (!slot) return;
   if (!canEditProfile(name)) { slot.innerHTML = ''; return; }
-  /* 정보가 비어 있으면 폼을 바로 펼치고, 이미 있으면 버튼만 둡니다 */
-  if (hasFullProfile(effProfile(name))) collapseProfSlot(name);
-  else openProfForm(name);
+  /* 정·준회원은 정보가 비어 있으면 폼을 바로 펼치고, 이미 있으면 버튼만 남깁니다.
+     게스트는 항상 버튼('정보 입력하기' / '개인정보 업데이트하기')으로 시작합니다. */
+  if (!isGuest(name) && !hasFullProfile(effProfile(name))) openProfForm(name);
+  else collapseProfSlot(name);
 }
 function readProfForm() {
   const setErr = function (m) { const el = $('#pErr'); if (el) el.textContent = m; };
@@ -1627,8 +1629,7 @@ function saveProf(name) {
     stat.textContent = ok ? '복사되었습니다. 카톡방에 붙여넣어 주세요.' : '자동 복사가 막혔습니다. 위 텍스트를 길게 눌러 직접 복사해 주세요.';
   });
   /* 로스터·개인 스탯 표 메타도 같은 값으로 다시 그림 */
-  renderRoster(); renderStats();
-}
+  renderRoster(); renderStats();}
 
 /* ---------------- modal ---------------- */
 let lastFocus = null;
