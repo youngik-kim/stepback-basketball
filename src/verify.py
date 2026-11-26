@@ -6,7 +6,7 @@ from playwright.sync_api import sync_playwright
 
 SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-OUT = os.path.join(SITE, "_verify")
+OUT = os.environ.get("VERIFY_OUT") or os.path.join(SITE, "_verify")
 os.makedirs(OUT, exist_ok=True)
 CODE = (os.environ.get('STEPBACK_ENTRY_CODE') or io.open(os.path.join(SITE, '.entry-code'), encoding='utf-8').read()).strip()
 DATA = json.loads(io.open(os.path.join(SITE, 'src', 'data.json'), encoding='utf-8').read())
@@ -14,12 +14,14 @@ NAMES = {p['name'] for p in DATA['members'] + DATA['outsiders'] + DATA['guests']
 TOP = DATA['members'][0]
 REB_LEAD = max(DATA['stats']['career']['rows'], key=lambda r: r['reb'])
 
-handler = functools.partial(SimpleHTTPRequestHandler, directory=SITE)
-httpd = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-PORT = httpd.server_address[1]
-threading.Thread(target=httpd.serve_forever, daemon=True).start()
-URL = f"http://127.0.0.1:{PORT}/"
-print("server", URL)
+URL = os.environ.get("SITE_URL")
+httpd = None
+if not URL:
+    handler = functools.partial(SimpleHTTPRequestHandler, directory=SITE)
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    URL = f"http://127.0.0.1:{httpd.server_address[1]}/"
+print("target", URL)
 
 results = []
 def ok(name, cond, extra=""):
@@ -165,7 +167,7 @@ with sync_playwright() as p:
     page.screenshot(path=f"{OUT}/d_9_full.png", full_page=True)
     ctx.close()
     browser.close()
-httpd.shutdown()
+if httpd: httpd.shutdown()
 
 fails = [r for r in results if not r[1]]
 print("\n=== 결과: %d/%d 통과, 실패 %d ===" % (len(results) - len(fails), len(results), len(fails)))
