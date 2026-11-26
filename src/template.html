@@ -284,22 +284,61 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .sortchip{flex:0 0 auto;font-size:11px;font-weight:800;color:var(--tx3);background:rgba(255,255,255,.04);
   border:1px solid var(--line);border-radius:999px;padding:5px 10px;cursor:pointer}
 .sortchip[aria-pressed="true"]{color:#04120f;background:linear-gradient(120deg,var(--acc),#8af2dd);border-color:transparent}
-.stlist{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.sthead,.strow{display:grid;grid-template-columns:minmax(0,1fr) 34px 30px 30px 44px;align-items:center;
-  gap:3px;padding:8px 10px}
-.sthead{font-size:9.5px;color:var(--tx3);letter-spacing:.02em;font-weight:800;
-  background:rgba(255,255,255,.03);border-bottom:1px solid var(--line)}
-.sthead span:not(:first-child),.strow .num{text-align:right;font-variant-numeric:tabular-nums}
-.strow{appearance:none;border:0;border-bottom:1px solid rgba(255,255,255,.045);background:transparent;
-  width:100%;text-align:left;cursor:pointer;color:inherit}
-.strow:last-child{border-bottom:0}
-.strow:hover{background:rgba(255,255,255,.045)}
-.strow .who{min-width:0}
-.strow .who b{font-size:13.5px;font-weight:800;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.strow .who i{font-style:normal;font-size:9.5px;color:var(--tx3);display:block;margin-top:1px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.strow .num{font-size:12.5px;font-weight:800;color:var(--tx2)}
-.strow .num.lead{color:var(--acc);font-weight:900;font-size:13.5px}
+/* 가로 스크롤 표 + 왼쪽 '선수' 열 고정 */
+.statwrap{position:relative}
+.statscroll{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.22) transparent}
+.statscroll::-webkit-scrollbar{height:7px}
+.statscroll::-webkit-scrollbar-track{background:transparent}
+.statscroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:7px}
+.statscroll:focus-visible{outline:2px solid rgba(51,224,196,.55);outline-offset:2px}
+.sfade{position:absolute;top:1px;right:1px;bottom:1px;width:34px;pointer-events:none;
+  border-radius:0 var(--r) var(--r) 0;opacity:1;transition:opacity .18s;
+  background:linear-gradient(90deg,rgba(17,26,43,0),rgba(17,26,43,.97) 76%)}
+.sfade.off{opacity:0}
+.stab{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;
+  font-variant-numeric:tabular-nums}
+.stab th,.stab td{padding:8px 6px;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.045)}
+.stab thead th{background:#0d1524;border-bottom:1px solid var(--line);padding:6px;min-width:38px}
+.stab thead th .thbtn{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;
+  color:var(--tx3);font-size:9.5px;font-weight:800;letter-spacing:.02em;line-height:1.25;
+  text-align:right;cursor:pointer;min-height:26px}
+.stab thead th .thbtn:hover{color:var(--tx2)}
+.stab thead th .thbtn .ar{display:block;font-size:7.5px;line-height:1;margin-top:1px;opacity:0}
+.stab thead th[aria-sort="descending"] .thbtn{color:var(--acc)}
+.stab thead th[aria-sort="descending"] .thbtn .ar{opacity:1}
+.stab tbody tr{--rb:#111a2b;cursor:pointer}
+.stab tbody tr:nth-child(even){--rb:#0d1524}
+.stab tbody tr:hover{--rb:#16213a}
+.stab tbody td,.stab tbody th{background-color:var(--rb)}
+.stab tbody tr:last-child td,.stab tbody tr:last-child th{border-bottom:0}
+.stab .pcol{position:sticky;left:0;z-index:2;min-width:104px;max-width:126px;text-align:left;
+  padding-left:10px;padding-right:9px;
+  box-shadow:1px 0 0 var(--line),10px 0 14px -10px rgba(0,0,0,.75)}
+.stab thead th.pcol{z-index:3;background:#0d1524}
+.stab .who{display:block;max-width:118px}
+.stab .who b{font-size:13px;font-weight:800;display:block;overflow:hidden;text-overflow:ellipsis}
+.stab .who i{font-style:normal;font-size:9px;color:var(--tx3);display:block;margin-top:1px;
+  line-height:1.3;overflow:hidden;text-overflow:ellipsis}
+.stab td.num{text-align:right;font-size:12.5px;font-weight:800;color:var(--tx2)}
+.stab td.num.lead{color:var(--acc);font-weight:900}
+.stab td.shot{text-align:right;line-height:1.15}
+.stab td.shot b{display:block;font-size:12px;font-weight:800;color:var(--tx2)}
+.stab td.shot b.lead{color:var(--acc);font-weight:900}
+.stab td.shot i{display:block;font-style:normal;font-size:9px;font-weight:700;color:var(--tx3);margin-top:1px}
+.stab td.sorted{background-image:linear-gradient(rgba(51,224,196,.07),rgba(51,224,196,.07))}
+.stab th.sorted{background-image:linear-gradient(rgba(51,224,196,.10),rgba(51,224,196,.10))}
+.stab tbody tr:focus-visible{outline:none}
+.stab tbody tr:focus-visible td,.stab tbody tr:focus-visible th{
+  background-image:linear-gradient(rgba(51,224,196,.13),rgba(51,224,196,.13))}
+.stab .nores-cell{padding:22px 12px;text-align:center;color:var(--tx3);font-size:12.5px;font-weight:700}
+.scrollcue{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:7px 2px 0;
+  font-size:10.5px;font-weight:700;color:var(--tx3);line-height:1.5}
+.scrollcue .k{font-size:10px;font-weight:900;color:var(--acc);background:rgba(51,224,196,.10);
+  border:1px solid rgba(51,224,196,.26);border-radius:999px;padding:2px 7px}
+.scrollcue b{color:var(--tx2)}
+.scrollcue[hidden]{display:none}
 
 /* ---------- roster ---------- */
 .rostergrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
@@ -381,8 +420,13 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .msc{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:9px;padding:6px 4px;text-align:center;min-width:0}
 .msc .v{font-size:14px;font-weight:900;font-variant-numeric:tabular-nums}
 .msc .k{font-size:9.5px;color:var(--tx3);font-weight:700;margin-top:1px}
-.mshot{font-size:10.5px;color:var(--tx2);margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
-.mshot span b{color:var(--tx);font-variant-numeric:tabular-nums}
+.mshots{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:5px}
+.mshotc{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:9px;
+  padding:6px 4px;text-align:center;min-width:0}
+.mshotc .t{font-size:9.5px;color:var(--tx3);font-weight:800}
+.mshotc .v{font-size:12.5px;font-weight:900;font-variant-numeric:tabular-nums;margin-top:1px;white-space:nowrap}
+.mshotc .p{font-size:10px;font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums}
+.mshotc.none .v,.mshotc.none .p{color:var(--tx3)}
 .mweek{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:7px;align-items:center;padding:7px 0;
   border-bottom:1px solid rgba(255,255,255,.06);font-size:12px}
 .mweek .dt{color:var(--tx3);font-weight:800;font-variant-numeric:tabular-nums}
@@ -425,13 +469,14 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
   .wkcard>.body{padding:13px 16px 15px}
   .games{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
   .rostergrid{grid-template-columns:repeat(3,1fr)}
-  .sthead,.strow{grid-template-columns:minmax(0,1fr) 56px 48px 44px 44px 62px;padding:9px 14px}
-  .sthead .dcol,.strow .dcol{display:block}
+  .stab th,.stab td{padding:9px 8px}
+  .stab thead th{padding:7px 8px}
+  .stab .pcol{min-width:124px;padding-left:14px}
+  .stab .who{max-width:150px}
   .mstats{grid-template-columns:repeat(4,1fr)}
   .standstrip{grid-template-columns:repeat(3,1fr)}
 }
 @media (max-width:759px){
-  .sthead .dcol,.strow .dcol{display:none}
   .nm .meta.splitmeta{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -532,10 +577,16 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
       <button id="tabCareer" aria-pressed="false">시즌 누적</button>
     </div>
     <div class="sortrow" id="sortRow" role="group" aria-label="정렬 기준"></div>
-    <div class="stlist">
-      <div class="sthead"><span>선수</span><span>득점</span><span>리바</span><span>어시</span><span class="dcol">스틸</span><span>MVP</span></div>
-      <div id="statRows"></div>
+    <div class="statwrap">
+      <div class="statscroll" id="statScroll" tabindex="0" role="region" aria-label="개인 스탯 표 — 좌우로 밀어 전체 항목 보기">
+        <table class="stab" id="statTable">
+          <thead id="statHead"></thead>
+          <tbody id="statRows"></tbody>
+        </table>
+      </div>
+      <div class="sfade" id="statFade" aria-hidden="true"></div>
     </div>
+    <p class="scrollcue" id="scrollCue"><span class="k">↔ 좌우</span> 표를 <b>좌우로 밀면</b> 2점·3점·자유투·ORB·DRB·스틸·블락·턴오버·파울·출전까지 전 항목이 보입니다</p>
     <p class="hint" id="statHint">리바운드 = 공격(ORB) + 수비(DRB) · MVP 포인트는 팀 기록지 산식 그대로입니다.</p>
   </section>
 
@@ -939,14 +990,43 @@ function personDates(name, date) {
 }
 
 /* ---------------- stats ---------------- */
-const SORTS = [
-  ['pts', '득점'], ['reb', '리바운드'], ['ast', '어시스트'], ['mvp', 'MVP'], ['gp', '출전']
+/* 열 구성 — 기록지(2026-11-22 개인스탯) 전 항목. shot: 성공률(%) 기준 정렬 */
+const ST_COLS = [
+  { k: 'pts', l: '득점', s: '득점' },
+  { k: 'reb', l: '리바', s: '리바운드(ORB+DRB)' },
+  { k: 'orb', l: 'ORB', s: '공격 리바운드' },
+  { k: 'drb', l: 'DRB', s: '수비 리바운드' },
+  { k: 'ast', l: '어시', s: '어시스트' },
+  { k: 'stl', l: '스틸', s: '스틸' },
+  { k: 'blk', l: '블락', s: '블락' },
+  { k: 'to', l: '턴오버', s: '턴오버' },
+  { k: 'pf', l: '파울', s: '개인반칙' },
+  { k: 'fg2', l: '2점', s: '2점 성공률', shot: 1 },
+  { k: 'fg3', l: '3점', s: '3점 성공률', shot: 1 },
+  { k: 'ft', l: '자유투', s: '자유투 성공률', shot: 1 },
+  { k: 'mvp', l: 'MVP', s: 'MVP 포인트' },
+  { k: 'gp', l: '출전', s: '출전 수' }
 ];
+const SORTS = ST_COLS.filter(c => !c.shot).map(c => [c.k, c.s]);
+const stCol = k => ST_COLS.find(c => c.k === k);
+function statVal(p, k) {
+  const c = stCol(k);
+  if (c && c.shot) { const s = p[k]; return s && s.a ? s.p : -1; }
+  return p[k] == null ? -1 : p[k];
+}
 function statRows() {
   const src = DATA.stats[STAT_MODE];
+  const c = stCol(STAT_SORT);
   const arr = src.rows.slice().sort((a, b) => {
-    const av = a[STAT_SORT] == null ? -1 : a[STAT_SORT], bv = b[STAT_SORT] == null ? -1 : b[STAT_SORT];
-    return bv - av || (a.name < b.name ? -1 : 1);
+    const d = statVal(b, STAT_SORT) - statVal(a, STAT_SORT);
+    if (d) return d;
+    if (c && c.shot) {  /* 성공률 동률 → 성공 개수 → 시도 수 */
+      const am = (a[STAT_SORT] && a[STAT_SORT].m) || 0, bm = (b[STAT_SORT] && b[STAT_SORT].m) || 0;
+      if (bm !== am) return bm - am;
+      const aa = (a[STAT_SORT] && a[STAT_SORT].a) || 0, ba = (b[STAT_SORT] && b[STAT_SORT].a) || 0;
+      if (ba !== aa) return ba - aa;
+    }
+    return a.name < b.name ? -1 : 1;
   });
   const filtered = Q ? arr.filter(p => p.name.includes(Q)) : arr;
   return { src, arr: filtered, total: arr.length };
@@ -954,28 +1034,55 @@ function statRows() {
 function rosterOf(name) {
   return DATA.roster.find(r => r.name === name) || null;
 }
+const fmtN = (v, d) => (v == null ? '–' : (Number.isInteger(v) ? String(v) : v.toFixed(d || 1)));
+const fmtMakes = s => (s ? `${fmtN(s.m)}/${fmtN(s.a)}` : '–');
+function syncStatScroll() {
+  const sc = $('#statScroll');
+  if (!sc) return;
+  const over = sc.scrollWidth - sc.clientWidth;
+  const fade = $('#statFade'), cue = $('#scrollCue');
+  if (fade) fade.classList.toggle('off', over <= 2 || sc.scrollLeft >= over - 2);
+  if (cue) cue.hidden = over <= 2;
+}
 function renderStats() {
   const { src, arr, total } = statRows();
   $('#statAsOf').textContent = `${src.label} · ${total}명`;
   $('#tabEvent').setAttribute('aria-pressed', STAT_MODE === 'event');
   $('#tabCareer').setAttribute('aria-pressed', STAT_MODE === 'career');
-  $('#sortRow').innerHTML = SORTS.map(([k, l]) => `<button class="sortchip" data-sort="${k}" aria-pressed="${STAT_SORT === k}">${l}</button>`).join('');
-  const lead = arr.length ? arr.reduce((a, b) => ((b[STAT_SORT] || 0) > (a[STAT_SORT] || 0) ? b : a), arr[0]) : null;
-  const f = (p, k) => (p[k] == null ? '–' : (Number.isInteger(p[k]) ? p[k] : p[k].toFixed(1)));
+  $('#sortRow').innerHTML = ST_COLS.filter(c => !c.shot).map(c =>
+    `<button class="sortchip" data-sort="${c.k}" aria-pressed="${STAT_SORT === c.k}">${c.l}</button>`).join('');
+  const rowEl = $('#sortRow'), act = rowEl.querySelector(`[data-sort="${STAT_SORT}"]`);
+  if (act) {  /* 헤더로 정렬했을 때 해당 칩이 칩 줄 안에 보이게 */
+    const l = act.getBoundingClientRect().left - rowEl.getBoundingClientRect().left + rowEl.scrollLeft;
+    if (l < 0 || l + act.offsetWidth > rowEl.clientWidth - 2) rowEl.scrollLeft = Math.max(0, l - 12);
+  }
+  const lead = arr.length ? arr.reduce((a, b) => (statVal(b, STAT_SORT) > statVal(a, STAT_SORT) ? b : a), arr[0]) : null;
+  $('#statHead').innerHTML = `<tr><th class="pcol" scope="col">선수</th>${ST_COLS.map(c => {
+    const on = c.k === STAT_SORT;
+    return `<th scope="col" class="${on ? 'sorted' : ''}" aria-sort="${on ? 'descending' : 'none'}">
+      <button class="thbtn" data-sort="${c.k}" title="${c.s} 순 정렬" aria-label="${c.s} 기준 정렬">${c.l}<span class="ar">▼</span></button></th>`;
+  }).join('')}</tr>`;
+  const cell = (p, c) => {
+    const isLead = lead && lead.name === p.name;
+    const cls = (c.k === STAT_SORT ? ' sorted' : '') + (isLead ? ' lead' : '');
+    if (c.shot) {
+      const s = p[c.k];
+      return `<td class="shot${c.k === STAT_SORT ? ' sorted' : ''}"><b class="${isLead ? 'lead' : ''}">${s ? s.p + '%' : '–'}</b><i>${fmtMakes(s)}</i></td>`;
+    }
+    if (c.k === 'mvp') return `<td class="num${cls}">${p.mvp == null ? '–' : p.mvp.toFixed(2)}</td>`;
+    return `<td class="num${cls}">${fmtN(p[c.k])}</td>`;
+  };
   $('#statRows').innerHTML = arr.length ? arr.map(p => {
     const ro = rosterOf(p.name);
     const meta = [ro && ro.no ? '#' + ro.no : null, ro ? ro.height + 'cm' : null, ro ? ro.pos : null].filter(Boolean).join(' · ');
-    const cls = k => 'num' + (lead && lead.name === p.name && STAT_SORT === k ? ' lead' : '');
-    return `<button class="strow" data-person="${esc(p.name)}">
-      <span class="who"><b>${hl(p.name, Q)}</b><i>${esc(meta)}</i></span>
-      <span class="${cls('pts')}">${f(p, 'pts')}</span>
-      <span class="${cls('reb')}">${f(p, 'reb')}</span>
-      <span class="${cls('ast')}">${f(p, 'ast')}</span>
-      <span class="${cls('stl')} dcol">${f(p, 'stl')}</span>
-      <span class="${cls('mvp')}">${p.mvp == null ? '–' : p.mvp.toFixed(2)}</span>
-    </button>`;
-  }).join('') : `<div class="nores">${Q ? '해당 이름의 스탯이 없습니다.' : '스탯 기록이 없습니다.'}</div>`;
-  $('#statHint').innerHTML = `리바운드 = 공격(ORB) + 수비(DRB) · MVP 포인트는 팀 기록지 산식 그대로입니다. 정렬: <b style="color:var(--tx)">${esc((SORTS.find(s => s[0] === STAT_SORT) || [, ''])[1])}</b> 기준`;
+    return `<tr class="strow" data-person="${esc(p.name)}" tabindex="0">
+      <th class="pcol" scope="row"><span class="who"><b>${hl(p.name, Q)}</b><i>${esc(meta)}</i></span></th>
+      ${ST_COLS.map(c => cell(p, c)).join('')}
+    </tr>`;
+  }).join('') : `<tr><td class="nores-cell" colspan="${ST_COLS.length + 1}">${Q ? '해당 이름의 스탯이 없습니다.' : '스탯 기록이 없습니다.'}</td></tr>`;
+  const sc = $('#statScroll');
+  if (sc && sc.scrollLeft > sc.scrollWidth - sc.clientWidth) sc.scrollLeft = 0;
+  syncStatScroll();  $('#statHint').innerHTML = `2점·3점·자유투는 <b style="color:var(--tx2)">성공률(%)</b> 기준, 나머지는 개수 기준 정렬 · 헤더나 위 칩을 눌러 바꿀 수 있습니다 · 리바운드 = ORB + DRB · MVP는 기록지 산식 그대로`;
 }
 
 /* ---------------- roster ---------------- */
@@ -1055,20 +1162,25 @@ let lastFocus = null;
 function statBlock(rows, name, label, date) {
   const p = rows.find(r => r.name === name);
   if (!p) return `<div class="msec">${label} <span class="as">${date}</span></div><div class="mempty">이 기록지에 스탯이 없습니다(출전 명단 미포함).</div>`;
-  const n = v => (v == null ? '–' : (Number.isInteger(v) ? v : v.toFixed(1)));
-  const sh = (s, nm) => s ? `${nm} ${s.m}/${s.a} (${s.p}%)` : `${nm} –`;
+  const n = (v, d) => (v == null ? '–' : (Number.isInteger(v) ? String(v) : v.toFixed(d || 1)));
+  const shot = (t, s) => s
+    ? `<div class="mshotc"><div class="t">${t}</div><div class="v">${n(s.m)}/${n(s.a)}</div><div class="p">${s.p}%</div></div>`
+    : `<div class="mshotc none"><div class="t">${t}</div><div class="v">–</div><div class="p">시도 없음</div></div>`;
   return `<div class="msec">${label} <span class="as">${date}</span></div>
+    <div class="mshots">${shot('2점', p.fg2)}${shot('3점', p.fg3)}${shot('자유투', p.ft)}</div>
     <div class="mstats">
       <div class="msc"><div class="v">${n(p.pts)}</div><div class="k">득점</div></div>
       <div class="msc"><div class="v">${n(p.reb)}</div><div class="k">리바운드</div></div>
+      <div class="msc"><div class="v">${n(p.orb)}</div><div class="k">ORB 공격</div></div>
+      <div class="msc"><div class="v">${n(p.drb)}</div><div class="k">DRB 수비</div></div>
       <div class="msc"><div class="v">${n(p.ast)}</div><div class="k">어시스트</div></div>
       <div class="msc"><div class="v">${n(p.stl)}</div><div class="k">스틸</div></div>
       <div class="msc"><div class="v">${n(p.blk)}</div><div class="k">블락</div></div>
       <div class="msc"><div class="v">${n(p.to)}</div><div class="k">턴오버</div></div>
       <div class="msc"><div class="v">${n(p.pf)}</div><div class="k">파울</div></div>
       <div class="msc"><div class="v">${p.mvp == null ? '–' : p.mvp.toFixed(2)}</div><div class="k">MVP</div></div>
-    </div>
-    <div class="mshot"><span>${sh(p.fg2, '2점')}</span><span>${sh(p.fg3, '3점')}</span><span>${sh(p.ft, '자유투')}</span><span>ORB <b>${n(p.orb)}</b> / DRB <b>${n(p.drb)}</b></span><span>출전 <b>${n(p.gp)}</b></span></div>`;
+      <div class="msc"><div class="v">${n(p.gp)}</div><div class="k">출전</div></div>
+    </div>`;
 }
 function openPerson(name) {
   const st = computeAsOf(curDate);
@@ -1187,6 +1299,14 @@ function bind() {
     if (!b) return;
     STAT_SORT = b.dataset.sort; renderStats();
   });
+  /* 표 헤더 클릭 정렬 + 가로 스크롤 힌트 갱신 */
+  $('#statScroll').addEventListener('click', e => {
+    const b = e.target.closest('[data-sort]');
+    if (!b || !b.classList.contains('thbtn')) return;
+    STAT_SORT = b.dataset.sort; renderStats();
+  });
+  $('#statScroll').addEventListener('scroll', syncStatScroll, { passive: true });
+  window.addEventListener('resize', syncStatScroll);
   $('#posRow').addEventListener('click', e => {
     const b = e.target.closest('[data-pos]');
     if (!b) return;
@@ -1213,6 +1333,10 @@ function bind() {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !$('#modal').hidden) closeModal();
     if (e.target.id === 'weekSel') return;
+    const row = e.target.closest && e.target.closest('tr.strow[data-person]');
+    if (row && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault(); openPerson(row.dataset.person); return;
+    }
     if (e.key === 'ArrowLeft' && e.altKey) $('#prevBtn').click();
     if (e.key === 'ArrowRight' && e.altKey) $('#nextBtn').click();
   });

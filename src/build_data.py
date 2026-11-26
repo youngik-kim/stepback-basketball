@@ -295,7 +295,21 @@ for r in rows(roster_block)[1:]:
                        height=(None if h in ("-", "") else int(h)), pos=pos,
                        posMain=pos.split("/")[0]))
 
-print(f"스탯: 11/22 {len(overall)}명 · 누적 {len(career)}명 · 로스터 {len(roster)}명")
+# --- 스탯 열 완비 검사 (2점·3점·자유투·ORB·DRB·리바총합·어시·스틸·블락·턴오버·파울·MVP·출전)
+STAT_KEYS = ["pts", "fg2", "fg3", "ft", "orb", "drb", "reb", "ast", "stl", "blk", "to", "pf", "mvp", "gp"]
+for label, srows, exp in (("11/22", overall, 15), ("누적", career, 16)):
+    missing = [(r["name"], k) for r in srows for k in STAT_KEYS if k not in r]
+    if missing:
+        errors.append(f"스탯 {label} 열 누락: {missing}")
+    if len(srows) != exp:
+        errors.append(f"스탯 {label} 인원 {len(srows)}명 (기록지 {exp}명)")
+    for r in srows:
+        if (r["orb"] or 0) + (r["drb"] or 0) != r["reb"]:
+            errors.append(f"스탯 {label} {r['name']}: 리바총합 {r['reb']} != ORB+DRB")
+    if any(r["name"] != clean(r["name"]) for r in srows):
+        errors.append(f"스탯 {label} 이름 정리 오류")
+
+print(f"스탯: 11/22 {len(overall)}명 · 누적 {len(career)}명 · 로스터 {len(roster)}명 · 열 {len(STAT_KEYS)}종(리바총합 포함) 확인")
 
 # ---------------------------------------------------------------- 하이라이트
 best = max(members, key=lambda p: p["rate"])

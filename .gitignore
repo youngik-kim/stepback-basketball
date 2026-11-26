@@ -3,5 +3,5 @@ src/data.json
 .entry-code
 
 # 로컬 검증 산출물
-_verify/
+_verify*/
 live.html
