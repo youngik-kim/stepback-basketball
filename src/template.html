@@ -3770,7 +3770,7 @@ function pTogglePick(name) {
     if (cnt) cnt.innerHTML = '<b>' + n + '</b>/' + T_MAX + '명';
     var mn = $('#tModeNote');
     if (mn) mn.innerHTML = m + '파전 → <b>' + T_TEAMS[m].join(' · ') + '</b>'
-      + (n ? ' · 팀 인원 <b>' + tSizes(n, m).join(' · ') + '</b>명' : '')
+      + (n >= m * 5 ? ' · 팀 인원 <b>' + tSizes(n, m).join(' · ') + '</b>명' : '')
       + ' · 최소 ' + (m * 5) + '명(' + m + '팀 × 5명)';
     var bn = $('#tBasisNote');
     if (bn) {
