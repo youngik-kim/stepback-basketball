@@ -1358,7 +1358,7 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     <div id="tResult"></div>
       <p class="pmsg" id="tMsg" role="status" aria-live="polite" hidden></p>
       <label class="psearch" for="tQ"><span aria-hidden="true">🔍</span>
-        <input id="tQ" type="search" placeholder="이름 검색 (정회원·게스트·가상)" autocomplete="off" enterkeyhint="search" aria-label="참석자 이름 검색">
+        <input id="tQ" type="search" placeholder="이름 검색 (정회원·게스트)" autocomplete="off" enterkeyhint="search" aria-label="참석자 이름 검색">
       </label>
       <div class="pfilter" id="tPosFilter" role="group" aria-label="포지션 필터">
         <button type="button" data-tposf="" aria-pressed="true">전체</button>
@@ -1370,7 +1370,24 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
       </div>
       <label class="ptoggle"><input type="checkbox" id="tGuest" checked> 게스트 포함 <span style="color:var(--tx3);font-weight:700">· 가상 선수는 항상 표시</span></label>
       <div class="tchipbox"><div class="pchips" id="tChips"></div></div>
-      <p class="tnote" id="tFakeHint" hidden></p>
+      <div class="pfake" id="tFakeWrap">
+        <div class="pfHead"><span>가상 선수</span><button type="button" class="padd" id="tAddFake">+ 가상 선수 추가</button></div>
+        <div class="pfList" id="tFakeChips"></div>
+        <form class="pfform" id="tFakeForm" hidden novalidate>
+          <div class="pfRow"><label for="tfName">이름</label><input id="tfName" type="text" maxlength="8" autocomplete="off" placeholder="예: 용병A"></div>
+          <div class="pfRow pfPosRow"><label>포지션</label><div class="pfPos" id="tfPos">
+            <button type="button" data-fpos="PG" aria-pressed="false">PG</button>
+            <button type="button" data-fpos="SG" aria-pressed="false">SG</button>
+            <button type="button" data-fpos="SF" aria-pressed="false">SF</button>
+            <button type="button" data-fpos="PF" aria-pressed="false">PF</button>
+            <button type="button" data-fpos="C" aria-pressed="false">C</button>
+          </div></div>
+          <div class="pfRow"><label for="tfRate">가정 승률</label><input id="tfRate" type="number" inputmode="numeric" min="0" max="100" step="1" placeholder="예: 55"><span class="unit">%</span></div>
+          <div class="pfRow"><label for="tfGames">가정 표본</label><input id="tfGames" type="number" inputmode="numeric" min="1" max="30" step="1" value="5"><span class="unit">경기</span></div>
+          <p class="pfErr" id="tfErr"></p>
+          <div class="pfBtns"><button type="submit" class="pfSave" id="tfSave">저장</button><button type="button" class="pfCancel" id="tfCancel">취소</button></div>
+        </form>
+      </div>
     </div>
 
     <p class="pnote" id="tNote">팀 인원은 ±1명 이내로 나눕니다. 기준 점수의 팀 평균 편차를 가장 작게 만들면서 포지션(가드·포워드·센터) 분산과 짝꿍 상성을 함께 점수화해 조합을 찾습니다. 포지션 미등록자는 포지션 균형 계산에서 제외하고 인원만 맞춥니다.</p>
@@ -2523,6 +2540,7 @@ function closeNav() {
 const CHANGELOG = [
   { date: '2026-11-27', tag: '기능', items: [
     '<b>⚖️ 팀 구성 추천하기 추가</b> — 3파전·2파전과 참석 인원(정회원·게스트·가상)을 고르면 팀별 평균(현재 승률 / 5주 개인 스탯)·포지션·짝꿍 상성까지 맞춰 가장 대등한 조합과 구성 이유를 보여 줍니다',
+    '팀 구성 기준 보완 — 3파전 최소 <b>15명</b>(3팀×5명)·2파전 최소 <b>10명</b>(2팀×5명), 팀 표시 순서 <b>레드 · 블랙 · 형광</b>(2파전 레드 · 블랙), 시트 안 <b>+ 가상 선수 추가</b>로 바로 반영',
     '<b>게스트 구분 정리</b> — 기존 구분을 없애고 해당 인원을 <b>게스트</b>로 표기, 백넘버가 있는 게스트는 로스터에 그대로 유지',
     '상단 요약 카드 4칸을 <b>승률 / 경기 / 정회원 / 게스트</b>로 변경 — 정회원을 누르면 로스터로 이동',
     '개인 스탯 <b>시즌 누적(쿼터당)</b>의 MVP 열이 화면 값 그대로 정렬되도록 수정 — 헤더·칩을 다시 누르면 오름차순',
@@ -3232,7 +3250,7 @@ function pTogglePick(name) {
    짝꿍(동반) 승률까지 함께 점수화해 가장 대등한 조합을 찾습니다.
    계산은 브라우저 안에서만 하며 결과를 외부로 보내지 않습니다. */
 (function () {
-  var T_TEAMS = { 3: ['블랙', '레드', '형광'], 2: ['레드', '블랙'] };
+  var T_TEAMS = { 3: ['레드', '블랙', '형광'], 2: ['레드', '블랙'] };
   var T_TONE = {
     '블랙': ['#141922', '#eef2f8', '#4a5468'],
     '레드': ['#3a1116', '#ffd9dc', '#a3323c'],
@@ -3603,11 +3621,11 @@ function pTogglePick(name) {
   function tResultHtml() {
     if (!DATA) return '';
     if (TSEL === null) TSEL = tRegular();
-    var m = TMODE, minN = m * 3, n = TSEL.length;
+    var m = TMODE, minN = m * 5, n = TSEL.length;
     if (!n) return '<div class="pempty">참석 인원을 고르면 팀 구성이 계산됩니다.<br><span>‘정회원 전체’로 바로 시작할 수 있습니다.</span></div>';
     if (n < minN) {
       return '<div class="pcard warn"><div class="prow1"><span class="plabel">인원 부족</span><b class="pval none">' + n + '명</b></div>'
-        + '<div class="pmeta">' + m + '파전은 최소 <b>' + minN + '명</b>이 필요합니다. ' + (minN - n) + '명 더 선택해 주세요.</div></div>';
+        + '<div class="pmeta">최소 <b>' + minN + '명</b> 이상 선택해야 ' + m + '파전 팀 구성이 가능합니다 (현재 ' + n + '명 · ' + (minN - n) + '명 더 필요)</div></div>';
     }
     var r = tCompute(), statOn = tStatOn(), names = T_TEAMS[m];
     var ag = r.ag, avgs = [];
@@ -3626,12 +3644,109 @@ function pTogglePick(name) {
     return head + cards + tWhyHtml(r, statOn);
   }
 
+  /* ---- 가상 선수: 🤝 짝꿍 승률 계산하기 시트와 같은 저장소(FAKES·localStorage)를 공유합니다 ----
+     여기서 추가·수정·삭제하면 짝꿍 시트 목록도 함께 바뀌고, 반대도 마찬가지입니다. */
+  var TFEDIT = null;
+  function tFakeRowsHtml() {
+    if (!FAKES.length) return '<div class="fempty">아직 없습니다. 오른쪽 <b>+ 가상 선수 추가</b>로 이름·포지션·예상 승률을 넣으면 바로 참석 인원에 들어갑니다.</div>';
+    return FAKES.map(function (f) {
+      var on = TSEL.indexOf(f.name) >= 0, full = TSEL.length >= T_MAX && !on, t = f.pos || [];
+      return '<div class="frow' + (on ? ' on' : '') + (full ? ' off' : '') + '">'
+        + '<button type="button" class="fmain" data-tpick="' + esc(f.name) + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
+        + '<span class="pn">' + esc(f.name) + '</span><span class="pb fb">가상</span>'
+        + (t.length ? '<span class="pb">' + esc(t.join('/')) + '</span>' : '')
+        + '<span class="frate">' + tPct(f.rate) + ' · ' + f.games + '경기</span>'
+        + '</button>'
+        + '<button type="button" class="fico" data-tfedit="' + esc(f.id) + '" aria-label="가상 선수 수정">✎</button>'
+        + '<button type="button" class="fico del" data-tfdel="' + esc(f.id) + '" aria-label="가상 선수 삭제">🗑</button>'
+        + '</div>';
+    }).join('');
+  }
+  function tOpenFakeForm(id) {
+    var form = $('#tFakeForm');
+    if (!form) return;
+    TFEDIT = id || null;
+    var f = id ? FAKES.filter(function (x) { return x.id === id; })[0] : null;
+    $('#tfName').value = f ? f.name : '';
+    $('#tfRate').value = f ? String(f.rate) : '';
+    $('#tfGames').value = f ? String(f.games) : '5';
+    $$('#tfPos [data-fpos]').forEach(function (b) {
+      b.setAttribute('aria-pressed', (f && (f.pos || []).indexOf(b.getAttribute('data-fpos')) >= 0) ? 'true' : 'false');
+    });
+    var err = $('#tfErr');
+    if (err) err.textContent = '';
+    form.hidden = false;
+    var nm = $('#tfName');
+    if (nm) { try { nm.focus(); } catch (e) { } }
+  }
+  function tCloseFakeForm() {
+    var form = $('#tFakeForm');
+    if (form) form.hidden = true;
+    TFEDIT = null;
+  }
+  function tSaveFakeForm() {
+    var nameEl = $('#tfName'), rateEl = $('#tfRate'), gEl = $('#tfGames'), errEl = $('#tfErr');
+    if (!nameEl || !rateEl || !gEl) return;
+    var isEdit = !!TFEDIT;
+    var setErr = function (m) { if (errEl) errEl.textContent = m; };
+    var name = (nameEl.value || '').replace(/\s+/g, ' ').trim().slice(0, 8);
+    var rateRaw = (rateEl.value || '').trim(), gRaw = (gEl.value || '').trim();
+    var posPicked = $$('#tfPos [data-fpos]').filter(function (b) { return b.getAttribute('aria-pressed') === 'true'; })
+      .map(function (b) { return b.getAttribute('data-fpos'); });
+    var pos = PAIR_POS.filter(function (p) { return posPicked.indexOf(p) >= 0; });
+    if (!name) { setErr('이름을 입력해 주세요(최대 8자).'); nameEl.focus(); return; }
+    var rate = Number(rateRaw);
+    if (rateRaw === '' || !isFinite(rate) || rate < 0 || rate > 100) {
+      setErr('가정 승률을 0~100 사이 숫자로 입력해 주세요.'); rateEl.focus(); return;
+    }
+    var games = Number(gRaw || '5');
+    if (!isFinite(games) || games < 1 || games > 30 || Math.floor(games) !== games) {
+      setErr('가정 표본 경기는 1~30 사이 정수로 입력해 주세요.'); gEl.focus(); return;
+    }
+    var real = ((DATA && DATA.members) || []).concat((DATA && DATA.outsiders) || [], (DATA && DATA.guests) || []);
+    var dupe = real.some(function (p) { return p.name === name; })
+      || FAKES.some(function (f) { return f.name === name && f.id !== TFEDIT; });
+    if (dupe) { setErr('같은 이름의 선수가 이미 있습니다. 다른 이름을 써 주세요.'); nameEl.focus(); return; }
+    var prev = '';
+    if (isEdit) {
+      var f2 = FAKES.filter(function (x) { return x.id === TFEDIT; })[0];
+      if (f2) { prev = f2.name; f2.name = name; f2.rate = rate; f2.games = games; f2.pos = pos; }
+    } else {
+      FAKES.push({ id: 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+                   name: name, rate: rate, games: games, pos: pos });
+    }
+    pairSaveFakes();
+    if (TSEL === null) TSEL = [];
+    if (prev && prev !== name) {
+      var i = TSEL.indexOf(prev);
+      if (i >= 0) TSEL[i] = name;
+    }
+    /* 새로 추가한 가상 선수는 바로 참석 인원에 넣어 팀 구성에 반영합니다. */
+    if (TSEL.indexOf(name) < 0) {
+      if (TSEL.length < T_MAX) TSEL.push(name);
+      else tMsg('최대 ' + T_MAX + '명까지 선택할 수 있습니다.');
+    }
+    tCloseFakeForm();
+    TCACHE = null;
+    tPaint();
+  }
+  function tDeleteFake(id) {
+    var f = FAKES.filter(function (x) { return x.id === id; })[0];
+    if (!f) return;
+    FAKES = FAKES.filter(function (x) { return x.id !== id; });
+    if (TSEL) TSEL = TSEL.filter(function (n) { return n !== f.name; });
+    pairSaveFakes();
+    if (TFEDIT === id) tCloseFakeForm();
+    TCACHE = null;
+    tPaint();
+  }
+
   /* ---- 선택 목록 ---- */
   function tChipsHtml() {
     var list = [];
     tRegular().forEach(function (n) { list.push({ name: n, kind: 'member' }); });
     if (TGUEST) tGuests().forEach(function (n) { list.push({ name: n, kind: 'guest' }); });
-    FAKES.forEach(function (f) { list.push({ name: f.name, kind: 'fake' }); });
+    /* 가상 선수는 아래 ‘가상 선수’ 목록에서 직접 추가·선택합니다(짝꿍 시트와 같은 저장소). */
     list = list.filter(function (p) {
       if (TQ && p.name.indexOf(TQ) < 0) return false;
       return !TPOSF || (posTokens(p.name) || []).indexOf(TPOSF) >= 0;
@@ -3656,7 +3771,7 @@ function pTogglePick(name) {
     var mn = $('#tModeNote');
     if (mn) mn.innerHTML = m + '파전 → <b>' + T_TEAMS[m].join(' · ') + '</b>'
       + (n ? ' · 팀 인원 <b>' + tSizes(n, m).join(' · ') + '</b>명' : '')
-      + ' · 최소 ' + (m * 3) + '명';
+      + ' · 최소 ' + (m * 5) + '명(' + m + '팀 × 5명)';
     var bn = $('#tBasisNote');
     if (bn) {
       if (TBASIS === 'stat' && !tStatAvail()) {
@@ -3672,14 +3787,8 @@ function pTogglePick(name) {
     }
     var chips = $('#tChips');
     if (chips) chips.innerHTML = tChipsHtml();
-    var fh = $('#tFakeHint');
-    if (fh) {
-      if (FAKES.length) { fh.hidden = true; }
-      else {
-        fh.hidden = false;
-        fh.innerHTML = '가상 선수(용병)는 <b>🤝 짝꿍 승률 계산하기</b> 시트에서 추가하면 이 목록에도 함께 나옵니다.';
-      }
-    }
+    var fch = $('#tFakeChips');
+    if (fch) fch.innerHTML = tFakeRowsHtml();
     var res = $('#tResult');
     if (res) res.innerHTML = tResultHtml();
   }
@@ -3707,6 +3816,8 @@ function pTogglePick(name) {
 
   var modal = $('#teamModal'), btn = $('#teamBtn');
   if (!modal || !btn) return;
+  var tFakeFormEl = $('#tFakeForm');
+  if (tFakeFormEl) tFakeFormEl.addEventListener('submit', function (e) { e.preventDefault(); tSaveFakeForm(); });
   var lastFocus = null;
   function tPrune() {
     var ok = {};
@@ -3735,6 +3846,14 @@ function pTogglePick(name) {
     if (e.target.closest('[data-tclose]')) { closeTeam(); return; }
     var chip = e.target.closest('[data-tpick]');
     if (chip) { tToggle(chip.getAttribute('data-tpick')); return; }
+    if (e.target.closest('#tAddFake')) { tOpenFakeForm(null); return; }
+    if (e.target.closest('#tfCancel')) { tCloseFakeForm(); return; }
+    var fe = e.target.closest('[data-tfedit]');
+    if (fe) { tOpenFakeForm(fe.getAttribute('data-tfedit')); return; }
+    var fd = e.target.closest('[data-tfdel]');
+    if (fd) { tDeleteFake(fd.getAttribute('data-tfdel')); return; }
+    var fp = e.target.closest('#tfPos [data-fpos]');
+    if (fp) { fp.setAttribute('aria-pressed', fp.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); return; }
     var mb = e.target.closest('[data-tmode]');
     if (mb) {
       TMODE = Number(mb.getAttribute('data-tmode')) === 2 ? 2 : 3;
