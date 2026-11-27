@@ -166,6 +166,61 @@ body.locked .wrap{display:none}
 @media (hover:hover){.stat:hover{border-color:rgba(51,224,196,.45);background:linear-gradient(160deg,#1c2a44,#141f33)}}
 @media (max-width:380px){.stat .k{font-size:9px}}
 
+/* ---------- ⚖️ 팀 구성 추천 (3파전·2파전 밸런스 배정) ---------- */
+/* 히어로 요약 카드 바로 아래 — 짝꿍 승률 계산과 1:1 로 나란히 */
+.duobtns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:9px 0 0}
+.duobtns .pairbtn{width:auto;min-width:0;margin:0;padding:0 7px;gap:4px;font-size:11.5px;justify-content:center}
+.duobtns .pairbtn .pbtxt{white-space:nowrap;overflow:visible;text-overflow:clip}
+.duobtns .pairbtn .pbarw{margin-left:1px;font-size:13px}
+.pairbtn.teambtn{background:linear-gradient(96deg,#a78bfa,#d8c8ff);color:#140f26;box-shadow:0 6px 16px rgba(167,139,250,.24)}
+.pairbtn.teambtn:active{transform:translateY(1px)}
+.pairbtn.teambtn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(167,139,250,.42)}
+@media (max-width:400px){
+  .duobtns .pairbtn{font-size:11px;padding:0 5px;gap:3px}
+  .duobtns .pairbtn .pbico{font-size:12px}
+  .duobtns .pairbtn .pbarw{display:none}
+}
+.tsheet{max-height:90vh}
+.tsec{margin:0 0 11px}
+.tsecT{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:900;letter-spacing:.06em;color:var(--tx3);margin:0 0 5px}
+.tcnt{margin-left:auto;font-size:10.5px;font-weight:900;color:var(--tx2);letter-spacing:0}
+.tcnt b{font-size:13px;color:var(--acc);font-variant-numeric:tabular-nums}
+.tseg{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.tseg button{height:37px;border-radius:10px;border:1px solid var(--line2);background:rgba(255,255,255,.05);
+  color:var(--tx2);font-size:12px;font-weight:900;font-family:inherit;cursor:pointer;letter-spacing:-.01em}
+.tseg button[aria-pressed="true"]{color:#140f26;border-color:transparent;background:linear-gradient(96deg,#a78bfa,#d8c8ff);box-shadow:0 4px 12px rgba(167,139,250,.24)}
+.tnote{font-size:10px;color:var(--tx3);font-weight:700;line-height:1.55;margin:5px 0 0;word-break:keep-all}
+.tnote b{color:var(--tx2);font-weight:900}
+.tnote.warn{color:var(--amber);font-weight:800}
+.tpresets{display:flex;gap:5px;margin:0 0 6px}
+.tpresets button{flex:0 0 auto;height:27px;padding:0 9px;border-radius:8px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.05);color:var(--tx2);font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.tpresets button:active{transform:translateY(1px)}
+.tchipbox{max-height:250px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1px 1px 3px;border-radius:10px;scrollbar-width:thin}
+.tchipbox::-webkit-scrollbar{width:4px}
+.tchipbox::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:4px}
+#tResult:empty{display:none}
+.tcard{border:1px solid var(--line2);border-left-width:4px;border-radius:12px;padding:9px 10px;margin:0 0 7px;
+  background:rgba(255,255,255,.035)}
+.tchd{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.tbadge{font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:6px;border:1px solid;letter-spacing:-.01em}
+.tn{font-size:10.5px;font-weight:800;color:var(--tx3)}
+.tavg{margin-left:auto;font-size:16px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--tx)}
+.tavg small{font-size:10px;font-weight:800;color:var(--tx3);margin-left:3px}
+.tpos{font-size:10px;color:var(--tx3);font-weight:800;margin-top:4px;line-height:1.5}
+.tnames{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.tpn{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:6px;
+  background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--tx);white-space:nowrap}
+.tpn b{font-size:10px;font-weight:900;color:var(--acc);font-variant-numeric:tabular-nums}
+.tpn i{font-style:normal;font-size:8.5px;font-weight:900;color:var(--amber)}
+.tprod{font-size:10px;color:var(--tx2);font-weight:800;margin-top:6px;line-height:1.5;font-variant-numeric:tabular-nums}
+.twhy{margin:0 0 9px;border:1px solid rgba(91,156,255,.28);border-radius:12px;padding:9px 11px;background:rgba(91,156,255,.06)}
+.twhyT{font-size:10.5px;font-weight:900;color:#9cc4ff;letter-spacing:-.01em;margin:0 0 3px}
+.twhy ul{margin:0;padding-left:15px}
+.twhy li{font-size:10.5px;line-height:1.65;color:var(--tx2);font-weight:700;margin:2px 0;word-break:keep-all}
+.twhy li b{color:var(--tx);font-weight:900}
+.tgrade{margin-left:auto;font-size:9.5px;font-weight:900;padding:2px 6px;border-radius:5px}
+
 /* ---------- 🤝 짝꿍 승률 계산기 (조합 예측) ---------- */
 /* 히어로 요약 카드 바로 아래 — 한 줄 진입 버튼(에메랄드 강조) */
 .pairbtn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-width:0;height:42px;margin:9px 0 0;
@@ -219,6 +274,8 @@ body.locked .wrap{display:none}
 .pchip[aria-pressed="true"]{color:#04120f;border-color:rgba(51,224,196,.8);
   background:linear-gradient(120deg,var(--acc),#7ef0d8)}
 .pchip[aria-pressed="true"] .pb{color:#04120f;background:rgba(0,0,0,.13);border-color:rgba(0,0,0,.16)}
+.pchip .pb.fb{color:#04120f;background:rgba(91,156,255,.62);border-color:transparent}
+.pchip[aria-pressed="true"] .pb.fb{color:#04120f;background:rgba(0,0,0,.13);border-color:rgba(0,0,0,.16)}
 .pchip.off{opacity:.42}
 .pempty2{grid-column:1/-1}
 /* 가상 선수 */
@@ -1017,9 +1074,14 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     </div>
     </div>
     <div class="stats" id="heroStats" role="group" aria-label="시즌 요약 — 탭하면 해당 섹션으로 이동"></div>
-    <button class="pairbtn" id="pairBtn" type="button" aria-haspopup="dialog" aria-controls="pairModal" title="짝꿍 승률 계산하기">
-      <span class="pbico" aria-hidden="true">🤝</span><span class="pbtxt">짝꿍 승률 계산하기</span><span class="pbarw" aria-hidden="true">›</span>
-    </button>
+    <div class="duobtns">
+      <button class="pairbtn" id="pairBtn" type="button" aria-haspopup="dialog" aria-controls="pairModal" title="짝꿍 승률 계산하기">
+        <span class="pbico" aria-hidden="true">🤝</span><span class="pbtxt">짝꿍 승률 계산하기</span><span class="pbarw" aria-hidden="true">›</span>
+      </button>
+      <button class="pairbtn teambtn" id="teamBtn" type="button" aria-haspopup="dialog" aria-controls="teamModal" title="팀 구성 추천하기">
+        <span class="pbico" aria-hidden="true">⚖️</span><span class="pbtxt">팀 구성 추천하기</span><span class="pbarw" aria-hidden="true">›</span>
+      </button>
+    </div>
   </header>
 
   <div class="selbar">
@@ -1258,6 +1320,58 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
       <div id="pRankBot"></div>
     </section>
     <p class="pnote" id="pNote">정규 회원 기준 5인 조합 전수에서 고릅니다. 모든 회차 통합 기준이며 무승부는 승률 분모(승+무+패)에 들어갑니다. 상대 팀 구성은 예측 대상이 아니고, 표본이 적은 조합은 참고용으로만 봐 주세요.</p>
+  </div>
+</div>
+<div class="modal" id="teamModal" hidden>
+  <div class="bd" data-tclose></div>
+  <div class="sheet tsheet" role="dialog" aria-modal="true" aria-labelledby="tTitle">
+    <div class="grab"></div>
+    <button class="x" data-tclose aria-label="닫기">✕</button>
+    <h3 class="ptitle" id="tTitle">⚖️ 팀 구성 추천하기</h3>
+    <p class="plead">이번 주 방식과 <b>참석 인원</b>을 고르면 팀 인원을 고르게 나누고, <b>팀 평균 · 포지션 · 짝꿍 상성</b>까지 맞춰 가장 대등하게 붙을 수 있는 조합을 찾습니다.</p>
+
+    <div class="tsec">
+      <div class="tsecT">1 · 이번 주 방식</div>
+      <div class="tseg" id="tMode" role="group" aria-label="이번 주 경기 방식">
+        <button type="button" data-tmode="3" aria-pressed="true">3파전</button>
+        <button type="button" data-tmode="2" aria-pressed="false">2파전</button>
+      </div>
+      <p class="tnote" id="tModeNote"></p>
+    </div>
+
+    <div class="tsec">
+      <div class="tsecT">2 · 밸런스 기준</div>
+      <div class="tseg" id="tBasis" role="group" aria-label="밸런스 기준">
+        <button type="button" data-tbasis="rate" aria-pressed="true">현재 승률 기반</button>
+        <button type="button" data-tbasis="stat" aria-pressed="false">개인 스탯 기반</button>
+      </div>
+      <p class="tnote" id="tBasisNote"></p>
+    </div>
+
+    <div class="tsec">
+      <div class="tsecT">3 · 참석 인원<span class="tcnt" id="tCount">0명</span></div>
+      <div class="tpresets">
+        <button type="button" data-tpreset="regular">정회원 전체</button>
+        <button type="button" data-tpreset="clear">선택 초기화</button>
+      </div>
+    <div id="tResult"></div>
+      <p class="pmsg" id="tMsg" role="status" aria-live="polite" hidden></p>
+      <label class="psearch" for="tQ"><span aria-hidden="true">🔍</span>
+        <input id="tQ" type="search" placeholder="이름 검색 (정회원·게스트·가상)" autocomplete="off" enterkeyhint="search" aria-label="참석자 이름 검색">
+      </label>
+      <div class="pfilter" id="tPosFilter" role="group" aria-label="포지션 필터">
+        <button type="button" data-tposf="" aria-pressed="true">전체</button>
+        <button type="button" data-tposf="PG" aria-pressed="false">PG</button>
+        <button type="button" data-tposf="SG" aria-pressed="false">SG</button>
+        <button type="button" data-tposf="SF" aria-pressed="false">SF</button>
+        <button type="button" data-tposf="PF" aria-pressed="false">PF</button>
+        <button type="button" data-tposf="C" aria-pressed="false">C</button>
+      </div>
+      <label class="ptoggle"><input type="checkbox" id="tGuest" checked> 게스트 포함 <span style="color:var(--tx3);font-weight:700">· 가상 선수는 항상 표시</span></label>
+      <div class="tchipbox"><div class="pchips" id="tChips"></div></div>
+    </div>
+
+    <p class="pnote" id="tNote">팀 인원은 ±1명 이내로 나눕니다. 기준 점수의 팀 평균 편차를 가장 작게 만들면서 포지션(가드·포워드·센터) 분산과 짝꿍 상성을 함께 점수화해 조합을 찾습니다. 포지션 미등록자는 포지션 균형 계산에서 제외하고 인원만 맞춥니다.</p>
   </div>
 </div>
 
@@ -2406,6 +2520,7 @@ function closeNav() {
    형태로 추가하면 팝업에 날짜순(최신순)으로 그대로 나타납니다. */
 const CHANGELOG = [
   { date: '2026-11-27', tag: '기능', items: [
+    '<b>⚖️ 팀 구성 추천하기 추가</b> — 3파전·2파전과 참석 인원(정회원·게스트·가상)을 고르면 팀별 평균(현재 승률 / 5주 개인 스탯)·포지션·짝꿍 상성까지 맞춰 가장 대등한 조합과 구성 이유를 보여 줍니다',
     '<b>게스트 구분 정리</b> — 기존 구분을 없애고 해당 인원을 <b>게스트</b>로 표기, 백넘버가 있는 게스트는 로스터에 그대로 유지',
     '상단 요약 카드 4칸을 <b>승률 / 경기 / 정회원 / 게스트</b>로 변경 — 정회원을 누르면 로스터로 이동',
     '개인 스탯 <b>시즌 누적(쿼터당)</b>의 MVP 열이 화면 값 그대로 정렬되도록 수정 — 헤더·칩을 다시 누르면 오름차순',
@@ -3106,6 +3221,545 @@ function pTogglePick(name) {
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !modal.hidden) closePair();
+  });
+})();
+
+/* ---------------- ⚖️ 팀 구성 추천 (3파전·2파전 밸런스 배정) ----------------
+   참석 인원(정회원·게스트·가상 선수)을 고르면 각 팀 인원을 ±1명 이내로 나누고,
+   기준 점수(현재 승률 / 개인 스탯 종합 점수)의 팀 평균 편차 · 포지션 분산 ·
+   짝꿍(동반) 승률까지 함께 점수화해 가장 대등한 조합을 찾습니다.
+   계산은 브라우저 안에서만 하며 결과를 외부로 보내지 않습니다. */
+(function () {
+  var T_TEAMS = { 3: ['블랙', '레드', '형광'], 2: ['레드', '블랙'] };
+  var T_TONE = {
+    '블랙': ['#141922', '#eef2f8', '#4a5468'],
+    '레드': ['#3a1116', '#ffd9dc', '#a3323c'],
+    '형광': ['#1f2b06', '#e6ff7a', '#7ea61a'],
+    '화이트': ['#eef2f8', '#10151f', '#c3ccdb']
+  };
+  var T_MAX = 30;
+  var TMODE = 3, TBASIS = 'rate', TGUEST = true, TPOSF = '', TQ = '', TSEL = null, TCACHE = null;
+  var T_STAT = null, T_PAIRS = {};
+
+  /* ---- 이 사이트의 데이터 접근 ---- */
+  function tRegular() { var ms = (DATA && DATA.members) || [], os = (DATA && DATA.outsiders) || [];
+    return ms.map(function (m) { return m.name; }).concat(os.map(function (m) { return m.name; })); }
+  function tGuests() { return ((DATA && DATA.guests) || []).filter(function (g) { return !g.absent; })
+      .map(function (g) { return g.name; }); }
+  function tRate(n) { var p = personTotals(n);
+    return { rate: p.g ? p.w / p.g * 100 : null, g: p.g }; }
+  function tPairRaw(a, b) { var e = pairIndex().pairs.get(pkey(a, b));
+    return e ? { w: e.w, g: e.g } : null; }
+  function tStatAvail() { return !!(DATA && DATA.stats && DATA.stats.events && DATA.stats.events.length); }
+
+  /* 5주치 경기별 스탯(DATA.stats.events) → 경기당 환산 → 지표별 0~1 정규화 → 종합 점수(0~100) */
+  function tStatIndex() {
+    if (T_STAT) return T_STAT;
+    var agg = {};
+    ((DATA && DATA.stats && DATA.stats.events) || []).forEach(function (e) {
+      (e.rows || []).forEach(function (r) {
+        var a = agg[r.name] || (agg[r.name] = { gp: 0, pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, to: 0, pf: 0, mvp: 0 });
+        ['gp', 'pts', 'reb', 'ast', 'stl', 'blk', 'to', 'pf', 'mvp'].forEach(function (k) {
+          if (r[k] != null) a[k] += r[k];
+        });
+      });
+    });
+    var per = {};
+    Object.keys(agg).forEach(function (n) {
+      var a = agg[n];
+      if (!(a.gp > 0)) return;
+      per[n] = { gp: a.gp, pts: a.pts / a.gp, reb: a.reb / a.gp, ast: a.ast / a.gp,
+                 stl: a.stl / a.gp, blk: a.blk / a.gp, to: a.to / a.gp, pf: a.pf / a.gp, mvp: a.mvp / a.gp };
+    });
+    var keys = ['pts', 'reb', 'ast', 'stl', 'blk', 'mvp', 'to', 'pf'];
+    var W = { pts: .30, reb: .18, ast: .18, stl: .10, blk: .06, mvp: .08, to: .06, pf: .04 };
+    var rng = {};
+    var names = Object.keys(per);
+    keys.forEach(function (k) {
+      var lo = Infinity, hi = -Infinity;
+      names.forEach(function (n) { var v = per[n][k]; if (v < lo) lo = v; if (v > hi) hi = v; });
+      rng[k] = [lo, hi];
+    });
+    var score = {};
+    names.forEach(function (n) {
+      var s = 0, v = per[n];
+      keys.forEach(function (k) {
+        var lo = rng[k][0], hi = rng[k][1];
+        var x = (hi === lo) ? 0.5 : (v[k] - lo) / (hi - lo);
+        if (k === 'to' || k === 'pf') x = 1 - x;   /* 턴오버·파울은 적을수록 좋음 */
+        s += W[k] * x;
+      });
+      score[n] = Math.round(s * 1000) / 10;
+    });
+    T_STAT = { per: per, score: score, range: rng };
+    return T_STAT;
+  }
+
+  function tPair(a, b) {
+    var k = a < b ? a + '|' + b : b + '|' + a;
+    if (Object.prototype.hasOwnProperty.call(T_PAIRS, k)) return T_PAIRS[k];
+    var r = tPairRaw(a, b);
+    var out = (r && r.g) ? { w: r.w, g: r.g, rate: r.w / r.g * 100 } : null;
+    T_PAIRS[k] = out;
+    return out;
+  }
+  function tPct(v) { return (Math.round(v * 10) / 10).toFixed(1); }
+  function tSizes(n, m) {
+    var out = [], base = Math.floor(n / m), rem = n % m;
+    for (var i = 0; i < m; i++) out.push(base + (i < rem ? 1 : 0));
+    return out;
+  }
+  function tStatOn() { return TBASIS === 'stat' && tStatAvail(); }
+  function tStatIdx() { return tStatOn() ? tStatIndex() : null; }
+
+  /* ---- 선수별 기준 점수·포지션 ---- */
+  function tInfo(names) {
+    var statOn = tStatOn(), SI = statOn ? tStatIndex() : null, info = {};
+    names.forEach(function (n) {
+      var r = tRate(n) || { rate: null, g: 0 };
+      var toks = (posTokens(n) || []).slice();
+      var gs = null;
+      if (toks.length) {
+        var s = 0;
+        toks.forEach(function (t) { s += (t === 'PG' || t === 'SG') ? 1 : 0; });
+        gs = s / toks.length;
+      }
+      var sc;
+      if (statOn) sc = (SI && SI.score[n] != null) ? SI.score[n] : null;
+      else sc = (r.g ? r.rate : null);
+      info[n] = { rate: r.rate, g: r.g, score: sc, gs: gs, pos: toks };
+    });
+    return info;
+  }
+  function tAggTeam(list, info, topSet) {
+    var sc = [], gsum = 0, kn = 0, guards = 0, bigs = 0, centers = 0, unk = 0;
+    var pairSum = 0, pairN = 0, top = 0, multi = 0, cAny = 0;
+    var prPts = 0, prReb = 0, prAst = 0, prN = 0, SI = tStatOn() ? tStatIndex() : null;
+    for (var i = 0; i < list.length; i++) {
+      var n = list[i], p = info[n];
+      if (p.score != null) sc.push(p.score);
+      if (p.gs != null) { gsum += p.gs; kn++; } else unk++;
+      var hasG = p.pos.indexOf('PG') >= 0 || p.pos.indexOf('SG') >= 0;
+      var hasB = p.pos.indexOf('SF') >= 0 || p.pos.indexOf('PF') >= 0 || p.pos.indexOf('C') >= 0;
+      var main = p.pos.length ? p.pos[0] : '';
+      if (main === 'PG' || main === 'SG') guards++;
+      else if (main === 'SF' || main === 'PF') bigs++;
+      else if (main === 'C') centers++;
+      if (p.pos.indexOf('C') >= 0) cAny = 1;
+      if (p.pos.length > 1) multi++;
+      if (topSet && topSet[n]) top++;
+      if (SI) {
+        var pv = SI.per[n];
+        if (pv) { prPts += pv.pts; prReb += pv.reb; prAst += pv.ast; prN++; }
+      }
+      for (var j = i + 1; j < list.length; j++) {
+        var e = tPair(n, list[j]);
+        if (e && e.g >= 2) { pairSum += e.rate; pairN++; }
+      }
+    }
+    var sum = 0;
+    for (var k = 0; k < sc.length; k++) sum += sc[k];
+    return {
+      n: list.length, avg: sc.length ? sum / sc.length : null, rated: sc.length,
+      gsum: gsum, kn: kn, unk: unk, guards: guards, bigs: bigs, centers: centers,
+      multi: multi, cAny: cAny, pts: prPts, reb: prReb, ast: prAst, pn: prN,
+      pairAvg: pairN ? pairSum / pairN : null, top: top
+    };
+  }
+  /* 낮을수록 균형이 좋습니다. */
+  function tCost(ag, W, poolRate) {
+    var avgs = [], i, a;
+    for (i = 0; i < ag.length; i++) if (ag[i].avg != null) avgs.push(ag[i].avg);
+    var spread = avgs.length > 1 ? Math.max.apply(null, avgs) - Math.min.apply(null, avgs) : 0;
+    var posDev = 0, empty = 0, dup = 0, have = [];
+    for (i = 0; i < ag.length; i++) {
+      a = ag[i];
+      posDev += Math.abs(a.gsum - a.kn * poolRate);
+      if (a.kn) { if (!a.guards) empty++; if (!a.bigs) empty++; }
+      if (a.pairAvg != null) have.push(a.pairAvg);
+      if (a.top >= 2) dup += a.top - 1;
+    }
+    var pm = 0;
+    for (i = 0; i < have.length; i++) pm += have[i];
+    if (have.length) pm /= have.length;
+    var pairDev = 0;
+    for (i = 0; i < have.length; i++) pairDev += Math.abs(have[i] - pm);
+    /* 개인 스탯 기준: 팀 경기당 합계 득점·리바운드·어시스트의 상대 편차도 함께 줄입니다. */
+    var prodDev = 0;
+    if (W.prod) {
+      ['pts', 'reb', 'ast'].forEach(function (k) {
+        var vs = [], sum = 0;
+        for (var j = 0; j < ag.length; j++) if (ag[j].pn) { vs.push(ag[j][k]); sum += ag[j][k]; }
+        if (vs.length > 1 && sum > 0) {
+          prodDev += (Math.max.apply(null, vs) - Math.min.apply(null, vs)) / (sum / vs.length);
+        }
+      });
+    }
+    return W.spread * spread + W.pos * posDev + W.empty * empty + W.pair * pairDev + W.ace * dup + W.prod * prodDev;
+  }
+  /* 스네이크 초안 → 같은 인원 팀끼리 1:1 교환을 반복해 비용을 낮춥니다(여러 번 시작). */
+  function tAssign(names, m, info) {
+    var W = { spread: 1, pos: 2, empty: 1.5, pair: 0.03, ace: 1.2, prod: 8 };
+    var N = names.length, sizes = tSizes(N, m), i;
+    var known = 0, gsumAll = 0;
+    names.forEach(function (n) { var p = info[n]; if (p.gs != null) { known++; gsumAll += p.gs; } });
+    var poolRate = known ? gsumAll / known : 0;
+    var scored = names.filter(function (n) { return info[n].score != null; })
+      .sort(function (a, b) { return info[b].score - info[a].score; });
+    var topSet = {};
+    scored.slice(0, 3).forEach(function (n) { topSet[n] = 1; });
+    var order = scored.concat(names.filter(function (n) { return info[n].score == null; }));
+    var best = null, restarts = N > 20 ? 4 : 6;
+    for (var rs = 0; rs < restarts; rs++) {
+      var teams = [], cnt = [];
+      for (i = 0; i < m; i++) { teams.push([]); cnt.push(0); }
+      var seq = [];
+      for (var r = 0; r < sizes[0]; r++) {
+        var idx = [];
+        for (i = 0; i < m; i++) idx.push(i);
+        if ((r + rs) % 2 === 1) idx.reverse();
+        for (var q = 0; q < m; q++) {
+          var t = idx[q];
+          if (cnt[t] < sizes[t]) { seq.push(t); cnt[t]++; }
+        }
+      }
+      for (i = 0; i < order.length; i++) teams[seq[i]].push(order[i]);
+      var ag = teams.map(function (x) { return tAggTeam(x, info, topSet); });
+      var cur = tCost(ag, W, poolRate);
+      for (var pass = 0; pass < 20; pass++) {
+        var improved = false;
+        for (var a = 0; a < m; a++) {
+          for (var b = a + 1; b < m; b++) {
+            for (var x = 0; x < teams[a].length; x++) {
+              for (var y = 0; y < teams[b].length; y++) {
+                var tmp = teams[a][x]; teams[a][x] = teams[b][y]; teams[b][y] = tmp;
+                var ga = tAggTeam(teams[a], info, topSet), gb = tAggTeam(teams[b], info, topSet);
+                var oa = ag[a], ob = ag[b];
+                ag[a] = ga; ag[b] = gb;
+                var c2 = tCost(ag, W, poolRate);
+                if (c2 < cur - 1e-9) { cur = c2; improved = true; }
+                else {
+                  var t2 = teams[a][x]; teams[a][x] = teams[b][y]; teams[b][y] = t2;
+                  ag[a] = oa; ag[b] = ob;
+                }
+              }
+            }
+          }
+        }
+        if (!improved) break;
+      }
+      if (!best || cur < best.cost - 1e-9) {
+        best = { cost: cur, teams: teams.map(function (t3) { return t3.slice(); }), order: order.slice() };
+      }
+    }
+    best.ag = best.teams.map(function (t4) { return tAggTeam(t4, info, topSet); });
+    best.info = info;
+    return best;
+  }
+  function tCompute() {
+    var key = TMODE + '|' + TBASIS + '|' + TSEL.join(',');
+    if (TCACHE && TCACHE.key === key) return TCACHE;
+    var info = tInfo(TSEL);
+    var res = tAssign(TSEL, TMODE, info);
+    res.key = key;
+    TCACHE = res;
+    return res;
+  }
+  function tTeamOf(res, name) {
+    for (var i = 0; i < res.teams.length; i++) if (res.teams[i].indexOf(name) >= 0) return i;
+    return -1;
+  }
+  function tPosLine(a) {
+    var s = '가드 ' + a.guards + ' · 포워드 ' + a.bigs;
+    if (a.cAny) s += ' · 센터 ' + a.centers;
+    var note = [];
+    if (a.multi) note.push('복수 포지션 ' + a.multi + '명');
+    if (a.unk) note.push('미등록 ' + a.unk);
+    if (note.length) s += ' (' + note.join(' · ') + ')';
+    return s;
+  }
+  function tNameVal(p, statOn) {
+    if (p.score == null) return '–';
+    return statOn ? tPct(p.score) : tPct(p.score) + '%';
+  }
+
+  /* ---- 결과 화면 ---- */
+  function tTeamCard(list, ti, info, a, statOn) {
+    var names = T_TEAMS[TMODE], nm = names[ti] || ('팀' + (ti + 1));
+    var tone = T_TONE[nm] || T_TONE['블랙'];
+    var sorted = list.slice().sort(function (x, y) {
+      var sx = info[x].score, sy = info[y].score;
+      if (sx == null && sy == null) return 0;
+      if (sx == null) return 1;
+      if (sy == null) return -1;
+      return sy - sx;
+    });
+    var chips = sorted.map(function (n) {
+      var p = info[n];
+      return '<span class="tpn">' + esc(n) + '<b>' + tNameVal(p, statOn) + '</b>'
+        + (p.score == null ? '<i>' + (statOn ? '미기록' : '무출전') + '</i>' : '') + '</span>';
+    }).join('');
+    var rated = sorted.filter(function (n) { return info[n].score != null; });
+    var prod = '';
+    if (statOn) {
+      var SI = tStatIndex(), sum = { pts: 0, reb: 0, ast: 0 }, cnt = 0;
+      sorted.forEach(function (n) {
+        var v = SI && SI.per[n];
+        if (!v) return;
+        cnt++;
+        sum.pts += v.pts; sum.reb += v.reb; sum.ast += v.ast;
+      });
+      if (cnt) prod = '경기당 합계 득점 <b>' + tPct(sum.pts) + '</b> · 리바운드 ' + tPct(sum.reb) + ' · 어시스트 ' + tPct(sum.ast);
+    }
+    if (!prod && rated.length) {
+      var hi = rated[0], lo = rated[rated.length - 1];
+      prod = '최고 ' + esc(hi) + ' <b>' + tNameVal(info[hi], statOn) + '</b>'
+        + (rated.length > 1 ? ' · 최저 ' + esc(lo) + ' ' + tNameVal(info[lo], statOn) : '');
+    }
+    var second = '';
+    if (statOn) {
+      var rates = sorted.filter(function (n) { return info[n].rate != null; })
+        .map(function (n) { return info[n].rate; });
+      if (rates.length) {
+        second = '평균 승률 ' + tPct(rates.reduce(function (x, y) { return x + y; }, 0) / rates.length) + '%';
+      }
+    }
+    return '<div class="tcard" style="border-left-color:' + tone[2] + '">'
+      + '<div class="tchd"><span class="tbadge" style="background:' + tone[0] + ';color:' + tone[1] + ';border-color:' + tone[2] + '">' + esc(nm) + '</span>'
+      + '<span class="tn">' + a.n + '명</span>'
+      + '<span class="tavg">' + (a.avg == null ? '–' : tPct(a.avg) + '<small>' + (statOn ? '점' : '%') + '</small>') + '</span></div>'
+      + '<div class="tpos">' + tPosLine(a) + (second ? ' · ' + second : '') + '</div>'
+      + '<div class="tnames">' + chips + '</div>'
+      + (prod ? '<div class="tprod">' + prod + '</div>' : '')
+      + '</div>';
+  }
+  function tWhyHtml(r, statOn) {
+    var ag = r.ag, names = T_TEAMS[TMODE], m = TMODE;
+    var avgs = [], lines = [];
+    ag.forEach(function (a) { if (a.avg != null) avgs.push(a.avg); });
+    var spread = avgs.length > 1 ? Math.max.apply(null, avgs) - Math.min.apply(null, avgs) : 0;
+    var unit = statOn ? '점' : '%p';
+    lines.push('<li>팀 평균 ' + (statOn ? '스탯 점수' : '승률') + ' <b>' + avgs.map(function (v) { return tPct(v); }).join(' · ')
+      + '</b> — 최대 편차 <b>' + tPct(spread) + unit + '</b>로 가장 좁힌 조합입니다. (인원 ' + tSizes(TSEL.length, m).join('·') + '명)</li>');
+    var posTxt = ag.map(function (a, i) {
+      return names[i] + ' ' + tPosLine(a).replace(/ · /g, '·');
+    }).join(' / ');
+    var lacks = [];
+    ag.forEach(function (a, i) {
+      if (a.kn && !a.guards) lacks.push(names[i] + ' 가드 없음');
+      if (a.kn && !a.bigs) lacks.push(names[i] + ' 포워드 없음');
+    });
+    lines.push('<li>포지션 — <b>' + esc(posTxt) + '</b> 로 가드·골밑 자원을 팀마다 나눴습니다'
+      + (lacks.length ? ' (조정 한계: ' + esc(lacks.join(', ')) + ')' : '') + '.</li>');
+    var top = r.order.filter(function (n) { return r.info[n].score != null; }).slice(0, 3);
+    if (top.length >= 2) {
+      var same = 0;
+      r.teams.forEach(function (t5) { var c = top.filter(function (n) { return t5.indexOf(n) >= 0; }).length; if (c > 1) same++; });
+      var topTxt = top.map(function (n) {
+        var ti = tTeamOf(r, n);
+        return '<b>' + esc(n) + '</b> ' + tNameVal(r.info[n], statOn) + '(' + esc(names[ti] || '') + ')';
+      }).join(', ');
+      lines.push('<li>' + (same
+        ? '상위 ' + top.length + '인 중 같은 팀이 있어, 그 팀은 나머지 자리를 낮은 점수로 채워 평균을 맞췄습니다 — ' + topTxt
+        : '상위 ' + top.length + '인을 서로 다른 팀에 배치해 에이스 쏠림을 막았습니다 — ' + topTxt) + '.</li>');
+    }
+    /* 짝꿍 상성: 참석자 중 표본 3경기 이상 동반 승률 최고 짝 */
+    var bp = null, i, j;
+    for (i = 0; i < TSEL.length; i++) {
+      for (j = i + 1; j < TSEL.length; j++) {
+        var e = tPair(TSEL[i], TSEL[j]);
+        if (e && e.g >= 3 && (!bp || e.rate > bp.rate)) bp = { a: TSEL[i], b: TSEL[j], rate: e.rate, g: e.g };
+      }
+    }
+    if (bp) {
+      var sameTeam = tTeamOf(r, bp.a) === tTeamOf(r, bp.b);
+      var pr = [];
+      r.ag.forEach(function (a) { if (a.pairAvg != null) pr.push(a.pairAvg); });
+      var prTxt = pr.length > 1 ? tPct(Math.min.apply(null, pr)) + '~' + tPct(Math.max.apply(null, pr)) + '%' : '';
+      lines.push('<li>짝꿍 상성 — 동반 승률이 가장 높은 <b>' + esc(bp.a) + '·' + esc(bp.b) + '(' + tPct(bp.rate) + '%, ' + bp.g
+        + '경기)</b>을 ' + (sameTeam ? '같은 팀' : '다른 팀') + '에 두었고'
+        + (prTxt ? ', 팀별 동반 승률은 <b>' + prTxt + '</b>로 맞췄습니다' : '') + '.</li>');
+    } else {
+      lines.push('<li>짝꿍 상성 — 함께 출전한 표본이 3경기 이상인 짝이 없어 이번 계산에서는 제외했습니다.</li>');
+    }
+    if (statOn) {
+      var SI = tStatIndex(), sums = [];
+      ag.forEach(function (a, i2) {
+        var pts = 0;
+        r.teams[i2].forEach(function (n) { var v = SI && SI.per[n]; if (v) pts += v.pts; });
+        sums.push(tPct(pts));
+      });
+      lines.push('<li>경기당 합계 득점 <b>' + sums.join(' · ') + '</b> — 리바운드·어시스트와 함께 팀 간 차이를 줄였습니다.</li>');
+    }
+    var miss = TSEL.filter(function (n) { return r.info[n].score == null; });
+    if (miss.length) {
+      lines.push('<li>' + (statOn ? '개인 스탯 기록이 없는 ' : '출전 기록이 없는 ') + '<b>' + miss.length + '명</b>('
+        + esc(miss.join(', ')) + ')은 평균 계산에서 빼고 인원·포지션만 맞췄습니다.</li>');
+    }
+    return '<div class="twhy"><div class="twhyT">왜 이렇게 나눴나</div><ul>' + lines.join('') + '</ul></div>';
+  }
+  function tResultHtml() {
+    if (!DATA) return '';
+    if (TSEL === null) TSEL = tRegular();
+    var m = TMODE, minN = m * 3, n = TSEL.length;
+    if (!n) return '<div class="pempty">참석 인원을 고르면 팀 구성이 계산됩니다.<br><span>‘정회원 전체’로 바로 시작할 수 있습니다.</span></div>';
+    if (n < minN) {
+      return '<div class="pcard warn"><div class="prow1"><span class="plabel">인원 부족</span><b class="pval none">' + n + '명</b></div>'
+        + '<div class="pmeta">' + m + '파전은 최소 <b>' + minN + '명</b>이 필요합니다. ' + (minN - n) + '명 더 선택해 주세요.</div></div>';
+    }
+    var r = tCompute(), statOn = tStatOn(), names = T_TEAMS[m];
+    var ag = r.ag, avgs = [];
+    ag.forEach(function (a) { if (a.avg != null) avgs.push(a.avg); });
+    var spread = avgs.length > 1 ? Math.max.apply(null, avgs) - Math.min.apply(null, avgs) : 0;
+    var grade = spread <= (statOn ? 3 : 1.5) ? ['매우 균등', 'ok']
+      : spread <= (statOn ? 6 : 3) ? ['균등', 'ok']
+      : spread <= (statOn ? 10 : 5) ? ['보통', 'low'] : ['편차 있음', 'low'];
+    var head = '<div class="tchd" style="margin:0 0 7px">'
+      + '<span class="tbadge" style="background:rgba(255,255,255,.08);color:var(--tx);border-color:var(--line2)">' + m + '파전</span>'
+      + '<span class="tn">' + n + '명 · ' + (statOn ? '개인 스탯 기반' : '현재 승률 기반') + '</span>'
+      + '<span class="pbadge ' + grade[1] + '" style="margin-left:auto">' + grade[0] + '</span></div>';
+    var cards = r.teams.map(function (t6, i) {
+      return tTeamCard(t6, i, r.info, ag[i], statOn);
+    }).join('');
+    return head + cards + tWhyHtml(r, statOn);
+  }
+
+  /* ---- 선택 목록 ---- */
+  function tChipsHtml() {
+    var list = [];
+    tRegular().forEach(function (n) { list.push({ name: n, kind: 'member' }); });
+    if (TGUEST) tGuests().forEach(function (n) { list.push({ name: n, kind: 'guest' }); });
+    FAKES.forEach(function (f) { list.push({ name: f.name, kind: 'fake' }); });
+    list = list.filter(function (p) {
+      if (TQ && p.name.indexOf(TQ) < 0) return false;
+      return !TPOSF || (posTokens(p.name) || []).indexOf(TPOSF) >= 0;
+    });
+    if (!list.length) return '<div class="pempty pempty2">조건에 맞는 선수가 없습니다.</div>';
+    return list.map(function (p) {
+      var on = TSEL.indexOf(p.name) >= 0;
+      var full = TSEL.length >= T_MAX && !on;
+      var toks = posTokens(p.name) || [];
+      var badge = p.kind === 'guest' ? '<span class="pb gt">게스트</span>'
+        : p.kind === 'fake' ? '<span class="pb fb">가상</span>'
+        : (toks.length ? '<span class="pb">' + esc(toks.join('/')) + '</span>' : '<span class="pb nb">미등록</span>');
+      return '<button type="button" class="pchip' + (p.kind === 'guest' ? ' guest' : '') + (full ? ' off' : '')
+        + '" data-tpick="' + esc(p.name) + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
+        + '<span class="pn">' + esc(p.name) + '</span>' + badge + '</button>';
+    }).join('');
+  }
+  function tPaint() {
+    var m = TMODE, n = (TSEL || []).length;
+    var cnt = $('#tCount');
+    if (cnt) cnt.innerHTML = '<b>' + n + '</b>/' + T_MAX + '명';
+    var mn = $('#tModeNote');
+    if (mn) mn.innerHTML = m + '파전 → <b>' + T_TEAMS[m].join(' · ') + '</b>'
+      + (n ? ' · 팀 인원 <b>' + tSizes(n, m).join(' · ') + '</b>명' : '')
+      + ' · 최소 ' + (m * 3) + '명';
+    var bn = $('#tBasisNote');
+    if (bn) {
+      if (TBASIS === 'stat' && !tStatAvail()) {
+        bn.className = 'tnote warn';
+        bn.innerHTML = '이 사이트에는 개인 스탯 원본이 없어 <b>현재 승률 기준</b>으로 계산합니다.';
+      } else if (TBASIS === 'stat') {
+        bn.className = 'tnote';
+        bn.innerHTML = '5주치(10.25~11.22) 경기별 스탯을 <b>종합 점수 0~100</b>으로 환산해 팀 평균을 맞춥니다. (득점 30 · 리바운드 18 · 어시스트 18 · 스틸 10 · 블록 6 · MVP 8 가점 / 턴오버 6 · 파울 4 감점)';
+      } else {
+        bn.className = 'tnote';
+        bn.innerHTML = '모든 회차 통합 <b>누적 승률</b>로 팀 평균을 맞춥니다.';
+      }
+    }
+    var chips = $('#tChips');
+    if (chips) chips.innerHTML = tChipsHtml();
+    var res = $('#tResult');
+    if (res) res.innerHTML = tResultHtml();
+  }
+  function tMsg(t) {
+    var el = $('#tMsg');
+    if (!el) return;
+    el.textContent = t || '';
+    el.hidden = !t;
+    if (t) { clearTimeout(tMsg._t); tMsg._t = setTimeout(function () { el.hidden = true; }, 2400); }
+  }
+  function tToggle(name) {
+    if (TSEL === null) TSEL = [];
+    var i = TSEL.indexOf(name);
+    if (i >= 0) TSEL.splice(i, 1);
+    else if (TSEL.length >= T_MAX) { tMsg('최대 ' + T_MAX + '명까지 선택할 수 있습니다.'); return; }
+    else TSEL.push(name);
+    TCACHE = null;
+    tPaint();
+  }
+  function tSetPressed(sel, attr, val) {
+    $$(sel + ' [data-' + attr + ']').forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-' + attr) === val ? 'true' : 'false');
+    });
+  }
+
+  var modal = $('#teamModal'), btn = $('#teamBtn');
+  if (!modal || !btn) return;
+  var lastFocus = null;
+  function tPrune() {
+    var ok = {};
+    tRegular().forEach(function (n) { ok[n] = 1; });
+    tGuests().forEach(function (n) { ok[n] = 1; });
+    FAKES.forEach(function (f) { ok[f.name] = 1; });
+    TSEL = TSEL.filter(function (n) { return ok[n]; });
+  }
+  function openTeam() {
+    lastFocus = document.activeElement;
+    if (TSEL === null) TSEL = tRegular().slice();
+    else tPrune();
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    tPaint();
+    var x = modal.querySelector('.x');
+    if (x) x.focus();
+  }
+  function closeTeam() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  btn.addEventListener('click', openTeam);
+  modal.addEventListener('click', function (e) {
+    if (e.target.closest('[data-tclose]')) { closeTeam(); return; }
+    var chip = e.target.closest('[data-tpick]');
+    if (chip) { tToggle(chip.getAttribute('data-tpick')); return; }
+    var mb = e.target.closest('[data-tmode]');
+    if (mb) {
+      TMODE = Number(mb.getAttribute('data-tmode')) === 2 ? 2 : 3;
+      tSetPressed('#tMode', 'tmode', String(TMODE));
+      TCACHE = null; tPaint(); return;
+    }
+    var bb = e.target.closest('[data-tbasis]');
+    if (bb) {
+      TBASIS = bb.getAttribute('data-tbasis') === 'stat' ? 'stat' : 'rate';
+      tSetPressed('#tBasis', 'tbasis', TBASIS);
+      TCACHE = null; tPaint(); return;
+    }
+    var pf = e.target.closest('[data-tposf]');
+    if (pf) {
+      TPOSF = pf.getAttribute('data-tposf') || '';
+      $$('#tPosFilter [data-tposf]').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-tposf') === TPOSF ? 'true' : 'false');
+      });
+      tPaint(); return;
+    }
+    var ps = e.target.closest('[data-tpreset]');
+    if (ps) {
+      if (ps.getAttribute('data-tpreset') === 'clear') TSEL = [];
+      else TSEL = tRegular().slice(0, T_MAX);
+      TCACHE = null; tPaint(); return;
+    }
+  });
+  modal.addEventListener('change', function (e) {
+    if (!e.target) return;
+    if (e.target.id === 'tGuest') { TGUEST = !!e.target.checked; tPaint(); }
+  });
+  var q = $('#tQ');
+  if (q) q.addEventListener('input', function (e) { TQ = e.target.value.trim(); tPaint(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.hidden) closeTeam();
   });
 })();
 

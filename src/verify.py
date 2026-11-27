@@ -1123,20 +1123,25 @@ with sync_playwright() as p:
         page.wait_for_selector(".hero h1", timeout=8000); page.wait_for_timeout(350)
 
         bb = page.locator("#pairBtn")
-        ok(f"{tag}: 짝꿍 — 히어로 버튼 1개·문구·dialog",
+        ok(f"{tag}: 짝꿍·팀 구성 — 히어로 버튼 2개·문구·dialog",
            bb.count() == 1 and bb.is_visible() and "짝꿍 승률 계산하기" in bb.inner_text()
-           and page.get_attribute("#pairBtn", "aria-controls") == "pairModal",
+           and page.get_attribute("#pairBtn", "aria-controls") == "pairModal"
+           and page.locator("#teamBtn").count() == 1 and "팀 구성 추천하기" in page.inner_text("#teamBtn")
+           and page.get_attribute("#teamBtn", "aria-controls") == "teamModal",
            bb.inner_text().replace("\n", " "))
         geo = page.evaluate("""() => {
-          const b = document.querySelector('#pairBtn').getBoundingClientRect();
+          const a = document.querySelector('#pairBtn').getBoundingClientRect();
+          const b = document.querySelector('#teamBtn').getBoundingClientRect();
           const s = document.querySelector('#heroStats').getBoundingClientRect();
-          const t = document.querySelector('#pairBtn .pbtxt');
-          return {h: b.height, w: b.width, sw: s.width, gap: b.top - s.bottom, oneLine: t.scrollWidth <= t.clientWidth + 1,
-                  left: b.left, right: b.right};
+          const t = document.querySelector('#pairBtn .pbtxt'), u = document.querySelector('#teamBtn .pbtxt');
+          return {h: a.height, w: a.width, w2: b.width, sw: s.width, gap: a.top - s.bottom,
+                  oneLine: t.scrollWidth <= t.clientWidth + 1 && u.scrollWidth <= u.clientWidth + 1,
+                  sameRow: Math.abs(a.top - b.top) < 1, left: a.left, right: b.right};
         }""")
-        ok(f"{tag}: 짝꿍 — 요약 카드 바로 아래·같은 폭·한 줄",
-           38 <= geo["h"] <= 46 and abs(geo["w"] - geo["sw"]) <= 1 and 0 <= geo["gap"] <= 14
-           and geo["oneLine"] and geo["left"] >= 0 and geo["right"] <= vw_, str(geo))
+        ok(f"{tag}: 짝꿍·팀 구성 — 요약 카드 바로 아래 1:1 두 칸·한 줄·잘림 없음",
+           38 <= geo["h"] <= 46 and abs(geo["w"] - geo["w2"]) <= 1.5
+           and abs(geo["w"] * 2 + 6 - geo["sw"]) <= 2 and 0 <= geo["gap"] <= 14
+           and geo["oneLine"] and geo["sameRow"] and geo["left"] >= 0 and geo["right"] <= vw_, str(geo))
         page.screenshot(path=f"{OUT}/{tag}_pair_btn.png")
 
         page.click("#pairBtn"); page.wait_for_timeout(400)
