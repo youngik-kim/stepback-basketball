@@ -882,6 +882,14 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mpfoot button{flex:1 1 0;height:44px;border-radius:12px;border:0;cursor:pointer;font-family:inherit;font-size:13px;font-weight:900}
 .mpSave{background:linear-gradient(120deg,var(--acc),#8af2dd);color:#04120f}
 .mpCancel{background:rgba(255,255,255,.08);color:var(--tx2);border:1px solid var(--line2)!important}
+.mpfoot2{display:flex;gap:6px;margin:6px 0 0}
+.mpfoot2 button{flex:1 1 0;min-height:40px;height:auto;border-radius:11px;cursor:pointer;font-family:inherit;
+  font-size:11.5px;font-weight:900;line-height:1.25;padding:4px 6px;white-space:normal;word-break:keep-all}
+.mpfoot2 .mpGo{flex:0 0 40%;background:rgba(51,224,196,.16);color:var(--acc);border:1px solid rgba(51,224,196,.6)}
+.mpfoot2 .mpGo:active{transform:translateY(1px)}
+.mpfoot2 .mpEdReset{background:rgba(255,255,255,.05);color:var(--tx3);border:1px solid var(--line2)}
+/* 편집 모달 확인 팝업 — 모달(다크) 톤 고정 */
+.mpcf.ed{--mpcard2:#162138;--mpline:rgba(255,255,255,.14);--mptx:#eef4ff;--mpsh:rgba(0,0,0,.45)}
 .mpcapa{font-size:10px;color:var(--tx3);font-weight:700;margin:0 0 6px;display:flex;align-items:center;gap:5px}
 .mpcapa b{color:var(--tx2);font-weight:900}
 
@@ -904,6 +912,17 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 /* 밝은 — 흰색보다 한 톤 낮춘 오프화이트(눈부심 완화) */
 .mps.light{--mpbg:#f1f4f8;--mpcard:#f9fafb;--mpcard2:#f4f6fa;--mpline:#cbd5e1;
   --mptx:#111c30;--mptx2:#3f4f6a;--mptx3:#6b7c95;--mpin:#ffffff;--mpacc:#0a9c86;--mpsh:rgba(16,32,64,.10)}
+/* 팀 색상 — 테마별로 선명하게 (점·상단선·순위 배지) */
+.mps{--tc-형광:#c8ff3d;--tc-블랙:#8fa1c0;--tc-레드:#ff6b6b;--tcbx:rgba(200,255,61,.45)}
+.mps.mid{--tc-형광:#7d9c00;--tc-블랙:#39485f;--tc-레드:#c53030;--tcbx:rgba(15,23,42,.22)}
+.mps.light{--tc-형광:#7d9c00;--tc-블랙:#39485f;--tc-레드:#c53030;--tcbx:rgba(16,32,64,.18)}
+.mps .dot-형광{background:var(--tc-형광);box-shadow:0 0 7px var(--tcbx)}
+.mps .dot-블랙{background:var(--tc-블랙);box-shadow:inset 0 0 0 1px rgba(255,255,255,.45)}
+.mps .dot-레드{background:var(--tc-레드);box-shadow:0 0 7px rgba(255,107,107,.38)}
+.mps .mpsc .dot,.mps .mprt .rh .dot,.mps .mpg .dot{width:10px;height:10px;border-radius:50%}
+.mpsc.t-형광,.mprt.t-형광{--tcol:var(--tc-형광)}
+.mpsc.t-블랙,.mprt.t-블랙{--tcol:var(--tc-블랙)}
+.mpsc.t-레드,.mprt.t-레드{--tcol:var(--tc-레드)}
 .mps.fs-s{--mpx:.9}
 .mps.fs-l{--mpx:1.14}
 /* 상단 바 — 1줄 초컴팩트 (제목 · ⚙️ 설정 · ⛶ 전체화면 · ✕) */
@@ -952,10 +971,16 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   padding:9px 12px calc(22px + env(safe-area-inset-bottom))}
 .mpsum{display:grid;gap:6px;grid-template-columns:repeat(3,1fr);margin:0 0 9px}
 .mpsum.two{grid-template-columns:repeat(2,1fr)}
-.mpsc{border:1px solid var(--mpline);border-radius:11px;padding:7px 8px;background:var(--mpcard);min-width:0}
+.mpsc{border:1px solid var(--mpline);border-radius:11px;padding:7px 8px;background:var(--mpcard);min-width:0;
+  position:relative;overflow:hidden}
+.mpsc::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--tcol,transparent)}
+.mpsc .h .rk{margin-left:auto;flex:0 0 auto;font-size:8px;font-weight:900;padding:0 4px;border-radius:4px;line-height:1.5;
+  color:#0b1120;background:var(--tcol,var(--mpline))}
+.mps.mid .mpsc .h .rk,.mps.light .mpsc .h .rk{color:#ffffff}
 .mpsc.top{border-color:rgba(255,209,102,.6);box-shadow:0 0 0 1px rgba(255,209,102,.18) inset}
-.mpsc .h{display:flex;align-items:center;gap:4px;font-size:calc(11px * var(--mpx));font-weight:900;min-width:0}
-.mpsc .h .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mpsc .h{display:flex;align-items:center;gap:4px;font-size:calc(12.5px * var(--mpx));font-weight:900;min-width:0;
+  letter-spacing:-.02em}
+.mpsc .h .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:900}
 .mpsc .h .cr{font-size:8.5px;font-weight:900;color:#1a1405;background:var(--gold);border-radius:4px;padding:1px 4px;flex:0 0 auto}
 .mpsc .rec{font-size:calc(16px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:1px;white-space:nowrap}
 .mpsc .rec .w{color:var(--acc)} .mpsc .rec .d{color:var(--gold)} .mpsc .rec .l{color:#ff9a9a}
@@ -965,11 +990,13 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mpg{width:100%;border-collapse:separate;border-spacing:4px;table-layout:fixed;margin:0 0 4px}
 .mpg th{font-weight:900;color:var(--mptx2);font-size:calc(10px * var(--mpx));letter-spacing:-.02em;padding:0;vertical-align:bottom}
 .mpg thead th{background:var(--mpcard);border:1px solid var(--mpline);border-radius:9px;padding:5px 3px;
-  font-size:calc(10px * var(--mpx));line-height:1.35}
+  font-size:calc(10px * var(--mpx));line-height:1.35;position:relative;overflow:hidden}
+.mpg thead th.gcol::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;
+  background:linear-gradient(90deg,var(--ta,transparent) 0 50%,var(--tb,transparent) 50% 100%)}
 .mpg .gh{display:flex;flex-direction:column;gap:3px;min-width:0}
 .mpg .g1{display:flex;align-items:center;justify-content:center;gap:3px;min-width:0;flex-wrap:wrap}
-.mpg .g1 .tn{font-size:calc(9.5px * var(--mpx));white-space:normal;line-height:1.2;word-break:keep-all}
-.mpg .g1 .vs{font-size:8px;color:var(--mptx3);font-weight:900}
+.mpg .g1 .tn{font-size:calc(11.5px * var(--mpx));font-weight:900;white-space:normal;line-height:1.15;word-break:keep-all;letter-spacing:-.02em}
+.mpg .g1 .vs{font-size:10px;color:var(--mptx3);font-weight:900}
 .mpg .g2{display:flex;justify-content:center;gap:3px}
 .mpg .g2 button{width:20px;height:17px;border:0;border-radius:4px;background:rgba(255,255,255,.06);
   color:var(--mptx3);font-family:inherit;font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
@@ -1017,9 +1044,11 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 @media (max-width:560px){.mprosters{grid-template-columns:repeat(2,1fr)}
   .mprosters .mprt:last-child:nth-child(odd){grid-column:1/-1}}
 .mprosters.two{grid-template-columns:repeat(2,1fr)}
-.mprt{border:1px solid var(--mpline);border-radius:12px;background:var(--mpcard);padding:7px;min-width:0}
+.mprt{border:1px solid var(--mpline);border-radius:12px;background:var(--mpcard);padding:7px;min-width:0;
+  position:relative;overflow:hidden}
+.mprt::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--tcol,transparent)}
 .mprt .rh{display:flex;align-items:center;gap:4px;margin:0 0 5px;min-width:0}
-.mprt .rh .nm{font-size:calc(11.5px * var(--mpx));font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mprt .rh .nm{font-size:calc(12.5px * var(--mpx));font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mprt .rh .ct{font-size:9px;font-weight:900;color:var(--mptx3);flex:0 0 auto}
 .mprt .rb{display:block;width:100%;min-height:24px;margin:0 0 6px;border-radius:7px;border:1px dashed rgba(255,209,102,.55);
   background:rgba(255,209,102,.10);color:var(--gold);font-family:inherit;font-size:9px;font-weight:900;cursor:pointer;
@@ -1095,13 +1124,13 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   .mpsum{grid-template-columns:repeat(3,1fr);gap:4px;margin:0 0 4px}
   .mpsum.two{grid-template-columns:repeat(2,1fr)}
   .mpsc{padding:3px 5px;border-radius:8px}
-  .mpsc .h{font-size:9.5px}
+  .mpsc .h{font-size:10.5px}
   .mpsc .rec{font-size:calc(12px * var(--mpx));margin-top:0}
   .mpsc .df{font-size:8px}
   .mpsc .ex{display:none}
   .mpg{border-spacing:2px}
   .mpg thead th{padding:1px 2px;border-radius:6px}
-  .mpg .g1 .tn{font-size:8px}
+  .mpg .g1 .tn{font-size:9.5px;font-weight:900}
   .mpg .g2 button{width:15px;height:12px;font-size:7.5px}
   .mpg .qh .qhbox{flex-direction:row;gap:1px}
   .mpg .qh1{gap:0}
@@ -1124,7 +1153,7 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   .mprosters .mprt:last-child:nth-child(odd){grid-column:auto}
   .mprt{padding:5px;border-radius:8px}
   .mprt .rh{margin:0 0 3px}
-  .mprt .rh .nm{font-size:10.5px}
+  .mprt .rh .nm{font-size:11.5px}
   .mprt .rb{min-height:17px;font-size:7.5px;padding:1px 3px;margin:0 0 4px;border-radius:5px}
   .mprt .pick{display:block;font-size:calc(7px * var(--mpx));margin:-2px 0 3px;line-height:1.25}
   .mprl{gap:0;border:1px solid var(--mpline);border-radius:5px;overflow:hidden}
@@ -1145,11 +1174,11 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   .mic{height:30px;min-width:30px;font-size:12px}
   .mic.set{font-size:11px}
   .mpsc{padding:5px 7px}
-  .mpsc .h{font-size:11px}
+  .mpsc .h{font-size:12px}
   .mpsc .rec{font-size:calc(15px * var(--mpx))}
   .mpsc .df{font-size:9px}
   .mpg thead th{padding:3px}
-  .mpg .g1 .tn{font-size:10px}
+  .mpg .g1 .tn{font-size:11.5px;font-weight:900}
   .mpg .g2 button{width:18px;height:14px;font-size:8.5px}
   .mpg td{padding:3px}
   .mpsc2 input{flex:0 0 38px;width:38px;height:26px;font-size:12.5px}
@@ -1160,7 +1189,7 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   .mpg .qh2 button{width:15px;height:13px;font-size:8px}
   .mpg tr.tot .tv{font-size:13px}
   .mprt{padding:7px}
-  .mprt .rh .nm{font-size:12px}
+  .mprt .rh .nm{font-size:13px}
   .mprt .rb{min-height:22px;font-size:9px;padding:2px 4px}
   .mprl li{padding:3px 4px}
   .mprl li .nm{font-size:calc(11px * var(--mpx))}
@@ -1177,11 +1206,12 @@ body.mp-open{overflow:hidden}
 /* A4 인쇄 · 사진 저장용 출력 (고대비 흑백) */
 .mpprint{display:none}
 @media print{
-  html,body{background:#fff !important}
+  html,body{background:#fff !important;color:#000 !important}
   body.mp-printing>*:not(.mpprint){display:none !important}
-  body.mp-printing .mpprint{display:block !important;color:#000;background:#fff;
-    font-family:"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif}
-  .mpprint .pp{width:100%;max-width:190mm;margin:0 auto;color:#000}
+  body.mp-printing .mpprint{display:block !important;color:#000 !important;background:#fff !important;
+    font-family:"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .mpprint .pp{width:100%;max-width:190mm;margin:0 auto;color:#000;background:#fff}
   .mpprint .pph{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2.4pt solid #000;
     padding-bottom:2mm;margin-bottom:3mm}
   .mpprint .pph b{font-size:16pt;font-weight:900;letter-spacing:-.02em}
@@ -1189,7 +1219,7 @@ body.mp-open{overflow:hidden}
   .mpprint .ppsub{font-size:8.6pt;font-weight:700;margin:0 0 3mm}
   .mpprint table{width:100%;border-collapse:collapse;margin:0 0 3mm}
   .mpprint th,.mpprint td{border:.9pt solid #000;padding:1.4mm 1.6mm;font-size:9pt;vertical-align:middle}
-  .mpprint th{background:#eee;font-weight:900;font-size:8.6pt;text-align:center}
+  .mpprint th{background:#fff;font-weight:900;font-size:8.6pt;text-align:center;color:#000}
   .mpprint .ppscore{font-size:13pt;font-weight:900;text-align:center;font-variant-numeric:tabular-nums;
     letter-spacing:.02em;white-space:nowrap}
   .mpprint .ppsmall{font-size:7.6pt;font-weight:700;text-align:center;line-height:1.35}
@@ -1201,7 +1231,7 @@ body.mp-open{overflow:hidden}
   .mpprint .ppt .ppl{list-style:none;margin:0;padding:0;font-size:9pt;font-weight:700;line-height:1.55}
   .mpprint .ppt .ppl li{padding-left:0}
   .mpprint .ppt li .n{font-weight:900}
-  .mpprint .ppfoot{margin-top:3mm;font-size:7.6pt;color:#333;text-align:right}
+  .mpprint .ppfoot{margin-top:3mm;font-size:7.6pt;color:#000;text-align:right}
   .mpprint .pgnote{font-size:8pt;font-weight:700;margin:0 0 1mm}
 }
 
@@ -1740,7 +1770,17 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
       <button type="button" class="mpCancel" data-mpclose>취소</button>
       <button type="button" class="mpSave" id="mpSave">등록하기</button>
     </div>
+    <div class="mpfoot2">
+      <button type="button" class="mpGo" id="mpEdStart">🏀 경기 진행하기</button>
+      <button type="button" class="mpEdReset" id="mpEdRestore">🧩 매치 프리뷰 초기화 (서버 정본)</button>
+    </div>
     <p class="pnote">등록한 매치 프리뷰와 진행 기록은 <b>이 기기(localStorage)</b>에만 저장됩니다. 팀 이름·인원·쿼터를 바꾸면 경기 진행 화면에 바로 반영됩니다.</p>
+  </div>
+  <div class="mpcf ed" id="mpEdConfirm" hidden>
+    <div class="bx" role="alertdialog" aria-modal="true" aria-labelledby="mpEdCfMsg">
+      <p id="mpEdCfMsg">기기에 임시 저장된 매치 프리뷰를 지우고 서버 정본 기준으로 되돌릴까요?</p>
+      <div class="bs"><button type="button" class="ok" id="mpEdCfOk">확인</button><button type="button" id="mpEdCfNo">취소</button></div>
+    </div>
   </div>
 </div>
 
@@ -3139,14 +3179,15 @@ function closeNav() {
    형태로 추가하면 팝업에 날짜순(최신순)으로 그대로 나타납니다. */
 const CHANGELOG = [
   { date: '2026-11-27', tag: '기능', items: [
-    '<b>🏀 경기진행패치</b> — 경기 결과 상단 <b>📝 매치 프리뷰 등록하기</b>로 3파전·2파전 인원을 직접 구성하고, 등록한 카드에서 <b>🏀 경기 진행하기</b>로 실전 기록지 화면에 들어갑니다',
+    '<b>🏀 경기진행패치</b> — 상단 히어로 <b>📝 매치 프리뷰</b> 버튼으로 3파전·2파전 인원을 직접 구성하고, 등록한 카드에서 <b>🏀 경기 진행하기</b>로 실전 기록지 화면에 들어갑니다',
     '🤝 짝꿍 승률 계산기 · ⚖️ 팀 구성 추천 결과에서 <b>📝 매치 프리뷰 등록하기</b>로 구성된 팀·인원을 바로 연동 (이 기기에만 저장)',
     '경기 진행 — 점수 칸 직접 입력(팀별 승·무·패·득실·우승 자동 계산), 쿼터·매치업 드래그 순서, 명단 순서 드래그, 🌓 테마(어두운·중간·밝은) · 🔎 글씨 크기(기본 크게) · ⛶ 전체화면 · 🔆 화면꺼짐 방지 · 🖨️ A4 인쇄 · 📸 사진 저장 · 🧩 매치 프리뷰 초기화(서버 정본 복원) · 🔄 전체 초기화(확인 팝업)',
     '<b>3파전</b> — 팀 형광·블랙·레드(팀당 최대 6명), 명단 옆 휴식 순서 + 누적 휴식 횟수(0→1→2→3→0), 팀별 <b>휴식 순서 정하기</b>',
     '<b>2파전</b> — 팀 블랙·레드(팀당 5~8명), <b>1~3Q / 1~4Q</b> 선택, 쿼터 점수 칸마다 <b>쉬는 순번</b> 자동 표기, 하이라이트 메모·휴식 횟수 없음',
     '⚙️ 설정 — 🌓 테마 <b>어두운 · 중간 · 밝은</b> 3단계(파란 기운의 중간 슬레이트·밝은 오프화이트 톤으로 눈부심 완화, 📸 사진 저장 PNG에도 동일 반영), 🔎 글씨 크기 기본 <b>크게</b>',
     '명단 <b>휴식 횟수</b> 순환을 0 → 1 → 2 → 3 → <b>0</b>으로 정리(3회 다음은 0회로 복귀)',
-    '<b>🧩 매치 프리뷰 초기화(서버 정본 복원)</b> 추가 — 기기에 임시 저장한 그 날짜 프리뷰를 지우고 정본(data.json) 프리뷰 기준으로 되돌립니다',
+    '<b>🧩 매치 프리뷰 초기화(서버 정본 복원)</b> 추가 — ⚙️ 설정과 📝 등록·편집 모달 하단 모두에서, 기기에 임시 저장한 그 날짜 프리뷰를 지우고 정본(data.json) 프리뷰 기준으로 되돌립니다 (정본이 없는 날짜는 0명 빈칸으로)',
+    '📝 등록·편집 모달 하단에 <b>🏀 경기 진행하기</b> — 인원이 유효하면 저장 후 바로 경기 진행 화면으로 (인원 미달·초과는 안내 뒤 중지)',
     '경기 결과가 정본에 <b>확정된 날짜</b>는 기기 등록분 대신 <b>정본 매치 프리뷰</b>를 우선 표시(이력 모달·주간 결과 🔮 배지·경기 진행 초기값)',
   ] },
   { date: '2026-11-27', tag: '기능', items: [
@@ -5261,11 +5302,11 @@ function mpTogglePlayer(name) {
   mpEditMsg('');
   mpRenderEditor();
 }
-function mpSaveEditor() {
+function mpSaveEditor(go) {
   const p = MPED;
-  if (!p) return;
+  if (!p) return false;
   const err = mpValidate(p);
-  if (err) { mpEditMsg(err); return; }
+  if (err) { mpEditMsg(err); return false; }
   const prev = MP.preview, prevDate = prev ? prev.date : null;
   const sameShape = prev && prev.type === p.type && prev.quarters === p.quarters
     && prev.teams.length === p.teams.length;
@@ -5280,8 +5321,17 @@ function mpSaveEditor() {
   mpUpsert(p);
   mpPaintHome();
   mpCloseEditor();
+  if (go) { mpOpenScreen(); mpToast('🏀 ' + p.type + '파전 매치 프리뷰로 경기를 시작합니다.'); return true; }
   if ($('#mpScreen') && !$('#mpScreen').hidden) mpRender();
   mpToast(prev ? '매치 프리뷰를 저장했습니다.' : (p.type + '파전 매치 프리뷰를 등록했습니다.'));
+  return true;
+}
+/* 🏀 등록·편집 모달에서 바로 경기 진행 — 인원이 유효할 때만 */
+function mpStartFromEditor() {
+  if (!MPED) return;
+  const err = mpValidate(MPED);
+  if (err) { mpEditMsg(err); return; }
+  mpSaveEditor(true);
 }
 
 /* ---------- 결과 시트에서 등록 ---------- */
@@ -5407,13 +5457,16 @@ function mpToast(t) {
 function mpSumHtml(p, st) {
   const rank = mpRateOrder(p);
   const expOf = {};
-  rank.forEach(function (r) { expOf[r.slot] = r.rate; });
+  rank.forEach(function (r, i) { expOf[r.slot] = r.rate; });
+  const posOf = {};
+  rank.forEach(function (r, i) { posOf[r.slot] = i + 1; });
   return p.tOrder.map(function (slot) {
     const t = p.teams[slot], r = st.rows[slot];
     const ex = expOf[slot];
-    return '<div class="mpsc' + (st.winner && st.winner.slot === slot ? ' top' : '') + '">'
+    return '<div class="mpsc t-' + esc(t.name) + (st.winner && st.winner.slot === slot ? ' top' : '') + '">'
       + '<div class="h">' + (st.winner && st.winner.slot === slot ? '<span class="cr">우승</span>' : '')
-      + '<i class="dot ' + dotCls(t.name) + '"></i><span class="nm">' + esc(t.name) + '</span></div>'
+      + '<i class="dot ' + dotCls(t.name) + '" aria-hidden="true"></i><span class="nm">' + esc(t.name) + '</span>'
+      + '<span class="rk" title="예상 순위">' + (posOf[slot] || '-') + '위</span></div>'
       + '<div class="rec"><span class="w">' + r.w + '</span>승 <span class="d">' + r.d + '</span>무 <span class="l">' + r.l + '</span>패</div>'
       + '<div class="df">득실 ' + mpDiffText(r.diff) + ' · ' + r.gp + '경기</div>'
       + '<div class="ex">예상 ' + (ex == null ? '기록 없음' : pct(ex) + '%') + (st.winner && st.winner.slot === slot ? ' · 1위' : '') + '</div>'
@@ -5487,7 +5540,7 @@ function mpRosterHtml(p) {
     const done = p.type === '3'
       ? t.players.filter(function (x) { return (p.restNo[slot] || {})[x.name]; }).length
       : (p.order[slot] || []).length;
-    return '<section class="mprt" data-rt="' + slot + '">'
+    return '<section class="mprt t-' + esc(t.name) + '" data-rt="' + slot + '">'
       + '<div class="rh"><i class="dot ' + dotCls(t.name) + '"></i><span class="nm">' + esc(t.name) + '</span>'
       + '<span class="ct">' + t.players.length + '명</span></div>'
       + '<button type="button" class="rb" data-prd="' + slot + '" aria-pressed="' + (waiting ? 'true' : 'false') + '">'
@@ -5501,7 +5554,7 @@ function mpGridHtml(p, st) {
   let h = '<table class="mpg"><thead><tr><th class="qh" aria-label="쿼터"></th>';
   games.forEach(function (gi, col) {
     const g = p.games[gi], A = p.teams[g.a], B = p.teams[g.b];
-    h += '<th data-gcol="' + gi + '"><div class="gh">'
+    h += '<th data-gcol="' + gi + '" class="gcol" style="--ta:var(--tc-' + esc(A.name) + ');--tb:var(--tc-' + esc(B.name) + ')"><div class="gh">'
       + '<div class="g1"><span class="mpdrag" data-dragg="' + gi + '" role="button" aria-label="매치업 순서 드래그">⋮⋮</span>'
       + (p.type === '2'
         ? '<span class="tn">' + (col + 1) + '경기</span><span class="vs">' + esc(A.name) + ':' + esc(B.name) + '</span>'
@@ -5614,6 +5667,19 @@ function mpAssignPick(slot, name) {
   mpSave();
   mpRender();
 }
+/* 정본 프리뷰가 없는 날짜를 위한 완전 빈칸(0명) 프리뷰 */
+function mpBlankPreview(date, type, quarters) {
+  const p = mpNew(type === '2' ? '2' : '3', quarters === 3 ? 3 : 4);
+  p.date = date || mpNextSunday();
+  p.teams.forEach(function (t, i) { t.players = []; p.order[i] = []; });
+  return p;
+}
+/* 그 날짜의 기기 임시 저장을 지우고 정본(없으면 빈칸) 프리뷰를 돌려줍니다 */
+function mpResetPreviewTo(date, type, quarters) {
+  MP.previews = MP.previews.filter(function (x) { return x.date !== date; });
+  const c = mpFindCanonical(date);
+  return { c: c, p: c ? mpFromCanonical(c) : mpBlankPreview(date, type, quarters) };
+}
 function mpResetAll() {
   const p = MP.preview;
   if (!p) return;
@@ -5624,36 +5690,55 @@ function mpResetAll() {
   mpRender();
   mpToast('점수·기록을 초기화했습니다.');
 }
-/* 확인 팝업 — 동작 구분(reset: 전체 초기화 / restore: 매치 프리뷰 정본 복원) */
+/* 확인 팝업 — 동작 구분(reset: 전체 초기화 / restore: 설정·정본 복원 / restore-ed: 편집 모달·정본 복원) */
 let MPCF = 'reset';
 function mpConfirmOpen(kind) {
-  MPCF = kind === 'restore' ? 'restore' : 'reset';
-  const m = $('#mpCfMsg');
-  if (m) {
-    m.textContent = MPCF === 'restore'
-      ? '기기에 임시 저장된 매치 프리뷰를 지우고 서버 정본 기준으로 되돌릴까요?'
-      : '초기화 시 기록이 삭제됩니다. 계속 진행하시겠어요?';
+  MPCF = kind || 'reset';
+  const inEd = MPCF === 'restore-ed';
+  const box = $(inEd ? '#mpEdConfirm' : '#mpConfirm');
+  const msg = $(inEd ? '#mpEdCfMsg' : '#mpCfMsg');
+  if (msg) {
+    msg.textContent = MPCF === 'reset'
+      ? '초기화 시 기록이 삭제됩니다. 계속 진행하시겠어요?'
+      : '기기에 임시 저장된 매치 프리뷰를 지우고 서버 정본 기준으로 되돌릴까요?';
   }
-  const okb = $('#mpCfOk');
-  if (okb) okb.textContent = '확인';
-  $('#mpConfirm').hidden = false;
+  if (box) box.hidden = false;
+}
+/* 🧩 편집 모달에서 초기화 — 그 날짜의 기기 임시 저장을 지우고 정본(없으면 0명 빈칸)으로 */
+function mpRestoreEditor() {
+  const dEl = $('#mpDate');
+  const date = ((dEl && dEl.value) || (MPED && MPED.date) || '').trim() || mpNextSunday();
+  const r = mpResetPreviewTo(date, MPED ? MPED.type : '3', MPED ? MPED.quarters : 4);
+  MPED = r.p;
+  MPED.date = date;
+  mpNormalize(MPED);
+  MPED_SLOT = MPED.tOrder[0] || 0;
+  MP_PICK = -1;
+  if (dEl) dEl.value = date;
+  if (MP.preview && MP.preview.date === date) MP.preview = r.c ? mpFromCanonical(r.c) : mpBlankPreview(date, MPED.type, MPED.quarters);
+  mpSave();
+  mpPaintHome();
+  if ($('#mpScreen') && !$('#mpScreen').hidden) mpRender();
+  mpRenderEditor();
+  mpRenderHist();
+  mpEditMsg(r.c
+    ? '서버 정본(' + short(r.c.date) + ') 프리뷰로 되돌렸습니다. 인원을 고치면 이 기기에 다시 저장됩니다.'
+    : '기기 임시 저장을 지우고 빈 프리뷰(0명)로 초기화했습니다. 명단에서 인원을 다시 구성해 주세요.', true);
+  mpToast(r.c ? '🧩 서버 정본 프리뷰로 되돌렸습니다.' : '🧩 매치 프리뷰를 빈칸(0명)으로 초기화했습니다.');
 }
 /* 🧩 매치 프리뷰 초기화 — 기기에 임시 저장한 그 날짜 프리뷰를 지우고 서버 정본 기준으로 되돌립니다 */
 function mpRestoreCanonical() {
   const p = MP.preview;
   const date = ((p && p.date) || '').trim() || mpDateStr();
-  MP.previews = MP.previews.filter(function (x) { return x.date !== date; });
-  const c = mpFindCanonical(date);
-  MP.preview = c ? mpFromCanonical(c) : null;   /* 정본 기준 재렌더링 (기기 저장은 지운 상태 유지) */
+  const r = mpResetPreviewTo(date, p ? p.type : '3', p ? p.quarters : 4);
+  MP.preview = r.p;   /* 정본 기준 재렌더링 (기기 저장은 지운 상태 유지) */
   mpSave();
   mpSetOpen(false);
   mpPaintHome();
-  if ($('#mpScreen') && !$('#mpScreen').hidden) {
-    if (MP.preview) mpRender(); else mpCloseScreen();
-  }
-  mpToast(c
-    ? '🧩 기기 임시 프리뷰를 지우고 서버 정본(' + short(c.date) + ') 기준으로 되돌렸습니다.'
-    : '🧩 기기 임시 프리뷰를 지웠습니다. 서버 정본 프리뷰가 없는 날짜입니다.');
+  if ($('#mpScreen') && !$('#mpScreen').hidden) mpRender();
+  mpToast(r.c
+    ? '🧩 기기 임시 프리뷰를 지우고 서버 정본(' + short(r.c.date) + ') 기준으로 되돌렸습니다.'
+    : '🧩 기기 임시 프리뷰를 지우고 빈 프리뷰(0명)로 초기화했습니다.');
 }
 
 /* ---------- 화면 이벤트 ---------- */
@@ -5892,19 +5977,29 @@ function mpPrint() {
   setTimeout(done, 1600);
 }
 
-/* ---------- 사진 저장(PNG) ---------- */
-function mpPhoto() {
+/* ---------- 사진 저장(PNG) — 테마 PNG + 잉크절약 흑백 PNG 2장 ---------- */
+function mpPhotoName(ink) {
   const p = MP.preview;
-  if (!p) return;
+  const d = (p && p.date) || mpDateStr();
+  return '스텝백_' + ((p && p.type) || '3') + '파전_경기기록_' + d + (ink ? '_잉크절약' : '') + '.png';
+}
+function mpPhotoDraw(themeKey) {
+  const p = MP.preview;
+  if (!p) return null;
   const st = mpStandings(p);
-  const th = MP.theme === 'mid' ? 'mid' : (MP.theme === 'light' ? 'light' : 'dark');
+  const ink = themeKey === 'ink';
+  const th = ink ? 'ink' : (MP.theme === 'mid' ? 'mid' : (MP.theme === 'light' ? 'light' : 'dark'));
   const lite = th !== 'dark';
-  const C = th === 'mid'
+  const C = ink
+    ? { bg: '#ffffff', card: '#ffffff', line: '#000000', tx: '#000000', tx2: '#000000', tx3: '#000000', acc: '#000000', gold: '#000000', goldBg: '#ffffff', inbg: '#ffffff', win: '#000000' }
+    : th === 'mid'
     ? { bg: '#dce3ec', card: '#edf1f6', line: '#bcc8d8', tx: '#0f172a', tx2: '#334155', tx3: '#59687f', acc: '#0d9488', gold: '#8a6a00', goldBg: '#f2c14e', inbg: '#f7fafe', win: '#0d9488' }
     : th === 'light'
     ? { bg: '#f1f4f8', card: '#f9fafb', line: '#cbd5e1', tx: '#111c30', tx2: '#3f4f6a', tx3: '#6b7c95', acc: '#0a9c86', gold: '#8a6a00', goldBg: '#f5cb5c', inbg: '#ffffff', win: '#0a9c86' }
     : { bg: '#080e1a', card: '#111b2e', line: '#2a3a55', tx: '#eef4ff', tx2: '#a5b6d1', tx3: '#6d7f9c', acc: '#33e0c4', gold: '#ffd166', goldBg: '#ffd166', inbg: '#0a1120', win: '#38e08b' };
-  const TEAMCOL = { '형광': lite ? '#7d9c00' : '#c8ff3d', '블랙': lite ? '#33415c' : '#8fa1c0', '레드': lite ? '#c53030' : '#ff6b6b' };
+  const TEAMCOL = ink
+    ? { '형광': '#000000', '블랙': '#000000', '레드': '#000000' }
+    : { '형광': lite ? '#7d9c00' : '#c8ff3d', '블랙': lite ? '#33415c' : '#8fa1c0', '레드': lite ? '#c53030' : '#ff6b6b' };
   const W = 1080, PAD = 44;
   const cols = p.gOrder.length, qs = p.qOrder.length;
   const gridTop = 330;
@@ -5940,15 +6035,15 @@ function mpPhoto() {
     const wtxt = '우승 ' + st.winner.name + ' (' + mpRecText(st.winner) + ')';
     g.font = F(26, 900);
     const ww = g.measureText(wtxt).width + 44;
-    rr(W - PAD - ww, 60, ww, 46, 23, C.goldBg);
-    T(wtxt, W - PAD - ww / 2, 91, 26, '#1a1405', 900, 'center');
+    rr(W - PAD - ww, 60, ww, 46, 23, C.goldBg, ink ? C.line : null);
+    T(wtxt, W - PAD - ww / 2, 91, 26, ink ? '#000000' : '#1a1405', 900, 'center');
   }
   /* 팀 성적 카드 */
   const cw = (W - PAD * 2 - (p.tOrder.length - 1) * 14) / p.tOrder.length;
   p.tOrder.forEach(function (slot, i) {
     const r = st.rows[slot];
     const x = PAD + i * (cw + 14), y = 150, h = 150;
-    rr(x, y, cw, h, 18, C.card, st.winner && st.winner.slot === slot ? C.goldBg : C.line);
+    rr(x, y, cw, h, 18, C.card, (st.winner && st.winner.slot === slot) ? (ink ? C.line : C.goldBg) : C.line);
     g.beginPath(); g.arc(x + 30, y + 36, 8, 0, Math.PI * 2);
     g.fillStyle = TEAMCOL[p.teams[slot].name] || C.acc; g.fill();
     T(p.teams[slot].name, x + 48, y + 44, 26, C.tx, 900);
@@ -6012,17 +6107,30 @@ function mpPhoto() {
     });
   });
   T('STEPBACK BASKETBALL · 단톡방 공유용', W - PAD, H - 22, 17, C.tx3, 700, 'right');
+  return cv;
+}
+function mpPhotoSave(cv, name) {
+  if (!cv) return;
   cv.toBlob(function (b) {
     if (!b) return;
-    window.MP_PHOTO = { w: W, h: H, bytes: b.size };
+    window.MP_PHOTO = { w: cv.width, h: cv.height, bytes: b.size, name: name };
     const a = document.createElement('a');
     a.href = URL.createObjectURL(b);
-    a.download = 'stepback-' + p.type + '파전-' + (p.date || mpDateStr()) + '.png';
+    a.download = name;
     document.body.appendChild(a);
     a.click();
-    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
-    mpToast('📸 사진을 저장했습니다. (단톡방 공유용 PNG)');
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 6000);
   }, 'image/png');
+}
+/* 버튼 한 번에 2장 — 테마 PNG → (약 280ms) 잉크절약 흑백 PNG */
+function mpPhoto() {
+  if (!MP.preview) return;
+  const cvA = mpPhotoDraw('theme');
+  const cvB = mpPhotoDraw('ink');
+  if (!cvA || !cvB) return;
+  mpPhotoSave(cvA, mpPhotoName(false));
+  mpToast('📸 테마 PNG · 잉크절약 PNG 2장을 저장합니다.');
+  setTimeout(function () { mpPhotoSave(cvB, mpPhotoName(true)); }, 280);
 }
 
 /* ---------- 메인 화면 버튼 ---------- */
@@ -6058,6 +6166,10 @@ document.addEventListener('click', function (e) {
   if (e.target.closest('[data-mpedit]')) { mpOpenEditor(); return; }
   if (e.target.closest('[data-mpclose]')) { mpCloseEditor(); return; }
   if (e.target.closest('#mpSave')) { mpSaveEditor(); return; }
+  if (e.target.closest('#mpEdStart')) { mpStartFromEditor(); return; }
+  if (e.target.closest('#mpEdRestore')) { mpConfirmOpen('restore-ed'); return; }
+  if (e.target.closest('#mpEdCfOk')) { $('#mpEdConfirm').hidden = true; mpRestoreEditor(); return; }
+  if (e.target.closest('#mpEdCfNo')) { $('#mpEdConfirm').hidden = true; return; }
   const rm = e.target.closest('[data-mprm]');
   if (rm && MPED) {
     const v = rm.getAttribute('data-mprm').split('|');
@@ -6131,6 +6243,7 @@ document.addEventListener('change', function (e) {
 document.addEventListener('keydown', function (e) {
   if (e.key !== 'Escape') return;
   if ($('#mpConfirm') && !$('#mpConfirm').hidden) { $('#mpConfirm').hidden = true; return; }
+  if ($('#mpEdConfirm') && !$('#mpEdConfirm').hidden) { $('#mpEdConfirm').hidden = true; return; }
   if ($('#mpModal') && !$('#mpModal').hidden) { mpCloseEditor(); return; }
   if ($('#mpScreen') && !$('#mpScreen').hidden) mpCloseScreen();
 });

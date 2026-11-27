@@ -247,6 +247,35 @@ with sync_playwright() as pw:
            page.locator('#mpBody [data-rest]').count() == 18,
            page.locator('#mpBody [data-rest]').count())
 
+        # ---- 팀 색상 구분 — 매치업 헤더 상단선 · 요약/명단 카드 상단선 · 순위 배지 ----
+        tcol = page.evaluate('''() => {
+            const th = document.querySelector('#mpBody .mpg thead th.gcol');
+            const card = document.querySelector('#mpBody .mpsc');
+            const rt = document.querySelector('#mpBody .mprt');
+            const bar = getComputedStyle(th, '::before').backgroundImage;
+            const dots = [...document.querySelectorAll('#mpBody .mpsc .dot')].map(e => getComputedStyle(e).backgroundColor);
+            return { bar: bar, cardCls: card.className, cardBar: getComputedStyle(card, '::before').backgroundColor,
+                     rtCls: rt.className, rtBar: getComputedStyle(rt, '::before').backgroundColor,
+                     dots: dots, rk: [...document.querySelectorAll('#mpBody .mpsc .rk')].map(e => e.textContent.trim()) };
+          }''')
+        ok('%s: 매치업 헤더 팀 색상 상단선(두 팀 2색 분할)' % tag,
+           'linear-gradient' in tcol['bar'] and tcol['bar'].count('rgb') >= 2, tcol['bar'][:70])
+        ok('%s: 팀 요약 카드·명단 카드 팀 색상 상단선' % tag,
+           't-' in tcol['cardCls'] and tcol['cardBar'] not in ('rgba(0, 0, 0, 0)', 'transparent')
+           and 't-' in tcol['rtCls'] and tcol['rtBar'] not in ('rgba(0, 0, 0, 0)', 'transparent'),
+           '%s / %s' % (tcol['cardBar'], tcol['rtBar']))
+        ok('%s: 팀 점 3색 구분·순위 배지' % tag,
+           len(set(tcol['dots'])) == 3 and len(tcol['rk']) == 3 and all(x.endswith('위') for x in tcol['rk']),
+           '%s / %s' % (tcol['dots'], tcol['rk']))
+        page.screenshot(path='%s/%s_3b_teamcol.png' % (OUT, tag))
+        hf = page.evaluate('''() => { const e = document.querySelector('#mpBody .mpg .g1 .tn');
+            const c = document.querySelector('#mpBody .mpsc .h .nm');
+            const s = getComputedStyle(e), cs = getComputedStyle(c);
+            return { fs: parseFloat(s.fontSize), fw: parseInt(s.fontWeight, 10),
+                     cfs: parseFloat(cs.fontSize), cfw: parseInt(cs.fontWeight, 10) }; }''')
+        ok('%s: 매치업 헤더·순위 카드 팀명 크게·굵게' % tag,
+           hf['fs'] >= 11 and hf['fw'] >= 800 and hf['cfs'] >= 11 and hf['cfw'] >= 800, hf)
+
         # ---- 휴식 순서 정하기 ----
         page.click('#mpBody [data-prd="0"]')
         page.wait_for_timeout(150)
@@ -394,21 +423,47 @@ with sync_playwright() as pw:
         ok('%s: ⛶ 전체화면 해제' % tag,
            page.get_attribute('#mpFullBtn', 'aria-pressed') == 'false')
 
-        # ---- 사진 저장(PNG) ----
+        # ---- 사진 저장(PNG) — 테마 PNG + 잉크절약 흑백 PNG 2장 ----
         page.click('#mpSetBtn')
         page.wait_for_timeout(200)
-        try:
-            with page.expect_download(timeout=15000) as dl:
-                page.click('#mpSet [data-mpctl="photo"]')
-            d = dl.value
-            path = '%s/%s_photo_%s' % (OUT, tag, d.suggested_filename)
-            d.save_as(path)
-            size = os.path.getsize(path)
-            sig = io.open(path, 'rb').read(8)
-            ok('%s: 📸 사진 저장 PNG 생성' % tag, size > 8000 and sig == b'\x89PNG\r\n\x1a\n',
-               '%s · %d bytes' % (d.suggested_filename, size))
-        except Exception as ex:
-            ok('%s: 📸 사진 저장 PNG 생성' % tag, False, str(ex)[:120])
+        dls = []
+        page.on('download', lambda d: dls.append(d))
+        page.click('#mpSet [data-mpctl="photo"]')
+        page.wait_for_timeout(2000)
+        ok('%s: 📸 사진 저장 PNG 2장 다운로드(테마 + 잉크절약)' % tag, len(dls) == 2,
+           [d.suggested_filename for d in dls])
+        if len(dls) == 2:
+            files = []
+            for d in dls[:2]:
+                path = '%s/%s_photo2_%s' % (OUT, tag, d.suggested_filename)
+                d.save_as(path)
+                files.append((d.suggested_filename, path))
+            ok('%s: 📸 파일명 — 스텝백_3파전_경기기록_날짜(+_잉크절약).png' % tag,
+               files[0][0].startswith('스텝백_3파전_경기기록_2026-11-22')
+               and files[0][0].endswith('.png') and '_잉크절약' not in files[0][0]
+               and files[1][0].endswith('_잉크절약.png'),
+               [f[0] for f in files])
+            ok('%s: 📸 두 파일 모두 유효한 PNG' % tag,
+               all(os.path.getsize(f[1]) > 8000
+                   and io.open(f[1], 'rb').read(8) == b'\x89PNG\r\n\x1a\n' for f in files),
+               [os.path.getsize(f[1]) for f in files])
+            try:
+                from PIL import Image
+                col = Image.open(files[0][1]).convert('RGB')
+                ink = Image.open(files[1][1]).convert('RGB')
+                col_bg = col.getpixel((5, 5))
+                ink_bg = ink.getpixel((5, 5))
+                ink_px = ink.getdata()
+                whites = sum(1 for px in ink_px if px == (255, 255, 255))
+                blacks = sum(1 for px in ink_px if max(px) <= 40)
+                ok('%s: 📸 잉크절약 PNG — 배경 흰색·글씨·테두리 검정' % tag,
+                   ink_bg == (255, 255, 255) and blacks > 2000
+                   and whites > len(list(ink_px)) * 0.4, '%s / 흑%s' % (ink_bg, blacks))
+                ok('%s: 📸 테마 PNG — 현재 테마(어두운) 배경 반영' % tag,
+                   col_bg[0] < 40 and col_bg[2] < 60, col_bg)
+            except Exception as ex:
+                ok('%s: 📸 PNG 색상 검사' % tag, False, str(ex)[:100])
+        page.wait_for_timeout(200)
 
         # ---- A4 인쇄 ----
         try:
@@ -426,9 +481,51 @@ with sync_playwright() as pw:
         shown = page.evaluate("getComputedStyle(document.querySelector('#mpPrint')).display !== 'none'")
         ok('%s: 🖨️ 인쇄 미디어에서 기록지만 표시' % tag, shown,
            page.evaluate("getComputedStyle(document.querySelector('.wrap')).display"))
+        prc = page.evaluate('''() => {
+            const pp = document.querySelector('#mpPrint .pp');
+            const th = document.querySelector('#mpPrint th');
+            const td = document.querySelector('#mpPrint td');
+            return { body: getComputedStyle(document.body).backgroundColor,
+                     bg: getComputedStyle(pp).backgroundColor, tx: getComputedStyle(pp).color,
+                     thbg: getComputedStyle(th).backgroundColor, thtx: getComputedStyle(th).color,
+                     tdb: getComputedStyle(td).borderTopColor, tdtx: getComputedStyle(td).color };
+          }''')
+        ok('%s: 🖨️ 인쇄 — 배경 순백·글씨·테두리 검정(어두운 테마에서도)' % tag,
+           prc['body'] == 'rgb(255, 255, 255)' and prc['bg'] == 'rgb(255, 255, 255)'
+           and prc['tx'] == 'rgb(0, 0, 0)' and prc['thbg'] == 'rgb(255, 255, 255)'
+           and prc['thtx'] == 'rgb(0, 0, 0)' and prc['tdb'] == 'rgb(0, 0, 0)'
+           and prc['tdtx'] == 'rgb(0, 0, 0)', prc)
         page.screenshot(path='%s/%s_6_print.png' % (OUT, tag), full_page=True)
         page.emulate_media(media='screen')
         page.evaluate("document.body.classList.remove('mp-printing')")
+
+        # 중간 테마에서도 인쇄는 순백 배경·검정 글씨
+        page.click('[data-mptheme="mid"]')
+        page.wait_for_timeout(200)
+        try:
+            page.click('#mpSet [data-mpctl="print"]', timeout=4000)
+        except Exception:
+            pass
+        page.wait_for_timeout(220)
+        page.evaluate("document.body.classList.add('mp-printing')")
+        page.emulate_media(media='print')
+        page.wait_for_timeout(200)
+        prm = page.evaluate('''() => {
+            const pp = document.querySelector('#mpPrint .pp');
+            const th = document.querySelector('#mpPrint th');
+            return { body: getComputedStyle(document.body).backgroundColor,
+                     bg: getComputedStyle(pp).backgroundColor, tx: getComputedStyle(pp).color,
+                     thbg: getComputedStyle(th).backgroundColor,
+                     tdb: getComputedStyle(document.querySelector('#mpPrint td')).borderTopColor };
+          }''')
+        ok('%s: 🖨️ 중간 테마에서도 인쇄 — 순백·검정' % tag,
+           prm['body'] == 'rgb(255, 255, 255)' and prm['bg'] == 'rgb(255, 255, 255)'
+           and prm['tx'] == 'rgb(0, 0, 0)' and prm['thbg'] == 'rgb(255, 255, 255)'
+           and prm['tdb'] == 'rgb(0, 0, 0)', prm)
+        page.emulate_media(media='screen')
+        page.evaluate("document.body.classList.remove('mp-printing')")
+        page.click('[data-mptheme="dark"]')
+        page.wait_for_timeout(180)
 
         # ---- 초기화 확인 팝업 ----
         page.screenshot(path='%s/%s_7_before_reset.png' % (OUT, tag))
@@ -801,10 +898,81 @@ with sync_playwright() as pw:
         page.wait_for_timeout(200)
         page.click('#mpCfOk')
         page.wait_for_timeout(320)
-        ok('restore: 정본 프리뷰 없는 날짜 → 빈 프리뷰·기본 화면',
-           page.evaluate('() => MP.preview === null') and page.locator('#mpCard').count() == 0
-           and page.locator('#mpScreen').is_hidden(),
-           'card=%s screen=%s' % (page.locator('#mpCard').count(), page.locator('#mpScreen').is_hidden()))
+        ok('restore: 정본 프리뷰 없는 날짜 → 완전 빈칸(0명) 프리뷰',
+           page.evaluate('() => !!MP.preview && MP.preview.teams.every(t => t.players.length === 0)')
+           and page.evaluate('() => MP.previews.length === 0')
+           and page.locator('#mpScreen').is_visible()
+           and page.locator('#mpBody [data-sc]').count() == 24
+           and page.locator('#mpBody [data-rest]').count() == 0,
+           'teams=%s previews=%s' % (
+               page.evaluate('() => (MP.preview ? MP.preview.teams.map(t => t.players.length) : null)'),
+               page.evaluate('() => MP.previews.length')))
+
+        # ---- 📝 등록·편집 모달 하단 — 🧩 정본 초기화 · 🏀 경기 진행하기 ----
+        page.click('#mpClose')
+        page.wait_for_timeout(220)
+        page.click('#mpHeroBtn')
+        page.wait_for_timeout(300)
+        ok('editor: 하단 🧩 매치 프리뷰 초기화(서버 정본) 버튼',
+           page.locator('#mpEdRestore').count() == 1
+           and '매치 프리뷰 초기화' in txt(page, '#mpEdRestore'), txt(page, '#mpEdRestore'))
+        ok('editor: 하단 🏀 경기 진행하기 버튼',
+           page.locator('#mpEdStart').count() == 1 and '경기 진행하기' in txt(page, '#mpEdStart'),
+           txt(page, '#mpEdStart'))
+        # 정본이 있는 2026-11-29 → 정본 인원으로 복원
+        page.fill('#mpDate', '2026-11-29')
+        page.evaluate("""() => { const p = mpFromCanonical(mpFindCanonical('2026-11-29'));
+              const a = p.teams[0].players, b = p.teams[1].players;
+              p.teams[0].players = b; p.teams[1].players = a;
+              MP.previews = MP.previews.filter(x => x.date !== '2026-11-29').concat([p]);
+              MP.preview = p; mpSave(); mpOpenEditor(p); }""")
+        page.wait_for_timeout(260)
+        page.click('#mpEdRestore')
+        page.wait_for_timeout(220)
+        ok('editor: 초기화 확인 팝업 문구', page.locator('#mpEdConfirm').is_visible()
+           and txt(page, '#mpEdCfMsg').strip() == '기기에 임시 저장된 매치 프리뷰를 지우고 서버 정본 기준으로 되돌릴까요?',
+           txt(page, '#mpEdCfMsg'))
+        page.screenshot(path='%s/c_8_editor_confirm.png' % OUT)
+        page.click('#mpEdCfOk')
+        page.wait_for_timeout(320)
+        ed_cnt = page.eval_on_selector_all('#mpTeams .cnt', 'els => els.map(e => e.textContent)')
+        up29b = page.evaluate("""() => mpFindCanonical('2026-11-29').pv.teams.map(t => t.team + ':' + t.players.join(','))""")
+        ed_teams = page.evaluate("""() => MPED.teams.map(t => t.name + ':' + t.players.map(x => x.name).join(','))""")
+        gone29 = page.evaluate("""() => { const o = JSON.parse(localStorage.getItem('stepback-mpgame-v1') || '{}');
+              return (o.previews || []).filter(x => x.date === '2026-11-29').length; }""")
+        ok('editor: 기기 임시 저장 삭제 + 정본 인원으로 복원',
+           gone29 == 0 and ed_teams == up29b and ed_cnt == ['6/6명', '6/6명', '6/6명'],
+           '%s건 · %s · %s' % (gone29, ed_cnt, str(ed_teams)[:50]))
+        page.screenshot(path='%s/c_9_editor_restored.png' % OUT)
+        # 정본이 없는 날짜 → 0명 빈칸
+        page.fill('#mpDate', '2026-12-13')
+        page.click('#mpEdRestore')
+        page.wait_for_timeout(200)
+        page.click('#mpEdCfOk')
+        page.wait_for_timeout(300)
+        ed_cnt0 = page.eval_on_selector_all('#mpTeams .cnt', 'els => els.map(e => e.textContent)')
+        ok('editor: 정본 없는 날짜 → 0명 빈칸 초기화', ed_cnt0 == ['0/6명', '0/6명', '0/6명']
+           and page.evaluate('() => MPED.teams.every(t => t.players.length === 0)')
+           and page.evaluate('() => MP.previews.length === 0'), ed_cnt0)
+        page.screenshot(path='%s/c_10_editor_blank.png' % OUT)
+        # 🏀 경기 진행하기 — 인원 미달이면 안내 후 중지
+        page.click('#mpEdStart')
+        page.wait_for_timeout(260)
+        ok('editor: 🏀 인원 미달이면 안내하고 중지', page.locator('#mpModal').is_visible()
+           and page.locator('#mpScreen').is_hidden() and '선수' in txt(page, '#mpMsg'), txt(page, '#mpMsg'))
+        page.fill('#mpDate', '2026-11-29')
+        page.click('#mpEdRestore')
+        page.wait_for_timeout(200)
+        page.click('#mpEdCfOk')
+        page.wait_for_timeout(300)
+        page.click('#mpEdStart')
+        page.wait_for_timeout(420)
+        ok('editor: 🏀 유효하면 저장 후 경기 진행 화면으로', page.locator('#mpScreen').is_visible()
+           and page.locator('#mpModal').is_hidden()
+           and page.locator('#mpBody [data-sc]').count() == 24
+           and page.locator('#mpBody [data-rest]').count() == 18,
+           '%s / %s' % (page.locator('#mpBody [data-sc]').count(), page.locator('#mpBody [data-rest]').count()))
+        page.screenshot(path='%s/c_11_editor_start.png' % OUT)
         ok('canon: JS 오류 0건', not cerrs, ' / '.join(cerrs[:3]))
         ctx.close()
         srv2.shutdown()
