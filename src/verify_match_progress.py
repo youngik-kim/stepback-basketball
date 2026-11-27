@@ -109,17 +109,17 @@ with sync_playwright() as pw:
         page.wait_for_timeout(1100)
         ok('%s: 입장' % tag, page.locator('#secResult').is_visible())
 
-        # ---- 히어로 3등분 버튼 ----
+        # ---- 히어로 4등분 버튼 ----
         hb = page.eval_on_selector_all('.duobtns .pairbtn', '''els => els.map(e => ({
               t: e.innerText.replace(/\\s+/g, ' ').trim(),
               w: Math.round(e.getBoundingClientRect().width),
               top: Math.round(e.getBoundingClientRect().top),
               clip: e.scrollWidth > e.clientWidth + 1
             }))''')
-        ok('%s: 히어로 버튼 3개(짝꿍 승률·팀 구성·매치 프리뷰)' % tag,
-           len(hb) == 3 and all(k in hb[i]['t'] for i, k in enumerate(['짝꿍 승률', '팀 구성', '매치 프리뷰'])), hb)
-        ok('%s: 히어로 3버튼 한 줄 1:1:1' % tag,
-           len(hb) == 3 and len({h2['top'] for h2 in hb}) == 1
+        ok('%s: 히어로 버튼 4개(짝꿍 승률·팀 구성·매치 프리뷰·작전판)' % tag,
+           len(hb) == 4 and all(k in hb[i]['t'] for i, k in enumerate(['짝꿍 승률', '팀 구성', '매치 프리뷰', '작전판'])), hb)
+        ok('%s: 히어로 4버튼 한 줄 4등분' % tag,
+           len(hb) == 4 and len({h2['top'] for h2 in hb}) == 1
            and max(h2['w'] for h2 in hb) - min(h2['w'] for h2 in hb) <= 1
            and not any(h2['clip'] for h2 in hb), hb)
         page.screenshot(path='%s/%s_0_hero.png' % (OUT, tag))
@@ -128,8 +128,8 @@ with sync_playwright() as pw:
         page.click('#chgBtn')
         page.wait_for_timeout(260)
         first = txt(page, '#chgList .cl.top')
-        ok('%s: 주요 변경점 최상단 2026-11-27 · 기능 · 경기진행패치' % tag,
-           '2026-11-27' in first and '기능' in first and '경기진행패치' in first,
+        ok('%s: 주요 변경점 최상단 2026-11-28 · 기능 · 꽉 채우기' % tag,
+           '2026-11-28' in first and '기능' in first and '꽉 채우기' in first,
            first[:80].replace('\n', ' '))
         page.click('#chgModal .x')
         page.wait_for_timeout(200)
@@ -229,12 +229,19 @@ with sync_playwright() as pw:
             page.fill('#mpBody [data-sc="%s"]' % key, val)
         page.wait_for_timeout(200)
         tots = page.eval_on_selector_all('#mpBody [data-tot]', 'els => els.map(e => e.textContent.replace(/\\s+/g," ").trim())')
-        ok('%s: 경기 합계 자동 계산' % tag, '20 : 19' in tots[0] and '5 : 5' in tots[1] and '20 : 11' in tots[2], tots)
-        ok('%s: 승리팀 자동 표시' % tag, '형광 승' in tots[0] and tots[1].endswith('무'))
+        ok('%s: 경기 합계 자동 계산(마지막 입력 쿼터 누적)' % tag,
+           '8 : 10' in tots[0] and '5 : 5' in tots[1] and '20 : 11' in tots[2], tots)
+        ok('%s: 승리팀 표기(● 팀명 승 · 무승부는 무)' % tag,
+           '블랙 승' in tots[0] and tots[1].endswith('무') and '형광 승' in tots[2], tots)
+        ok('%s: 승리팀 팀 색 점(●) 표시' % tag,
+           page.locator('#mpBody [data-tot] .totw .dot').count() == 2,
+           page.locator('#mpBody [data-tot] .totw .dot').count())
         sumtxt = txt(page, '#mpSum').replace('\n', ' ')
-        ok('%s: 팀별 승·무·패 자동 계산(형광 2승)' % tag, '2승 0무 0패' in sumtxt, sumtxt[:70])
-        ok('%s: 득실 자동 계산(+10)' % tag, '+10' in sumtxt, sumtxt[:120])
-        ok('%s: 1위 배지(우승 카드)' % tag, '1위' in sumtxt and page.locator('#mpSum .pgs.win').count() == 1)
+        ok('%s: 팀별 승·무·패 자동 계산' % tag, '1승 1무 0패' in sumtxt and '1승 0무 1패' in sumtxt, sumtxt[:90])
+        ok('%s: 득실은 참고 표기 (득실 +N)' % tag, '(득실 +' in sumtxt and '(득실 -' in sumtxt, sumtxt[:140])
+        ok('%s: 순위는 승패(승률) 기준 — 동률이면 공동 순위' % tag,
+           '공동 1위' in sumtxt and '#mpSum .pgs.win'.replace('#mpSum ', '')
+           and page.locator('#mpSum .pgs.win').count() == 2, sumtxt[:120])
         page.screenshot(path='%s/%s_3_screen3.png' % (OUT, tag))
 
         # ---- 3파전 휴식 횟수 0→1→2→3→1 ----
@@ -277,8 +284,8 @@ with sync_playwright() as pw:
             const s = getComputedStyle(e), cs = getComputedStyle(c);
             return { fs: parseFloat(s.fontSize), fw: parseInt(s.fontWeight, 10),
                      cfs: parseFloat(cs.fontSize), cfw: parseInt(cs.fontWeight, 10) }; }''')
-        ok('%s: 매치업 헤더·순위 카드 팀명 크게·굵게' % tag,
-           hf['fs'] >= 11 and hf['fw'] >= 800 and hf['cfs'] >= 11 and hf['cfw'] >= 800, hf)
+        ok('%s: 매치업 헤더·순위 카드 팀명 굵게(작은 폰에서도 잘리지 않는 크기)' % tag,
+           hf['fs'] >= 8 and hf['fw'] >= 800 and hf['cfs'] >= 8 and hf['cfw'] >= 800, hf)
 
         # ---- 휴식 순서 정하기 ----
         page.click('#mpBody [data-prd="0"]')
@@ -365,11 +372,16 @@ with sync_playwright() as pw:
            and '서버 정본 복원' in txt(page, '#mpSetRestore'), txt(page, '#mpSetRestore'))
         page.screenshot(path='%s/%s_4b_settings.png' % (OUT, tag))
 
-        # 기본 글씨가 ‘크게’인지 먼저 확인(아무 설정도 건드리기 전) — 리버스 양식은 화면 배율(zoom)로 커집니다
-        big_fs = page.evaluate("parseFloat(document.querySelector('#mpBody .pgfit').style.zoom || 1)")
-        ok('%s: 🔎 글씨 크기 기본값 크게(배율 최대)' % tag,
-           page.get_attribute('[data-mpfont="large"]', 'aria-pressed') == 'true'
-           and page.get_attribute('[data-mpfont="normal"]', 'aria-pressed') == 'false', big_fs)
+        # 기본 글씨가 ‘보통’인지 먼저 확인(아무 설정도 건드리기 전) — 화면은 꽉 채우고 글씨만 3단계
+        def name_fs():
+            return page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .pgnm')).fontSize)")
+        big_fs = name_fs()
+        ok('%s: 🔎 글씨 크기 기본값 보통' % tag,
+           page.get_attribute('[data-mpfont="normal"]', 'aria-pressed') == 'true'
+           and page.get_attribute('[data-mpfont="large"]', 'aria-pressed') == 'false', big_fs)
+        ok('%s: 📱 화면 꽉 채우기(pg-full) 적용' % tag,
+           page.evaluate("document.querySelector('#mpScreen').classList.contains('pg-full')")
+           and page.evaluate("document.querySelectorAll('#mpBody .pgfit').length") == 2)
 
         # ---- 🌓 중간 테마 ----
         page.click('[data-mptheme="mid"]')
@@ -403,20 +415,24 @@ with sync_playwright() as pw:
            and not page.evaluate("document.querySelector('#mpScreen').classList.contains('mid')")
            and page.get_attribute('[data-mptheme="dark"]', 'aria-pressed') == 'true')
 
-        # ---- 🔎 글씨 크기 — 기본 크게 / 보통 / 작게 ----
-        page.click('[data-mpfont="normal"]')
-        page.wait_for_timeout(160)
-        base_fs = page.evaluate("parseFloat(document.querySelector('#mpBody .pgfit').style.zoom || 1)")
-        ok('%s: 🔎 글씨 크기 보통 ≤ 기본 크게' % tag, base_fs <= big_fs, '%s → %s' % (big_fs, base_fs))
+        # ---- 🔎 글씨 크기 — 보통 / 작게 / 크게 (박스는 그대로, 글씨만) ----
+        box0 = page.evaluate("document.querySelector('#mpBody .pgrow').getBoundingClientRect().height")
+        base_fs = name_fs()
+        ok('%s: 🔎 글씨 크기 보통 = 기본' % tag, abs(base_fs - big_fs) < 0.6, '%s → %s' % (big_fs, base_fs))
         page.click('[data-mpfont="small"]')
-        page.wait_for_timeout(140)
-        small_fs = page.evaluate("parseFloat(document.querySelector('#mpBody .pgfit').style.zoom || 1)")
+        page.wait_for_timeout(260)
+        small_fs = name_fs()
         ok('%s: 🔎 글씨 크기 작게' % tag, small_fs < base_fs, '%s → %s' % (base_fs, small_fs))
         page.click('[data-mpfont="large"]')
-        page.wait_for_timeout(140)
-        restore_fs = page.evaluate("parseFloat(document.querySelector('#mpBody .pgfit').style.zoom || 1)")
-        ok('%s: 🔎 글씨 크게 복귀' % tag, restore_fs > small_fs
+        page.wait_for_timeout(260)
+        restore_fs = name_fs()
+        ok('%s: 🔎 글씨 크게 — 잘리지 않는 최대' % tag, restore_fs > base_fs
            and page.get_attribute('[data-mpfont="large"]', 'aria-pressed') == 'true', restore_fs)
+        ok('%s: 글씨를 키워도 명단 행 높이는 화면 그대로' % tag,
+           abs(page.evaluate("document.querySelector('#mpBody .pgrow').getBoundingClientRect().height") - box0) <= 1.5,
+           box0)
+        page.click('[data-mpfont="normal"]')
+        page.wait_for_timeout(200)
         ok('%s: 🔆 화면꺼짐 방지 토글(진입 시 자동 ON)' % tag,
            page.get_attribute('#mpSetWake', 'aria-pressed') == 'true' and 'ON' in txt(page, '#mpSetWake')
            and '화면꺼짐 방지' in txt(page, '#mpSetWake'))
@@ -431,13 +447,18 @@ with sync_playwright() as pw:
         ok('%s: ⚙️ 설정 패널 닫힘' % tag, page.locator('#mpSet').is_hidden())
         page.click('#mpFullBtn')
         page.wait_for_timeout(320)
-        ok('%s: ⛶ 전체화면 버튼 동작(요청 또는 오버레이 폴백)' % tag,
-           page.get_attribute('#mpFullBtn', 'aria-pressed') == 'true'
-           and page.get_attribute('#mpFullBtn', 'aria-label') in ('전체화면 종료',))
+        # 진입 시 자동 전체화면을 시도하므로, 버튼은 '켜짐/꺼짐'을 실제 상태대로 토글합니다
+        fs0 = page.get_attribute('#mpFullBtn', 'aria-pressed')
         page.click('#mpFullBtn')
-        page.wait_for_timeout(220)
-        ok('%s: ⛶ 전체화면 해제' % tag,
-           page.get_attribute('#mpFullBtn', 'aria-pressed') == 'false')
+        page.wait_for_timeout(280)
+        fs1 = page.get_attribute('#mpFullBtn', 'aria-pressed')
+        ok('%s: ⛶ 전체화면 버튼 토글(요청 또는 오버레이 폴백)' % tag,
+           fs0 != fs1 and fs1 in ('true', 'false')
+           and page.get_attribute('#mpFullBtn', 'aria-label') in ('전체화면', '전체화면 종료'), (fs0, fs1))
+        page.click('#mpFullBtn')
+        page.wait_for_timeout(280)
+        ok('%s: ⛶ 전체화면 되돌리기' % tag,
+           page.get_attribute('#mpFullBtn', 'aria-pressed') == fs0)
 
         # ---- 사진 저장(PNG) — 테마 PNG + 잉크절약 흑백 PNG 2장 ----
         page.click('#mpSetBtn')
@@ -708,7 +729,8 @@ with sync_playwright() as pw:
        and geo['sameTop'] and geo['leftRight'] <= geo['rightLeft'] + 1, geo)
     ok('l: 가로모드 명단 3열(3파전) + 번 열', geo['cols'] == 4, geo['cols'])
     share = geo['lw'] / (geo['lw'] + geo['rw'])
-    ok('l: 좌 점수표 : 우 명단 = 58~60% : 40~42%', 0.575 <= share <= 0.605,
+    # 리버스 최신 레이아웃과 동일 — 3파전은 좌우 1:1, 2파전은 점수표 열이 많아 1.3:1
+    ok('l: 좌 점수표 : 우 명단 = 1:1(3파전)', 0.485 <= share <= 0.515,
        '%.1f%% : %.1f%% (%.1f / %.1f px)' % (share * 100, (1 - share) * 100, geo['lw'], geo['rw']))
     clipped = page.evaluate('''() => [...document.querySelectorAll('#mpBody .pgrows')].map(t => {
           const box = t.getBoundingClientRect();

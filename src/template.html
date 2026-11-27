@@ -168,12 +168,15 @@ body.locked .wrap{display:none}
 
 /* ---------- ⚖️ 팀 구성 추천 (3파전·2파전 밸런스 배정) ---------- */
 /* 히어로 요약 카드 바로 아래 — 짝꿍 승률 계산과 1:1 로 나란히 */
-.duobtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin:9px 0 0}
+.duobtns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:9px 0 0}
 .duobtns .pairbtn{width:auto;min-width:0;margin:0;padding:0 6px;gap:3px;font-size:11px;justify-content:center}
 .duobtns .pairbtn .pbtxt{white-space:nowrap;overflow:visible;text-overflow:clip}
 .duobtns .pairbtn .pbarw{margin-left:1px;font-size:13px}
 .pairbtn.teambtn{background:linear-gradient(96deg,#a78bfa,#d8c8ff);color:#140f26;box-shadow:0 6px 16px rgba(167,139,250,.24)}
 .pairbtn.mphbtn{background:linear-gradient(96deg,#ffd166,#ffeab0);color:#1a1405;box-shadow:0 6px 16px rgba(255,209,102,.24)}
+.pairbtn.tbhero{background:linear-gradient(96deg,#5b9cff,#a9c8ff);color:#08152c;box-shadow:0 6px 16px rgba(91,156,255,.26)}
+.pairbtn.tbhero:active{transform:translateY(1px)}
+.pairbtn.tbhero:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(91,156,255,.45)}
 .pairbtn.mphbtn:active{transform:translateY(1px)}
 .pairbtn.mphbtn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(255,209,102,.42)}
 .pairbtn.teambtn:active{transform:translateY(1px)}
@@ -858,7 +861,9 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--tx2);cursor:default}
 .pvcard-mp .chip.mpn .mprt{font-style:normal;font-size:9.5px;font-weight:900;color:var(--amber);margin-left:2px}
 .pvcard-mp .mpbtns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
-.pvcard-mp .mpgo,.pvcard-mp .mpedit{height:42px;border-radius:11px;font-size:12.5px;font-weight:900;font-family:inherit;cursor:pointer;border:1px solid transparent;white-space:nowrap;padding:0 6px;overflow:hidden;text-overflow:ellipsis}
+/* 두 버튼 모두 글자·이모지를 한 줄에 두고 세로 정중앙 정렬(이모지 폰트 높이 차로 위로 뜨던 문제 수정) */
+.pvcard-mp .mpgo,.pvcard-mp .mpedit{display:flex;align-items:center;justify-content:center;gap:4px;line-height:1;
+  height:42px;border-radius:11px;font-size:12.5px;font-weight:900;font-family:inherit;cursor:pointer;border:1px solid transparent;white-space:nowrap;padding:0 6px;overflow:hidden;text-overflow:ellipsis}
 .pvcard-mp .mpgo{background:linear-gradient(96deg,var(--amber),#ff7a18);color:#20140a;box-shadow:0 6px 16px rgba(255,122,24,.22)}
 .pvcard-mp .mpedit{background:rgba(255,255,255,.06);border-color:var(--line2);color:var(--tx);font-size:12px}
 .pvcard-mp .mpgo:active,.pvcard-mp .mpedit:active{transform:translateY(1px)}
@@ -919,6 +924,20 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mpcapa{font-size:10px;color:var(--tx3);font-weight:700;margin:0 0 6px;display:flex;align-items:center;gap:5px}
 .mpcapa b{color:var(--tx2);font-weight:900}
 
+/* ---- 등록·편집 창 안 확인 팝업 — 리버스와 동일(불투명 카드 + 뒷배경 딤 + 최상단) ---- */
+.mpconfirm{position:fixed;inset:0;z-index:340;display:flex;align-items:center;justify-content:center;padding:18px}
+.mpconfirm[hidden]{display:none}
+.mpcfbd{position:absolute;inset:0;background:rgba(3,6,10,.74)}
+.mpcfbox{position:relative;width:100%;max-width:330px;background:var(--card);border:1px solid var(--line2);
+  border-radius:16px;padding:16px 15px 13px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.mpcfbox b{display:block;font-size:15px;font-weight:900;color:var(--tx)}
+.mpcfbox p{margin:7px 0 13px;font-size:12px;line-height:1.55;color:var(--tx2);font-weight:700;word-break:keep-all}
+.mpcfbox p.mpcfnote{margin:-6px 0 12px;font-size:10.5px;color:var(--tx3);font-weight:800}
+.mpcfb{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mpcfb button{height:38px;border-radius:10px;border:1px solid var(--line2);background:transparent;
+  color:var(--tx);font-size:12.5px;font-weight:900;font-family:inherit;cursor:pointer}
+.mpcfb button.danger{background:rgba(255,92,92,.16);border-color:rgba(255,92,92,.55);color:#ff9a9a}
+.mpcfb button:active{transform:translateY(1px)}
 /* ---- 짝꿍·팀 구성 결과에서 등록 ---- */
 .mpreg2{display:block;width:100%;margin:8px 0 2px;height:38px;border-radius:11px;cursor:pointer;
   border:1px dashed rgba(51,224,196,.6);background:rgba(51,224,196,.10);color:var(--acc);
@@ -1132,6 +1151,163 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mpassignhint{border:1px dashed rgba(255,179,71,.6);background:rgba(255,179,71,.10);color:var(--pg-acc);
   border-radius:7px;padding:3px 5px;font-size:8px;font-weight:900;line-height:1.35;word-break:keep-all}
 .mpdropt{outline:2px dashed rgba(255,179,71,.75);outline-offset:-2px}
+/* ---------- 📱 화면 꽉 채우기 (배율 zoom 폐기 · flex/grid 로 100% 채움) ----------
+   #mpScreen 을 세로 flex 로 두고 본문(.pgbody)이 상단 바 아래 남는 높이 전부를 차지합니다.
+   그 안에서 점수표 행과 명단 행이 1fr 로 늘어나 위아래 빈 공간 없이 꽉 찹니다(가운데 쏠림 없음).
+   폰·태블릿 모두 같은 배치를 쓰고, 태블릿(≥700px·짧은 변 ≥560px)은 .pg-tab 으로 여백만 조금 넓힙니다.
+   글씨 크기는 --pg-fs-* 변수만 바꿔 조절합니다 — 작게/보통/크게(JS mpTabFit 실측). */
+#mpScreen.pg-full{--pg-fs-name:20px;--pg-fs-score:26px;--pg-fs-q:12px;--pg-fs-mpair:12px;--pg-fs-team:13px;
+  --pg-fs-meta:10px;--pg-fs-sum:11px;--pg-fs-tot:24px}
+#mpScreen.pg-full .pgbody{height:100%;min-height:0;gap:6px;padding:6px;overflow:hidden}
+#mpScreen.pg-full.pg-h .pgbody{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+/* 2파전은 점수표 열이 많아 점수표 쪽에 폭을 조금 더 줍니다(명단은 2팀뿐) */
+#mpScreen.pg-full.pg-h.pg-m2 .pgbody{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+/* 세로(포트레이트) — 두 단이 위아래로 높이를 반씩 나눠 갖습니다 */
+#mpScreen.pg-full.pg-v .pgbody{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);align-content:stretch}
+#mpScreen.pg-full .pgcol{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden}
+#mpScreen.pg-full .pgfit{flex:1 1 auto;min-height:0;height:100%;width:100%;max-width:none;display:flex;flex-direction:column}
+/* ── 왼쪽: 점수표가 남는 높이 전부(합계·순위 카드 제외) ── */
+#mpScreen.pg-full .pgtblwrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+#mpScreen.pg-full .pgtbl{flex:1 1 auto;min-height:0;height:auto;max-height:var(--pg-tbl-max,none);border-spacing:4px}
+#mpScreen.pg-full .pgsums{flex:0 0 auto;gap:5px;margin-top:6px}
+#mpScreen.pg-full .pgs{padding:.42em .6em;font-size:var(--pg-fs-sum)}
+#mpScreen.pg-full .pgs .pgsr,#mpScreen.pg-full .pgs .pgsrank{line-height:1.2em;padding:0 .34em}
+#mpScreen.pg-full .pgtbl .qh{width:3.1em;font-size:var(--pg-fs-q);padding:2px 1px}
+#mpScreen.pg-full .pgtbl .qh.corner,#mpScreen.pg-full .pgtbl .qh.qfix,#mpScreen.pg-full .pgtbl .qh.totqh{width:3.1em}
+#mpScreen.pg-full .pgtbl .qh .ql{font-size:var(--pg-fs-q)}
+#mpScreen.pg-full .pgtbl .qbtns button,#mpScreen.pg-full .pgtbl .mbtns button,#mpScreen.pg-full .pgtbl .gbtns button{width:1.5em;height:1.15em;font-size:calc(var(--pg-fs-q)*.72)}
+#mpScreen.pg-full .pgtbl .pgcell{padding:2px 3px}
+#mpScreen.pg-full .pgtbl .scin{width:100%;gap:.12em}
+#mpScreen.pg-full .pgtbl .sci{flex:1 1 auto;width:auto;min-width:2.1em;max-width:4.6em;height:auto;min-height:var(--pg-h-score,1.95em);
+  font-size:var(--pg-fs-score);padding:0;border-radius:.24em}
+#mpScreen.pg-full .pgtbl .scc{font-size:calc(var(--pg-fs-score)*.72)}
+#mpScreen.pg-full .pgtbl .cum{font-size:var(--pg-fs-meta);min-height:1.15em}
+#mpScreen.pg-full .pgtbl .restl{font-size:var(--pg-fs-meta)}
+#mpScreen.pg-full .pgtbl .pgtot{padding:2px 3px}
+#mpScreen.pg-full .pgtbl .totv{font-size:var(--pg-fs-tot);line-height:1.12}
+#mpScreen.pg-full .pgtbl .totv i{font-size:.62em}
+#mpScreen.pg-full .pgtbl .totw{font-size:calc(var(--pg-fs-meta)*1.05)}
+#mpScreen.pg-full .pgtbl .totw .dot{width:.52em;height:.52em}
+#mpScreen.pg-full .pgtbl .pgtot .totv.none::after{content:'';display:block;height:.3em}
+#mpScreen.pg-full .pggh2{font-size:calc(var(--pg-fs-mpair)*.9);gap:.3em;margin:0 0 .2em}
+#mpScreen.pg-full .pggh2 .tm{font-size:1em}
+#mpScreen.pg-full .pgtbl.g2 .gh{width:3.1em;font-size:var(--pg-fs-q)}
+#mpScreen.pg-full .pgtbl.g2 .gh .ggname{font-size:1em}
+#mpScreen.pg-full .pgtbl.g2 .qh2 .ql{font-size:var(--pg-fs-q)}
+/* 매치업 헤더(● 형광 | ● 블랙) — 한 줄 유지 · 칸 안에 꽉 차게. 넘치면 JS 가 --pg-fs-mpair 를 줄입니다. */
+#mpScreen.pg-full .pgtbl .mpair{flex-wrap:nowrap;gap:.28em;font-size:var(--pg-fs-mpair);letter-spacing:-.02em}
+#mpScreen.pg-full .pgtbl .mpair .tm{padding:0 .28em;gap:.24em;border-radius:.34em}
+#mpScreen.pg-full .pgtbl .mpair i{font-size:0;flex:0 0 auto;width:1px;height:1.1em;background:currentColor;opacity:.45;border-radius:1px}
+#mpScreen.pg-full .pgtbl .mpair .dot{width:.5em;height:.5em}
+#mpScreen.pg-full .pgtbl th.mh{overflow:hidden;padding-top:.34em}
+/* ── 오른쪽: 명단 — 팀 머리글 1줄 + 선수 행이 남는 높이를 똑같이 나눠 갖습니다 ── */
+#mpScreen.pg-full .pgrosters{height:100%;min-height:0;display:flex;flex-direction:column;gap:5px}
+#mpScreen.pg-full .pgrshead{flex:0 0 auto;gap:5px}
+#mpScreen.pg-full .pgrsbody{flex:1 1 auto;min-height:0;gap:5px;grid-auto-rows:minmax(0,1fr)}
+#mpScreen.pg-full .pgrsnum{display:grid;grid-template-rows:repeat(var(--n,5),minmax(0,1fr));gap:5px;height:100%}
+#mpScreen.pg-full .pgrsnum span{height:auto;font-size:var(--pg-fs-meta)}
+#mpScreen.pg-full .pgrows{display:grid;grid-template-rows:repeat(var(--n,5),minmax(0,1fr));gap:5px;height:100%;align-content:stretch}
+#mpScreen.pg-full .pgrow{height:auto;min-height:0;gap:.2em;padding:0 .34em}
+#mpScreen.pg-full .pgnrh{height:auto;min-height:2.2em;font-size:var(--pg-fs-meta)}
+/* 팀 머리글 — 색 점·팀명·인원수를 가운데, `순서` 버튼만 오른쪽 끝 */
+#mpScreen.pg-full .pgth{position:relative;height:auto;min-height:2.2em;padding:0 .4em;justify-content:center;gap:.3em}
+#mpScreen.pg-full .pgth b{font-size:var(--pg-fs-team);text-align:center}
+#mpScreen.pg-full .pgth .dot{width:.5em;height:.5em}
+#mpScreen.pg-full .pgtn{font-size:var(--pg-fs-meta)}
+#mpScreen.pg-full .pgasg{position:absolute;right:.28em;top:50%;transform:translateY(-50%);margin:0;
+  height:auto;min-height:1.6em;padding:.08em .34em;font-size:calc(var(--pg-fs-meta)*.9);line-height:1.3}
+/* 선수 이름 — 가운데 정렬(⠿ 핸들은 왼쪽, n회 배지는 오른쪽) */
+#mpScreen.pg-full .pgnm{flex:1 1 auto;font-size:var(--pg-fs-name);text-align:center;letter-spacing:-.02em}
+#mpScreen.pg-full .pgnm .crown{font-size:.72em;margin-right:.1em;vertical-align:.04em}
+#mpScreen.pg-full .pgdrag{font-size:calc(var(--pg-fs-meta)*.95);letter-spacing:-1px;padding:0 .1em}
+#mpScreen.pg-full .pgrc{min-width:2.3em;height:1.75em;padding:0 .2em;font-size:var(--pg-fs-meta)}
+#mpScreen.pg-full .pgpick{width:1.7em;height:1.7em;font-size:var(--pg-fs-meta)}
+/* 폰(좁은 화면) — 같은 꽉 채우기 배치를 조금 더 촘촘하게(간격·여백만 축소) */
+#mpScreen.pg-full:not(.pg-tab) .pgbody{gap:4px;padding:4px}
+#mpScreen.pg-full:not(.pg-tab) .pgrosters{gap:3px}
+#mpScreen.pg-full:not(.pg-tab) .pgrshead,#mpScreen.pg-full:not(.pg-tab) .pgrsbody{gap:3px}
+#mpScreen.pg-full:not(.pg-tab) .pgrsnum,#mpScreen.pg-full:not(.pg-tab) .pgrows{gap:3px}
+#mpScreen.pg-full:not(.pg-tab) .pgrow{padding:0 3px}
+#mpScreen.pg-full:not(.pg-tab) .pgtbl{border-spacing:3px}
+#mpScreen.pg-full:not(.pg-tab) .pgsums{gap:3px;margin-top:4px}
+/* 서 있는 폰에서도 매치업 헤더는 한 줄 — 두 줄로 쌓이면 칸이 비좁아집니다(폭이 모자라면 JS 가 글씨만 줄임) */
+@media (max-width:560px){
+  #mpScreen.pg-full .pgtbl .mpair{flex-direction:row;gap:.26em}
+  #mpScreen.pg-full .pgtbl .mpair i{font-size:0;width:1px;opacity:.45;line-height:1}
+}
+/* 명단 순서 드래그 — 이름 칸 어디를 잡아도 끌 수 있게(0회 버튼만 제외) 터치 스크롤 간섭을 막습니다 */
+#mpScreen .pgrow{touch-action:none}
+/* 합계 행 승리팀 표기 — 팀 색 점 + 팀명 */
+#mpScreen .totw{display:inline-flex;align-items:center;justify-content:center;gap:.22em;white-space:nowrap}
+#mpScreen .totw .dot{flex:0 0 auto}
+
+/* ---------- 🏀 작전판 (전술 보드 · 전체 화면) ---------- */
+#tbScreen{position:fixed;inset:0;z-index:205;display:none;flex-direction:column;overflow:hidden;
+  height:100vh;height:100dvh;background:#060a11;color:#eef4ff;font-family:inherit;touch-action:none;overscroll-behavior:none}
+#tbScreen.open{display:flex}
+#tbScreen.pg-light{background:#eef2f8;color:#0f1a26}
+#tbScreen.pg-mid{background:#dce3ec;color:#0f172a}
+.tbbar{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:6px 8px;
+  border-bottom:1px solid rgba(255,255,255,.12);background:rgba(9,14,22,.92)}
+#tbScreen.pg-mid .tbbar{background:rgba(237,241,246,.96);border-bottom-color:rgba(15,23,42,.18)}
+#tbScreen.pg-light .tbbar{background:rgba(249,250,251,.96);border-bottom-color:rgba(15,23,42,.14)}
+.tbttl{flex:1 1 auto;min-width:0;font-size:12.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbttl b{font-weight:900}
+.tbttl span{font-size:10px;font-weight:800;opacity:.6;margin-left:5px}
+.tbbtn{flex:0 0 auto;height:27px;padding:0 9px;border-radius:8px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.06);color:#c8d4e6;font-family:inherit;font-size:10.5px;font-weight:900;cursor:pointer;white-space:nowrap}
+#tbScreen.pg-mid .tbbtn,#tbScreen.pg-light .tbbtn{border-color:rgba(15,23,42,.26);background:rgba(15,23,42,.05);color:#33415a}
+.tbbtn:active{transform:translateY(1px)}
+.tbx{flex:0 0 auto;width:27px;height:27px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:transparent;
+  color:#c8d4e6;font-size:12px;line-height:1;padding:0;cursor:pointer;font-family:inherit}
+#tbScreen.pg-mid .tbx,#tbScreen.pg-light .tbx{border-color:rgba(15,23,42,.26);color:#33415a}
+.tbtools{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:5px;padding:6px 8px 7px;border-bottom:1px solid rgba(255,255,255,.08)}
+.tbgrp{display:flex;align-items:center;gap:3px;min-width:0}
+.tbgl{font-size:9px;font-weight:900;letter-spacing:.04em;opacity:.5;margin-right:1px}
+.tbseg{display:flex;gap:2px;padding:2px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+#tbScreen.pg-mid .tbseg,#tbScreen.pg-light .tbseg{background:rgba(15,23,42,.05);border-color:rgba(15,23,42,.12)}
+.tbseg button{height:26px;padding:0 8px;border-radius:7px;border:0;background:transparent;color:#a7b5c7;
+  font-family:inherit;font-size:10.5px;font-weight:900;cursor:pointer;white-space:nowrap}
+#tbScreen.pg-mid .tbseg button,#tbScreen.pg-light .tbseg button{color:#48566b}
+.tbseg button[aria-pressed="true"]{background:#ffb347;color:#20140a}
+.tbseg button.tbact{background:rgba(255,255,255,.1)}
+.tbseg button.danger[aria-pressed="true"]{background:rgba(255,92,92,.9);color:#fff}
+.tbseg button:active{transform:translateY(1px)}
+.tbseg button.tbgo{background:rgba(51,224,196,.18);color:#33e0c4;border:1px solid rgba(51,224,196,.45)}
+#tbScreen.pg-mid .tbseg button.tbgo,#tbScreen.pg-light .tbseg button.tbgo{color:#0a6e62;border-color:rgba(10,110,98,.4);background:rgba(51,224,196,.16)}
+.tbstage{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;padding:6px}
+.tbcourt{position:relative;border-radius:14px;overflow:hidden;touch-action:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 12px 34px rgba(0,0,0,.45)}
+.tbcv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#tbLineCv{cursor:crosshair}
+#tbLineCv.tbmove{cursor:default}
+.tbtoks{position:absolute;inset:0;touch-action:none;pointer-events:none}
+.tbtoks .tbtok{pointer-events:auto}
+.tbtok{position:absolute;transform:translate(-50%,-50%);width:var(--tb-tok,38px);height:var(--tb-tok,38px);
+  border-radius:50%;border:0;display:flex;align-items:center;justify-content:center;padding:0;cursor:grab;
+  font-family:inherit;font-weight:900;font-size:calc(var(--tb-tok,38px)*.44);line-height:1;
+  touch-action:none;user-select:none;-webkit-user-select:none;will-change:transform}
+.tbtok:active{cursor:grabbing}
+.tbtok.drag{z-index:5;filter:brightness(1.12);box-shadow:0 6px 18px rgba(0,0,0,.55)}
+.tbtok.t형광{background:#c8ff3d;color:#1c2603;box-shadow:0 0 0 2px rgba(8,13,20,.92),0 3px 10px rgba(0,0,0,.5)}
+.tbtok.t블랙{background:#2b3444;color:#eef4ff;box-shadow:0 0 0 2px #eef4ff,0 3px 10px rgba(0,0,0,.5)}
+.tbtok.t레드{background:#ff5a5a;color:#2a0608;box-shadow:0 0 0 2px rgba(8,13,20,.92),0 3px 10px rgba(0,0,0,.5)}
+.tbtok.ball{background:transparent;box-shadow:none;font-size:calc(var(--tb-tok,38px)*1.02);filter:drop-shadow(0 3px 6px rgba(0,0,0,.55))}
+.tbfoot{flex:0 0 auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 9px 8px;
+  border-top:1px solid rgba(255,255,255,.08);font-size:9.5px;font-weight:800;color:#8fa0b8}
+.tbfoot i{font-style:normal;display:inline-flex;align-items:center;gap:3px}
+.tbfoot .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.tbfoot .hint{margin-left:auto;font-size:9px;opacity:.75;text-align:right;word-break:keep-all}
+#tbScreen.pg-mid .tbfoot,#tbScreen.pg-light .tbfoot{color:#5b6b80;border-top-color:rgba(15,23,42,.14)}
+#tbScreen.pg-mid .tbfoot .dot.t블랙,#tbScreen.pg-light .tbfoot .dot.t블랙{background:#334155;box-shadow:none}
+.tbfoot .dot.t형광{background:#c8ff3d;box-shadow:0 0 0 1px rgba(8,13,20,.6)}
+.tbfoot .dot.t레드{background:#ff5a5a;box-shadow:0 0 0 1px rgba(8,13,20,.6)}
+.tbfoot .dot.t블랙{background:#2b3444;box-shadow:0 0 0 1px rgba(238,244,255,.85)}
+@media (max-width:430px){
+  .tbtools{gap:4px;padding:5px 7px 6px}
+  .tbseg button{height:24px;padding:0 6px;font-size:10px}
+  .tbgl{display:none}
+}
 /* ⚙️ 설정 시트 — 리버스 양식(제목줄 + 라벨/버튼줄 + 하단 안내) */
 .mpset{position:fixed;inset:0;z-index:240;display:flex;align-items:flex-end;justify-content:center}
 .mpset[hidden]{display:none}
@@ -1577,6 +1753,9 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
       <button class="pairbtn mphbtn" id="mpHeroBtn" type="button" data-mphero="1" aria-haspopup="dialog" aria-controls="mpModal" title="매치 프리뷰 등록·이력">
         <span class="pbico" aria-hidden="true">📝</span><span class="pbtxt">매치 프리뷰</span><span class="pbarw" aria-hidden="true">›</span>
       </button>
+      <button class="pairbtn tbhero" id="tbBtn" type="button" aria-haspopup="dialog" aria-controls="tbScreen" title="작전판 — 반코트·올코트 전술 보드">
+        <span class="pbico" aria-hidden="true">🏀</span><span class="pbtxt">작전판</span><span class="pbarw" aria-hidden="true">›</span>
+      </button>
     </div>
   </header>
 
@@ -1774,10 +1953,14 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     </div>
     <p class="pnote">팀 이름·인원·쿼터를 바꾸면 경기 진행 화면에 바로 반영됩니다.</p>
   </div>
-  <div class="mpcf ed" id="mpEdConfirm" hidden>
-    <div class="bx" role="alertdialog" aria-modal="true" aria-labelledby="mpEdCfMsg">
+  <div class="mpconfirm" id="mpEdConfirm" hidden>
+    <div class="mpcfbd" data-mpedcfback="1"></div>
+    <div class="mpcfbox" role="alertdialog" aria-modal="true" aria-labelledby="mpEdCfMsg">
+      <b id="mpEdCfT">🧩 매치 프리뷰 초기화 (서버 정본)</b>
       <p id="mpEdCfMsg">기기에 임시 저장된 매치 프리뷰를 지우고 서버 정본 기준으로 되돌릴까요?</p>
-      <div class="bs"><button type="button" class="ok" id="mpEdCfOk">확인</button><button type="button" id="mpEdCfNo">취소</button></div>
+      <p class="mpcfnote">서버 정본이 없는 날짜는 기기 등록분만 지우고 빈칸(0명)으로 비웁니다.</p>
+      <div class="mpcfb"><button type="button" id="mpEdCfNo">취소</button>
+      <button type="button" class="danger" id="mpEdCfOk">정본으로 복원</button></div>
     </div>
   </div>
 </div>
@@ -1801,11 +1984,14 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
           <button type="button" data-mptheme="mid">🌤 중간</button>
           <button type="button" data-mptheme="light">☀️ 밝은</button>
         </div></div>
-      <div class="row"><span class="k">화면</span>
+      <div class="row"><span class="k">글씨 크기</span>
         <div class="seg" id="mpSetFont">
-          <button type="button" data-mpfont="small">글씨 작게</button>
-          <button type="button" data-mpfont="normal">글씨 보통</button>
-          <button type="button" data-mpfont="large">글씨 크게</button>
+          <button type="button" data-mpfont="small" title="이름·점수를 여유 있게 작게 — 한 화면에 가장 많이 보입니다">작게</button>
+          <button type="button" data-mpfont="normal" title="태블릿에 보기 좋은 표준 크기(기본값)">보통</button>
+          <button type="button" data-mpfont="large" title="점수·이름을 큼직하게 — 잘리지 않는 최대 크기">크게</button>
+        </div></div>
+      <div class="row"><span class="k">화면</span>
+        <div class="seg" id="mpSetScreen">
           <button type="button" class="tog" id="mpSetWake" aria-pressed="true">🔆 화면꺼짐 방지 ON</button>
         </div></div>
       <div class="row"><span class="k">쿼터</span>
@@ -1836,6 +2022,51 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
   </div>
   <div class="mptoast" id="mpToast" hidden></div>
   <div class="mprot" id="mpRotToast" hidden role="status" aria-live="polite"></div>
+</div>
+<div id="tbScreen" hidden aria-label="작전판">
+  <div class="tbbar">
+    <div class="tbttl">🏀 <b>작전판</b><span id="tbSub">3파전 · 반코트</span></div>
+    <button type="button" class="tbbtn" id="tbFull" title="전체화면" aria-label="전체화면">⛶</button>
+    <button type="button" class="tbx" id="tbClose" aria-label="작전판 닫기">✕</button>
+  </div>
+  <div class="tbtools">
+    <div class="tbgrp"><span class="tbgl">팀</span>
+      <div class="tbseg" id="tbMode" role="group" aria-label="경기 방식">
+        <button type="button" data-tbmode="3" aria-pressed="true">3파전</button>
+        <button type="button" data-tbmode="2" aria-pressed="false">2파전</button>
+      </div></div>
+    <div class="tbgrp"><span class="tbgl">코트</span>
+      <div class="tbseg" id="tbCourtSel" role="group" aria-label="코트 종류">
+        <button type="button" data-tbcourt="half" aria-pressed="true">반코트</button>
+        <button type="button" data-tbcourt="full" aria-pressed="false">올코트</button>
+      </div></div>
+    <div class="tbgrp"><span class="tbgl">도구</span>
+      <div class="tbseg" id="tbTool" role="group" aria-label="도구">
+        <button type="button" data-tbtool="move" aria-pressed="true">↔ 이동</button>
+        <button type="button" data-tbtool="pen" aria-pressed="false">✏️ 펜</button>
+        <button type="button" data-tbtool="eraser" aria-pressed="false">🧽 지우개</button>
+      </div></div>
+    <div class="tbgrp">
+      <div class="tbseg">
+        <button type="button" class="tbgo" id="tbUndo">↩ 실행취소</button>
+        <button type="button" class="tbgo" id="tbClearLines">🧹 선 전체 지우기</button>
+        <button type="button" class="tbgo danger" id="tbReset">↺ 전체 초기화</button>
+      </div></div>
+  </div>
+  <div class="tbstage" id="tbStage">
+    <div class="tbcourt" id="tbCourt">
+      <canvas class="tbcv" id="tbCourtCv" aria-hidden="true"></canvas>
+      <canvas class="tbcv" id="tbLineCv" aria-label="전술 선 그리기"></canvas>
+      <div class="tbtoks" id="tbToks"></div>
+    </div>
+  </div>
+  <div class="tbfoot" id="tbFootTeams">
+    <i data-tbteam="레드"><span class="dot t레드"></span>레드 5명</i>
+    <i data-tbteam="블랙"><span class="dot t블랙"></span>블랙 5명</i>
+    <i data-tbteam="형광"><span class="dot t형광"></span>형광 5명</i>
+    <i>🏀 공</i>
+    <span class="hint">선수 말·공을 끌어 옮기고, 펜으로 전술 선을 그립니다</span>
+  </div>
 </div>
 <div class="mpprint" id="mpPrint" aria-hidden="true"></div>
 
@@ -3183,6 +3414,16 @@ function closeNav() {
    새 기록은 맨 위에 { date:'YYYY-MM-DD', tag:'기록', items:['46회차(11/29) 경기 결과·승률·개인 스탯 반영'] }
    형태로 추가하면 팝업에 날짜순(최신순)으로 그대로 나타납니다. */
 const CHANGELOG = [
+  { date: '2026-11-28', tag: '기능', items: [
+    '📱 <b>경기 진행 화면 꽉 채우기</b> — 태블릿 가로·세로와 폰 세로까지 점수표·명단이 화면 끝까지 늘어나 빈 공간 없이 꽉 찹니다(배율 zoom 제거 · 리버스와 동일 방식). <b>⚙️ 설정 → 글씨 크기(작게·보통·크게)</b>는 이름·점수만 단계별로 바꾸고 <b>잘리지 않는 최대 크기</b>에서 멈춥니다',
+    '선수 이름·팀 머리글 <b>가운데 정렬</b>, 매치업 헤더(<b>● 형광 | ● 블랙</b>) <b>한 줄 고정</b>',
+    '합계 행 아래 승리팀을 <b>● 팀명 승</b>(팀 색 점 + 팀명 · 무승부는 <b>무</b>)으로 표기 — 📸 사진 저장 PNG·🖨️ A4 인쇄도 동일',
+    '<b>팀 순위는 승패(승률) 기준만</b>으로 결정 — 승패가 같으면 <b>공동 순위</b>(같은 순위 번호), 득실차는 <b>(득실 -3)</b>·<b>(득실 +43)</b> 참고 표기만 남깁니다',
+    '명단 순서 변경 — 왼쪽 <b>⠿</b> 핸들뿐 아니라 <b>이름 칸 어디를 잡고 끌어도</b> 위아래로 바뀝니다(<b>0회</b> 버튼만 제외, 터치 스크롤 간섭 없음)',
+    '<b>🏀 경기 진행하기</b>·<b>🏀 작전판</b>을 누르면 <b>전체화면</b>으로 바로 들어갑니다(미지원·거부 시 일반 화면으로 조용히 대체)',
+    '<b>🏀 작전판</b> 추가 — 히어로 버튼을 <b>한 줄 4등분</b>으로. 반코트/올코트 전환, 3파전·2파전 팀별 색 선수 말 5명 + 🏀 공 드래그, <b>펜·지우개·실행취소·선 지우기·전체 초기화</b>',
+    '<b>✏️ 매치 프리뷰 수정하기</b> 글자 세로 정중앙 정렬, <b>🧩 매치 프리뷰 초기화</b> 확인 팝업을 불투명 카드 + 뒷배경 딤 처리(리버스와 동일)로 — 뒤 명단과 겹쳐 보이지 않습니다',
+  ] },
   { date: '2026-11-27', tag: '기능', items: [
     '<b>경기 진행 점수 계산 개선 (입력=누적 · 보조=쿼터점수)</b> — 큰 점수 칸은 전광판 기준 <b>누적 점수</b>, 칸 아래 보조 줄은 <b>쿼터점수</b>(현재 누적 - 직전 입력 쿼터 누적). 빈 칸은 보조 줄 비움 · 합계·승·무·패·득실·우승은 <b>입력된 마지막 쿼터의 누적 점수</b>로 계산(사진 저장 PNG·A4 인쇄도 동일)'
   ] },
@@ -4739,9 +4980,9 @@ const MP_TN = { 3: ['형광', '블랙', '레드'], 2: ['블랙', '레드'] };
 const MP_LIM = { 3: { min: 1, max: 6 }, 2: { min: 5, max: 8 } };
 const MP_QLABEL = { small: '작게', normal: '보통', large: '크게' };
 
-let MP = { preview: null, previews: [], theme: 'dark', font: 'large' };
+let MP = { preview: null, previews: [], theme: 'dark', font: 'normal' };
 let MPED = null, MPED_SLOT = 0;
-let MPQ = '', MPPOS = '', MP_PICK = -1, MPDG = null, MPWL = null, MPFS = false;
+let MPQ = '', MPPOS = '', MP_PICK = -1, MPDG = null, MPWL = null, MPFS = false, MPDG_AT = 0;
 let MP_NOTE = '';
 
 /* ---------- 저장 · 정규화 ---------- */
@@ -4750,7 +4991,7 @@ function mpLoad() {
   try { o = JSON.parse(localStorage.getItem(MP_KEY) || 'null'); } catch (e) { o = null; }
   if (o && typeof o === 'object') {
     MP.theme = (o.theme === 'light' || o.theme === 'mid') ? o.theme : 'dark';
-    MP.font = MP_QLABEL[o.font] ? o.font : 'large';
+    MP.font = MP_QLABEL[o.font] ? o.font : 'normal';
     const list = Array.isArray(o.previews) ? o.previews : (o.preview ? [o.preview] : []);
     MP.previews = list.filter(function (p) { return p && p.teams && p.teams.length; });
     MP.previews.forEach(function (p) { if (!p.date) p.date = mpNextSunday(); mpNormalize(p); });
@@ -4894,13 +5135,26 @@ function mpStandings(p) {
     A.pf += tot.a; A.pa += tot.b; B.pf += tot.b; B.pa += tot.a; A.gp++; B.gp++;
     if (tot.a > tot.b) { A.w++; B.l++; } else if (tot.a < tot.b) { A.l++; B.w++; } else { A.d++; B.d++; }
   });
-  rows.forEach(function (r) { r.diff = r.pf - r.pa; });
+  rows.forEach(function (r) { r.diff = r.pf - r.pa; r.rate = r.gp ? r.w / r.gp : 0; });
+  /* 순위는 승패(승률) 기준만으로 — 득실차는 순위를 가르지 않고 참고 표기(득실 ±N)만 남깁니다.
+     승패가 같으면 같은 순위 번호(공동 순위)입니다. */
   const order = rows.slice().sort(function (x, y) {
-    return y.w - x.w || y.diff - x.diff || y.pf - x.pf || x.name.localeCompare(y.name);
+    return y.rate - x.rate || x.name.localeCompare(y.name);
   });
-  order.forEach(function (r, i) { r.pos = i + 1; });
+  let lastPos = 0;
+  order.forEach(function (r, i) {
+    const prev = order[i - 1];
+    /* 승패(승률)가 같으면 같은 순위 번호 — 아직 경기가 없어 모두 0승이어도 공동 순위입니다 */
+    const tie = !!prev && prev.w * r.gp === r.w * prev.gp;
+    r.pos = tie ? lastPos : i + 1;
+    lastPos = r.pos;
+  });
+  const shared = {};
+  order.forEach(function (r) { shared[r.pos] = (shared[r.pos] || 0) + 1; });
+  order.forEach(function (r) { r.tie = shared[r.pos] > 1; });
   const played = rows.some(function (r) { return r.gp > 0; });
-  return { rows: rows, order: order, played: played, winner: played ? order[0] : null };
+  const winners = played ? order.filter(function (r) { return r.pos === 1; }) : [];
+  return { rows: rows, order: order, played: played, winner: played ? order[0] : null, winners: winners };
 }
 function mpRecText(r) { return r.w + '승 ' + (r.d ? r.d + '무 ' : '') + r.l + '패'; }
 function mpDiffText(v) { return (v > 0 ? '+' : '') + v; }
@@ -5213,6 +5467,8 @@ function mpPvCardHtml(o) {
 
 /* ---------- 등록 시트 ---------- */
 function mpOpenEditor(prep) {
+  /* 경기 진행 화면이 전체화면이면 편집 시트가 그 뒤로 가려집니다 — 먼저 전체화면을 풀고 엽니다 */
+  if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (e) { } }
   if (!DATA) return;
   let seeded = false;
   if (prep) MPED = prep;
@@ -5462,6 +5718,7 @@ function mpOpenScreen() {
   mpSetOpen(false);
   mpApplyTheme();
   mpRender();
+  mpFsAuto(s);
   mpRotSync(true);
   mpWake(true);
 }
@@ -5489,6 +5746,15 @@ async function mpWake(on) {
     if (MPWL) { try { await MPWL.release(); } catch (e) { } MPWL = null; }
   } catch (e) { MPWL = null; }
   return false;
+}
+/* 전체화면 — 버튼에서 한 번 더, 그리고 경기 진행·작전판 진입 시 자동 실행.
+   브라우저가 거부하거나 미지원이면 조용히 일반 오버레이로 동작합니다(에러 없음). */
+function mpFsAuto(el) {
+  try {
+    if (!el || !el.requestFullscreen || document.fullscreenElement) return;
+    const r = el.requestFullscreen();
+    if (r && r.catch) r.catch(function () { });
+  } catch (e) { }
 }
 async function mpFullscreen() {
   const s = $('#mpScreen');
@@ -5543,28 +5809,36 @@ function mpRotSync(force) {
 }
 window.addEventListener('resize', function () { mpRotSync(); });
 window.addEventListener('orientationchange', function () { mpRotSync(); });
-document.addEventListener('fullscreenchange', function () { mpRotSync(); });
+document.addEventListener('fullscreenchange', function () {
+  MPFS = !!document.fullscreenElement;
+  mpApplyTheme();
+  mpRotSync();
+  requestAnimationFrame(function () { mpApplyFit(); if (TB.open) tbFit(); });
+});
 function mpSumHtml(p, st) {
   return p.tOrder.map(function (slot) {
     const t = p.teams[slot], r = st.rows[slot];
     const top = r.pos === 1 && (r.w || r.d);
-    return '<div class="pgs' + (top ? ' win' : '') + '" style="--c:var(--c-' + esc(t.name) + ')">'
+    const rank = (r.tie ? '공동 ' : '') + (r.pos || 1) + '위';
+    const tip = t.name + ' ' + rank + ' · 승률 ' + (r.gp ? Math.round(r.rate * 100) : 0) + '% (승패 기준 · 득실차는 참고)';
+    return '<div class="pgs' + (top ? ' win' : '') + '" style="--c:var(--c-' + esc(t.name) + ')" title="' + esc(tip) + '">'
       + '<div class="pgs1"><span class="dot ' + dotCls(t.name) + '"></span><span class="pgsn">' + esc(t.name) + '</span>'
-      + (top ? '<span class="pgsrank">1위</span>' : '<span class="pgsr">' + (r.pos || 1) + '위</span>') + '</div>'
+      + '<span class="' + (top ? 'pgsrank' : 'pgsr') + '">' + rank + '</span></div>'
       + '<div class="pgs2"><span class="pgsrec">' + r.w + '승 ' + r.d + '무 ' + r.l + '패</span>'
-      + '<span class="pgsd ' + (r.diff > 0 ? 'up' : r.diff < 0 ? 'dn' : '') + '">' + (r.diff > 0 ? '+' : '') + r.diff + '</span></div>'
+      + '<span class="pgsd ' + (r.diff > 0 ? 'up' : r.diff < 0 ? 'dn' : '') + '">(득실 ' + (r.diff > 0 ? '+' : '') + r.diff + ')</span></div>'
       + '</div>';
   }).join('');
 }
+/* 합계 행 아래 승리팀 표기 — 팀 색 점 + 팀명(● 형광 승), 무승부는 무 */
 function mpTotHtml(p, gi, st) {
   const t = mpGameTotal(p, gi);
   if (!t.any) return '<span class="totv none">—</span>';
   const A = st.rows[p.games[gi].a], B = st.rows[p.games[gi].b];
-  let bd = '무', cls = 'd';
-  if (t.a > t.b) { bd = A.name + ' 승'; cls = 'l'; }
-  else if (t.a < t.b) { bd = B.name + ' 승'; cls = 'r'; }
+  let bd = '무', cls = 'd', dot = '';
+  if (t.a > t.b) { bd = A.name + ' 승'; cls = 'l'; dot = dotCls(A.name); }
+  else if (t.a < t.b) { bd = B.name + ' 승'; cls = 'r'; dot = dotCls(B.name); }
   return '<span class="totv">' + t.a + ' <i>:</i> ' + t.b + '</span>'
-    + '<span class="totw ' + cls + '">' + esc(bd) + '</span>';
+    + '<span class="totw ' + cls + '">' + (dot ? '<span class="dot ' + dot + '"></span>' : '') + esc(bd) + '</span>';
 }
 /* 점수 칸 — 좌우 [ ] : [ ] 나란히 큰 박스(=누적 점수) + 아래 쿼터점수 (리버스 양식) */
 function mpQVal(p, gi, qi) {
@@ -5663,7 +5937,7 @@ function mpRosterHtml(p) {
   const hint = MP_PICK >= 0
     ? '<div class="mpassignhint">' + esc(p.teams[MP_PICK].name) + ' 명단을 차례로 누르면 1번부터 번호가 붙습니다 · 다시 누르면 해제 · <b>순서</b> 버튼으로 마칩니다.</div>'
     : '';
-  return '<div class="pgrosters" style="--nt:' + nT + '">' + hint + head + '<div class="pgrsbody">' + body + '</div></div>';
+  return '<div class="pgrosters" style="--nt:' + nT + ';--n:' + maxN + '">' + hint + head + '<div class="pgrsbody">' + body + '</div></div>';
 }
 /* 팀 이름 배지 — 팀 색 테두리를 두른 칩 */
 function mpTmChip(name) {
@@ -5740,6 +6014,7 @@ function mpRender() {
     + '</div></div>'
     + '<div class="pgcol pgr"><div class="pgfit">' + mpRosterHtml(p) + '</div></div>';
   mpApplyFit();
+  mpRefitSoon();
 }
 function mpPaintTotals() {
   const p = MP.preview;
@@ -5751,57 +6026,282 @@ function mpPaintTotals() {
     const v = String(el.getAttribute('data-cum')).split(':');
     el.textContent = mpCumText(p, Number(v[0]), Number(v[1]));
   });
+  mpRefitIfOverflow();
 }
-/* 화면 배율 — 리버스와 같은 방식: 들어오는 만큼(100dvh) 줄이거나 키워 한 화면에 맞춥니다 */
+/* ---------------- 📱 화면 꽉 채우기 & 글씨 크기 3단계 ----------------
+   리버스(reverse-basketball-site) 최신 #pg 레이아웃을 그대로 이식했습니다.
+   배율(zoom)을 쓰지 않고 #mpScreen 을 세로 flex 로 둔 뒤 본문이 남는 높이 전부를 차지하며,
+   점수표 행·명단 행이 1fr 로 늘어나 위아래 빈 공간 없이 화면 끝까지 꽉 찹니다(가운데 쏠림 없음).
+   글씨 크기(작게·보통·크게)는 --pg-fs-* 변수를 칸 크기에서 실측해 넣습니다 —
+   크게 = 이름·팀 머리글·점수가 잘리지 않는 최대, 보통 = 그 82%, 작게 = 64%. (기기에 기억) */
+const MP_FS_MULT = [0.78, 1, 1.22];
+/* 태블릿(넓은 화면) 판정 — 이 폭 이상 + 짧은 변 560px 이상이면 여백을 조금 더 넓힙니다 */
+const MP_TAB_MIN_W = 700;
+const MP_TAB_MIN_SIDE = 560;
+function mpFsLevel() { return MP.font === 'small' ? 0 : MP.font === 'large' ? 2 : 1; }
+/* 텍스트가 잘렸는지 — ① scrollWidth ② 폰트 실측(캔버스 글자 폭).
+   캔버스 실측은 배율과 무관하게 "이 글자가 몇 px 인지"를 직접 재므로 기기 폰트가 달라도 정확합니다. */
+let mpCvsCtx = null;
+function mpFontCss(cs) {
+  return (cs.fontStyle || 'normal') + ' ' + (cs.fontWeight || '400') + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+}
+function mpTextW(el) {
+  if (!mpCvsCtx) mpCvsCtx = document.createElement('canvas').getContext('2d');
+  let w = 0;
+  const cs = getComputedStyle(el);
+  const font = mpFontCss(cs);
+  for (let i = 0; i < el.childNodes.length; i++) {
+    const n = el.childNodes[i];
+    if (n.nodeType === 3) { mpCvsCtx.font = font; w += mpCvsCtx.measureText(n.nodeValue).width; }
+    else if (n.nodeType === 1) { mpCvsCtx.font = mpFontCss(getComputedStyle(n)); w += mpCvsCtx.measureText(n.textContent).width; }
+  }
+  return w;
+}
+function mpCvsW(text, font) {
+  if (!mpCvsCtx) mpCvsCtx = document.createElement('canvas').getContext('2d');
+  mpCvsCtx.font = font;
+  return mpCvsCtx.measureText(text).width;
+}
+function mpClamped(el, slack) {
+  if (!el) return false;
+  const cw = el.clientWidth;
+  if (!cw) return false;
+  if (el.scrollWidth > cw + 1) return true;
+  return mpTextW(el) > cw - (slack == null ? 1 : slack);
+}
+function mpFsApply(pg, v) {
+  ['name', 'score', 'q', 'mpair', 'team', 'meta', 'sum', 'tot'].forEach(function (k) {
+    pg.style.setProperty('--pg-fs-' + k, (Math.round(v[k] * 10) / 10) + 'px');
+  });
+}
+/* 지금 배치에서 넘침·잘림이 있는 곳을 셉니다 — 0이면 화면에 꽉 차게 잘 들어간 상태 */
+function mpTabIssues(pg) {
+  const bad = { name: 0, team: 0, tbl: 0, rows: 0 };
+  $$('#mpScreen .pgnm').forEach(function (n) {
+    if (n.clientWidth && mpClamped(n, 2)) bad.name++;
+  });
+  $$('#mpScreen .pgth').forEach(function (th) {
+    if (th.scrollWidth > th.clientWidth + 1) bad.team++;
+    const b = th.querySelector('b');
+    if (b && b.scrollWidth > b.clientWidth + 1) bad.team++;
+    const ag = th.querySelector('.pgasg'), tn = th.querySelector('.pgtn');
+    if (ag && tn) {
+      const r1 = tn.getBoundingClientRect(), r2 = ag.getBoundingClientRect();
+      if (r1.right > r2.left - 2) bad.team++;      /* 인원수와 `순서` 버튼이 겹침 */
+    }
+  });
+  $$('#mpScreen .pgtblwrap').forEach(function (w) {
+    if (w.scrollWidth > w.clientWidth + 1) bad.tbl++;
+    const t = w.querySelector('.pgtbl');
+    if (t && t.scrollHeight > t.clientHeight + 1) bad.tbl++;
+    if (w.scrollHeight > w.clientHeight + 1) bad.rows++;
+  });
+  $$('#mpScreen .pgfit').forEach(function (f) {
+    if (f.scrollHeight > f.clientHeight + 1) bad.rows++;
+  });
+  return bad;
+}
+function mpTabBad(bad) { return !!(bad.name || bad.team || bad.tbl || bad.rows); }
+/* 매치업 헤더(● 형광 | ● 블랙)가 칸 안에 한 줄로 들어오도록 그 글씨만 줄입니다 */
+function mpHeaderFit(pg) {
+  const els = $$('#mpScreen .pgtbl .mpair, #mpScreen .pggh2');
+  if (!els.length) return;
+  const fits = function () {
+    for (let i = 0; i < els.length; i++) {
+      if (els[i].scrollWidth > els[i].clientWidth + 1) return false;
+      if (els[i].scrollHeight > els[i].clientHeight + 1) return false;
+    }
+    return true;
+  };
+  let fs = parseFloat(getComputedStyle(pg).getPropertyValue('--pg-fs-mpair')) || 12;
+  for (let i = 0; i < 20 && fs > 6.5; i++) {
+    if (fits()) return;
+    fs = Math.max(6.5, fs - 0.6);
+    pg.style.setProperty('--pg-fs-mpair', fs.toFixed(1) + 'px');
+  }
+}
+/* 칸은 화면에 꽉 채우고(레이아웃), 글씨만 칸 크기에 맞춰 실측해 넣습니다.
+   행 높이가 1fr 로 늘어나므로 글씨를 키워도 배치가 흔들리지 않고,
+   이름·팀 머리글·점수는 '잘리지 않는 최대'에서 멈춥니다. */
+function mpTabFit(pg, body, p) {
+  if (!pg || !body || !p) return;
+  pg.style.zoom = '';
+  pg.style.height = '';
+  pg.style.removeProperty('--pgrh');
+  const mult = MP_FS_MULT[mpFsLevel()] || 1;
+  /* 1) 측정용 기준 크기 — 칸 크기(1fr)는 글씨와 무관하게 먼저 잡힙니다 */
+  mpFsApply(pg, { name: 22, score: 28, q: 14, mpair: 14, team: 15, meta: 11, sum: 12, tot: 26 });
+  /* 2) 칸 실측 — 명단 행 높이 · 점수 칸 크기 · 이름이 쓸 수 있는 폭 */
+  const rowsBox = $('#mpScreen .pgrows'), rows = rowsBox ? rowsBox.children : [];
+  const rh = rows.length ? rows[0].getBoundingClientRect().height : 0;
+  /* 2파전에서 경기 수가 적으면(1~2경기) 행 하나가 화면 절반을 차지하므로 표 높이를 적당히 묶습니다 */
+  const trAll = $$('#mpScreen .pgtbl tbody tr');
+  if (p.type === '2' && trAll.length && trAll.length <= 3) {
+    const rh0 = trAll[0].getBoundingClientRect().height;
+    const wrap0 = $('#mpScreen .pgtblwrap');
+    if (rh0 > 190 && wrap0) {
+      const head0 = wrap0.clientHeight - trAll.length * rh0;
+      pg.style.setProperty('--pg-tbl-max', Math.max(240, Math.round(trAll.length * 170 + head0)) + 'px');
+    } else {
+      pg.style.removeProperty('--pg-tbl-max');
+    }
+  } else {
+    pg.style.removeProperty('--pg-tbl-max');
+  }
+  const cell = $('#mpScreen .pgtbl .pgcell') || $('#mpScreen .pgtbl .pgtot');
+  const ch = cell ? cell.getBoundingClientRect().height : 0;
+  const cw = cell ? cell.clientWidth : 0;
+  let wFit = 999;
+  $$('#mpScreen .pgnm').forEach(function (n) {
+    const avail = n.clientWidth;
+    if (!avail) return;
+    const fs0 = parseFloat(getComputedStyle(n).fontSize) || 22;
+    const w0 = mpTextW(n);
+    if (w0 > 0) wFit = Math.min(wFit, (avail - 8) * fs0 / w0);
+  });
+  /* 팀 머리글(● 팀명 N명 + 순서 버튼)이 한 줄에 들어가는 최대 글씨 — 버튼 자리를 빼고 잽니다 */
+  let thFit = 999;
+  $$('#mpScreen .pgth').forEach(function (th) {
+    const b = th.querySelector('b'), tn = th.querySelector('.pgtn'), ag = th.querySelector('.pgasg');
+    if (!b) return;
+    const bs = getComputedStyle(b), tf = parseFloat(bs.fontSize) || 15;
+    const wB = mpCvsW(b.textContent, mpFontCss(bs)) / tf;
+    const ts = tn ? getComputedStyle(tn) : null;
+    const wT = ts ? mpCvsW(tn.textContent, mpFontCss(ts)) / (parseFloat(ts.fontSize) || 11) * 0.75 : 0;
+    const btn = ag ? ag.offsetWidth : 0;
+    const needEm = wB + wT + 1.1;
+    const avail = th.clientWidth - btn - 8;
+    if (needEm > 0 && avail > 0) thFit = Math.min(thFit, avail / needEm);
+  });
+  /* 3) '크게'일 때의 최대 크기 — 이름은 행 높이·가로 폭, 점수는 칸 높이·가로 폭이 한계 */
+  const nameCap = Math.max(9, Math.min(rh ? rh * 0.34 : 999, wFit, 64));
+  const scoreCap = Math.max(9, Math.min(ch ? ch * 0.40 : 999, cw ? cw * 0.92 / 4.4 : 999, 72));
+  pg.style.setProperty('--pg-h-score', Math.round(ch ? Math.max(30, Math.min(ch * 0.55, 140)) : 0) + 'px');
+  const cap = {
+    name: nameCap,
+    score: scoreCap,
+    q: Math.min(nameCap * 0.60, ch ? ch * 0.24 : 999, 34),
+    mpair: Math.min(nameCap * 0.55, 32),
+    team: Math.min(nameCap * 0.62, thFit, 40),
+    meta: Math.min(nameCap * 0.42, 24),
+    sum: Math.min(nameCap * 0.52, 30),
+    tot: scoreCap * 0.92
+  };
+  function nameFit(cur) {
+    let best = cur;
+    $$('#mpScreen .pgnm').forEach(function (n) {
+      const cw2 = n.clientWidth;
+      if (!cw2) return;
+      const f = parseFloat(getComputedStyle(n).fontSize) || cur;
+      const w = mpTextW(n);
+      if (w > cw2 - 2) best = Math.min(best, f * (cw2 - 4) / w);
+    });
+    return best;
+  }
+  /* 팀 머리글 — 색 점·팀명·인원수가 `순서` 버튼과 겹치지 않는 최대 크기
+     (가운데 정렬이라 오른쪽으로 넘친 만큼 그룹 전체가 2배 넓다는 뜻 → 그만큼 줄입니다) */
+  function teamFit(cur) {
+    let best = cur;
+    $$('#mpScreen .pgth').forEach(function (th) {
+      const b = th.querySelector('b'), ag = th.querySelector('.pgasg'), tn = th.querySelector('.pgtn');
+      if (!b || !ag || !tn) return;
+      const left = b.getBoundingClientRect().left, right = tn.getBoundingClientRect().right;
+      const over = right - (ag.getBoundingClientRect().left - 8);
+      const need = right - left + 8;
+      if (over > 0 && need > 0) {
+        const f = parseFloat(getComputedStyle(b).fontSize) || cur;
+        best = Math.min(best, f * Math.max(0.3, (need - 2 * over) / need));
+      }
+      if (b.scrollWidth > b.clientWidth + 1) {
+        const f = parseFloat(getComputedStyle(b).fontSize) || cur;
+        best = Math.min(best, f * b.clientWidth / Math.max(1, mpTextW(b)));
+      }
+    });
+    return best;
+  }
+  /* 4) '크게' 크기를 먼저 넣어 실제로 들어가는 최대치를 잰 뒤 단계 배율을 곱합니다 */
+  mpFsApply(pg, cap);
+  const nmax = Math.max(8, Math.min(cap.name, nameFit(cap.name)));
+  const tmax = Math.max(8, Math.min(cap.team, teamFit(cap.team)));
+  let v = {};
+  Object.keys(cap).forEach(function (k) { v[k] = Math.max(7, cap[k] / 1.22 * mult); });
+  v.name = Math.max(7, nmax / 1.22 * mult);
+  v.team = Math.max(7, tmax / 1.22 * mult);
+  mpFsApply(pg, v);
+  mpHeaderFit(pg);
+  /* 5) 잘림·넘침이 남으면 그 부분만 정확히 줄입니다 — 다른 글씨는 최대 크기를 지킵니다 */
+  for (let it = 0; it < 26; it++) {
+    const bad = mpTabIssues(pg);
+    if (!mpTabBad(bad)) break;
+    if (bad.name) v.name = Math.max(6, Math.min(v.name * 0.97, nameFit(v.name)));
+    if (bad.team) v.team = Math.max(6, Math.min(v.team * 0.97, teamFit(v.team)));
+    if (bad.tbl) {
+      v.score = Math.max(6, v.score * 0.95);
+      v.q = Math.max(6, v.q * 0.95);
+      v.tot = Math.max(6, v.tot * 0.95);
+      v.meta = Math.max(6, v.meta * 0.95);
+    }
+    if (bad.rows) {
+      v.sum = Math.max(6, v.sum * 0.95);
+      v.meta = Math.max(6, v.meta * 0.95);
+    }
+    /* 점수 칸(타일)이 높이를 잡아먹으면 타일부터 낮춥니다 — 경기 수가 많은 2파전·작은 폰 */
+    if (bad.tbl || bad.rows) {
+      const hs = parseFloat(pg.style.getPropertyValue('--pg-h-score')) || 0;
+      if (hs > 30) pg.style.setProperty('--pg-h-score', Math.max(30, Math.round(hs - 6)) + 'px');
+    }
+    mpFsApply(pg, v);
+    mpHeaderFit(pg);
+  }
+  mpHeaderFit(pg);
+}
+/* 폰트(이모지 포함)가 늦게 로드되어 글자 폭이 바뀌는 경우를 위해 한 번 더 맞춥니다 */
+let mpRefitT = 0, mpFontsHooked = false;
+function mpRefitSoon() {
+  clearTimeout(mpRefitT);
+  mpRefitT = setTimeout(function () {
+    const pg = $('#mpScreen');
+    if (!pg || pg.hidden || !MP.preview) return;
+    mpApplyFit();
+  }, 700);
+}
+function mpFontsHook() {
+  if (!document.fonts || !document.fonts.ready || mpFontsHooked) return;
+  mpFontsHooked = true;
+  document.fonts.ready.then(function () {
+    const pg = $('#mpScreen');
+    if (!pg || pg.hidden || !MP.preview) return;
+    mpApplyFit();
+  });
+}
+/* 화면 맞춤 — 모든 화면에서 배율(zoom) 없이 칸이 화면을 꽉 채우고, 글씨만 실측해 넣습니다. */
 function mpApplyFit() {
   const pg = $('#mpScreen'), p = MP.preview, body = $('#mpBody');
   if (!pg || !p || !body || pg.hidden) return;
   const land = window.innerWidth > window.innerHeight;
   pg.classList.toggle('pg-h', land);
   pg.classList.toggle('pg-v', !land);
-  /* 글씨 크기 = 배율(작게 84% · 보통 꽉 채움 · 크게 꽉 채움+여유가 있으면 1.7배까지 확대) */
-  const target = MP.font === 'small' ? 0.84 : 1;
   const els = $$('#mpScreen .pgfit');
   if (!els.length) return;
-  els.forEach(function (el) { el.style.zoom = '1'; });
-  const cap = (MP.font === 'large' && land) ? 1.7 : 1;
-  const clamp = function (z) { return Math.max(0.34, Math.min(cap, z)); };
-  function fitOne(el, panel, avail) {
-    panel.style.overflowY = 'hidden';
-    const nat = el.offsetHeight;
-    if (!avail || !nat) return;
-    const hi = Math.min(cap, avail / nat) * target;
-    let z = clamp(hi);
-    el.style.zoom = z;
-    let vh = el.getBoundingClientRect().height;
-    let want = nat * hi;
-    if (vh > 0 && Math.abs(vh - want) > Math.max(3, want * 0.03)) {
-      z = clamp(z * want / vh);
-      el.style.zoom = z;
-      vh = el.getBoundingClientRect().height;
-    }
-    if (vh > avail + 1) panel.style.overflowY = 'auto';
-  }
-  if (land) {
-    els.forEach(function (el) { fitOne(el, el.parentNode, el.parentNode.clientHeight); });
-  } else {
-    const avail = Math.max(0, body.clientHeight - 10);
-    let nat = 5;
-    els.forEach(function (el) { nat += el.offsetHeight; });
-    const hi = Math.min(cap, avail / nat) * target;
-    let z = clamp(hi);
-    els.forEach(function (el) { el.style.zoom = z; });
-    let tot = 5;
-    els.forEach(function (el) { tot += el.getBoundingClientRect().height; });
-    const want = Math.max(1, nat - 5) * hi + 5;
-    if (tot > 0 && Math.abs(tot - want) > Math.max(3, want * 0.03)) {
-      z = clamp(z * want / tot);
-      els.forEach(function (el) { el.style.zoom = z; });
-      tot = 5;
-      els.forEach(function (el) { tot += el.getBoundingClientRect().height; });
-    }
-    body.style.overflowY = tot > avail + 1 ? 'auto' : 'hidden';
-  }
+  /* 태블릿(넓은 화면)은 여백·간격을 조금 더 넉넉히 — 폰과 같은 꽉 채우기 배치를 씁니다 */
+  const tab = window.innerWidth >= MP_TAB_MIN_W && Math.min(window.innerWidth, window.innerHeight) >= MP_TAB_MIN_SIDE;
+  pg.classList.add('pg-full');
+  pg.classList.toggle('pg-tab', tab);
+  els.forEach(function (el) {
+    el.style.zoom = ''; el.style.width = '';
+    if (el.parentNode) el.parentNode.style.overflowY = '';
+  });
+  body.style.overflowY = '';
+  pg.style.zoom = '';
+  pg.style.height = '';
+  mpTabFit(pg, body, p);
+  mpFontsHook();
+}
+/* 점수·합계가 바뀌어 보드가 칸을 넘치면(3자리 점수 등) 화면에 맞춰 다시 잡습니다 — 잘림 방지 */
+function mpRefitIfOverflow() {
+  const pg = $('#mpScreen');
+  if (!pg || pg.hidden || !MP.preview || !pg.classList.contains('pg-full')) return;
+  if (mpTabBad(mpTabIssues(pg))) mpApplyFit();
 }
 let mpFitRAF = 0;
 window.addEventListener('resize', function () {
@@ -5947,6 +6447,7 @@ function mpInit() {
   mpLoad();
   mpSyncCanonical();
   mpApplyTheme();
+  tbBind();
   const s = $('#mpScreen');
   if (!s || s.getAttribute('data-bound') === '1') return;
   s.setAttribute('data-bound', '1');
@@ -5977,7 +6478,7 @@ function mpInit() {
     const fob = e.target.closest('[data-mpfont]');
     if (fob) {
       const v = fob.getAttribute('data-mpfont');
-      MP.font = MP_QLABEL[v] ? v : 'large';
+      MP.font = MP_QLABEL[v] ? v : 'normal';
       mpSave(); mpApplyTheme(); mpApplyFit();
       mpToast('글씨 크기: ' + MP_QLABEL[MP.font]);
       return;
@@ -6018,7 +6519,7 @@ function mpInit() {
     const prd = e.target.closest('[data-prd]');
     if (prd) { mpPickRest(Number(prd.getAttribute('data-prd'))); return; }
     const pr = e.target.closest('[data-prow]');
-    if (pr && MP_PICK >= 0) {
+    if (pr && MP_PICK >= 0 && Date.now() - MPDG_AT > 350) {
       const v = pr.getAttribute('data-prow').split('|');
       if (Number(v[0]) === MP_PICK) { mpAssignPick(MP_PICK, v[1]); return; }
     }
@@ -6044,9 +6545,10 @@ function mpInit() {
 
 /* ---------- 드래그(터치·포인터) ---------- */
 function mpDragDown(e) {
-  const h = e.target.closest('[data-dragg],[data-dragq],[data-dragp]');
-  if (!h) return;
   if (e.target.closest('button')) return;
+  /* 명단은 왼쪽 ⠿ 핸들뿐 아니라 이름 칸(.pgrow) 어디를 잡고 끌어도 순서가 바뀝니다 — `0회` 버튼만 제외 */
+  const h = e.target.closest('[data-dragg],[data-dragq],[data-dragp]') || e.target.closest('#mpBody .pgrow[data-prow]');
+  if (!h) return;
   const rects = [];
   let axis = 'y', kind = '', from = 0, slot = -1;
   if (h.hasAttribute('data-dragq')) {
@@ -6063,7 +6565,7 @@ function mpDragDown(e) {
     });
   } else {
     kind = 'p';
-    const v = h.getAttribute('data-dragp').split('|');
+    const v = (h.getAttribute('data-dragp') || h.getAttribute('data-prow')).split('|');
     slot = Number(v[0]);
     const ul = h.closest('.pgrows');
     $$('[data-prow]', ul).forEach(function (li, i) {
@@ -6098,6 +6600,7 @@ function mpDragUp() {
   MPDG = null;
   d.rects.forEach(function (it) { it.el.classList.remove('mpdropt'); });
   if (!d.moved || d.target === d.from) return;
+  MPDG_AT = Date.now();   /* 드래그 뒤 따라오는 click 으로 휴식 순서가 찍히지 않게 */
   const p = MP.preview;
   if (d.kind === 'g') { if (mpMoveOrder(p.gOrder, d.from, d.target)) { mpSave(); mpRender(); } }
   else if (d.kind === 'q') { if (mpMoveOrder(p.qOrder, d.from, d.target)) { mpSave(); mpRender(); } }
@@ -6139,14 +6642,15 @@ function mpPrintHtml() {
   let tot = '<tr><th>합계</th>';
   p.gOrder.forEach(function (gi) {
     const t = mpGameTotal(p, gi);
+    const winName = (!t.any || t.a === t.b) ? '' : (t.a > t.b ? p.teams[p.games[gi].a].name : p.teams[p.games[gi].b].name);
     tot += '<td><div class="ppscore">' + (t.any ? t.a + ' : ' + t.b : '– : –') + '</div>'
-      + '<div class="ppsmall">' + (t.any ? (t.a === t.b ? '무승부' : (t.a > t.b ? esc(p.teams[p.games[gi].a].name) : esc(p.teams[p.games[gi].b].name)) + ' 승') : '미입력') + '</div></td>';
+      + '<div class="ppsmall">' + (t.any ? (winName ? '● ' + esc(winName) + ' 승' : '무') : '미입력') + '</div></td>';
   });
   tot += '</tr>';
   const stand = '<table><thead><tr><th>팀</th><th>승</th><th>무</th><th>패</th><th>득점</th><th>실점</th><th>득실</th></tr></thead><tbody>'
     + p.tOrder.map(function (slot) {
       const r = st.rows[slot];
-      return '<tr><td class="ppwn">' + esc(r.name) + (st.winner && st.winner.slot === slot ? ' ★' : '') + '</td><td>' + r.w + '</td><td>' + r.d + '</td><td>' + r.l + '</td><td>' + r.pf + '</td><td>' + r.pa + '</td><td>' + mpDiffText(r.diff) + '</td></tr>';
+      return '<tr><td class="ppwn">' + esc(r.name) + (r.pos === 1 && (r.w || r.d) ? ' ★' : '') + (r.tie ? ' (공동 ' + r.pos + '위)' : '') + '</td><td>' + r.w + '</td><td>' + r.d + '</td><td>' + r.l + '</td><td>' + r.pf + '</td><td>' + r.pa + '</td><td>' + mpDiffText(r.diff) + '</td></tr>';
     }).join('') + '</tbody></table>';
   const ros = '<div class="ppros' + (p.type === '2' ? ' two' : '') + '">' + p.tOrder.map(function (slot) {
     const t = p.teams[slot];
@@ -6237,7 +6741,9 @@ function mpPhotoDraw(themeKey) {
   const sub = p.tOrder.map(function (s) { return p.teams[s].name; }).join(' · ') + '  |  ' + p.quarters + '쿼터  |  ' + (p.date || mpDateStr());
   T(sub, PAD, 118, 24, C.tx2, 800);
   if (st.winner) {
-    const wtxt = '우승 ' + st.winner.name + ' (' + mpRecText(st.winner) + ')';
+    const ws = (st.winners && st.winners.length ? st.winners : [st.winner]);
+    const wtxt = (ws.length > 1 ? '공동 우승 ' + ws.map(function (r) { return r.name; }).join(' · ') : '우승 ' + ws[0].name)
+      + ' (' + mpRecText(ws[0]) + ')';
     g.font = F(26, 900);
     const ww = g.measureText(wtxt).width + 44;
     rr(W - PAD - ww, 60, ww, 46, 23, C.goldBg, ink ? C.line : null);
@@ -6253,7 +6759,7 @@ function mpPhotoDraw(themeKey) {
     g.fillStyle = TEAMCOL[p.teams[slot].name] || C.acc; g.fill();
     T(p.teams[slot].name, x + 48, y + 44, 26, C.tx, 900);
     T(mpRecText(r), x + 24, y + 96, 34, C.tx, 900);
-    T('득실 ' + mpDiffText(r.diff) + ' · ' + r.gp + '경기', x + 24, y + 128, 20, C.tx3, 800);
+    T((r.tie ? '공동 ' : '') + (r.pos || 1) + '위 · 득실 ' + mpDiffText(r.diff) + ' · ' + r.gp + '경기', x + 24, y + 128, 20, C.tx3, 800);
   });
   /* 점수 표 */
   const labelW = 76;
@@ -6294,8 +6800,18 @@ function mpPhotoDraw(themeKey) {
     const t = mpGameTotal(p, gi), x = PAD + labelW + i * colW;
     rr(x + 2, y + 2, colW - 4, totH - 12, 12, C.card, C.line);
     T(t.any ? t.a + ' : ' + t.b : '– : –', x + colW / 2, y + 40, 30, C.tx, 900, 'center');
-    const res = !t.any ? '미입력' : (t.a === t.b ? '무승부' : (t.a > t.b ? p.teams[p.games[gi].a].name : p.teams[p.games[gi].b].name) + ' 승');
-    T(res, x + colW / 2, y + 68, 18, t.any ? C.win : C.tx3, 900, 'center');
+    /* 승리팀 표기 — 팀 색 점 + 팀명(● 형광 승), 무승부는 무 */
+    const winName = (!t.any || t.a === t.b) ? '' : (t.a > t.b ? p.teams[p.games[gi].a].name : p.teams[p.games[gi].b].name);
+    const res = !t.any ? '미입력' : (winName ? winName + ' 승' : '무');
+    g.font = F(18, 900);
+    const tw = g.measureText(res).width;
+    const dotD = winName ? 16 : 0;
+    const sx = x + colW / 2 - (tw + dotD) / 2;
+    if (winName) {
+      g.beginPath(); g.arc(sx + 6, y + 62, 6, 0, Math.PI * 2);
+      g.fillStyle = TEAMCOL[winName] || C.win; g.fill();
+    }
+    T(res, sx + dotD, y + 68, 18, t.any ? C.win : C.tx3, 900);
   });
   T('합계', PAD + 8, y + 46, 24, C.tx3, 900);
   y += totH + 24;
@@ -6341,8 +6857,356 @@ function mpPhoto() {
   setTimeout(function () { mpPhotoSave(cvB, mpPhotoName(true)); }, 280);
 }
 
+/* ============================ 🏀 작전판 (전술 보드) ============================
+   반코트/올코트 위에 팀 색 선수 말(팀당 5명)과 공을 끌어 배치하고, 펜으로 전술 선을 그립니다.
+   · 화면 좌표는 코트 박스에 대한 비율(0~1)로 저장해 화면을 돌리거나 크기가 바뀌어도 그대로입니다.
+   · 모든 조작은 pointer 이벤트 + touch-action:none — 페이지 스크롤과 간섭하지 않습니다.
+   · 저장하지 않습니다(이 화면 안에서만). 닫아도 이번 세션의 배치는 유지됩니다. */
+const TB_TN = { 3: ['레드', '블랙', '형광'], 2: ['레드', '블랙'] };
+const TB_PRESET = {
+  half: {
+    '레드': [[.50, .30], [.28, .22], [.72, .22], [.20, .46], [.80, .46]],
+    '블랙': [[.50, .13], [.32, .32], [.68, .32], [.24, .52], [.76, .52]],
+    '형광': [[.50, .62], [.26, .72], [.74, .72], [.20, .88], [.80, .88]],
+    'ball': [.50, .40]
+  },
+  full: {
+    '레드': [[.18, .50], [.24, .28], [.24, .72], [.31, .20], [.31, .80]],
+    '블랙': [[.50, .50], [.44, .30], [.56, .70], [.42, .18], [.58, .82]],
+    '형광': [[.82, .50], [.76, .30], [.88, .70], [.70, .18], [.94, .82]],
+    'ball': [.36, .50]
+  }
+};
+const TB = { open: false, mode: 3, court: 'half', tool: 'move', pos: {}, strokes: [], drag: null, draw: null };
+function tbResetToks() {
+  const pre = TB_PRESET[TB.court] || TB_PRESET.half;
+  TB.pos = {};
+  TB_TN[TB.mode].forEach(function (t) {
+    (pre[t] || []).forEach(function (xy, i) { TB.pos[t + ':' + (i + 1)] = { x: xy[0], y: xy[1] }; });
+  });
+  const b = pre['ball'] || [.5, .5];
+  TB.pos['ball'] = { x: b[0], y: b[1] };
+}
+function tbToks() {
+  const box = $('#tbToks');
+  if (!box) return;
+  let html = '';
+  TB_TN[TB.mode].forEach(function (t) {
+    for (let i = 1; i <= 5; i++) {
+      html += '<button type="button" class="tbtok t' + t + '" data-tb="' + t + ':' + i + '" aria-label="' + t + ' ' + i + '번 선수">' + i + '</button>';
+    }
+  });
+  html += '<div class="tbtok ball" data-tb="ball" role="button" tabindex="0" aria-label="농구공">🏀</div>';
+  box.innerHTML = html;
+  tbPlace();
+}
+function tbPlace() {
+  $$('#tbToks .tbtok').forEach(function (el) {
+    const k = el.getAttribute('data-tb'), p = TB.pos[k];
+    if (!p) { el.setAttribute('hidden', ''); return; }
+    el.removeAttribute('hidden');
+    el.style.left = (p.x * 100).toFixed(3) + '%';
+    el.style.top = (p.y * 100).toFixed(3) + '%';
+  });
+}
+function tbSync() {
+  $$('#tbMode [data-tbmode]').forEach(function (b) {
+    b.setAttribute('aria-pressed', Number(b.getAttribute('data-tbmode')) === TB.mode ? 'true' : 'false');
+  });
+  $$('#tbCourtSel [data-tbcourt]').forEach(function (b) {
+    b.setAttribute('aria-pressed', b.getAttribute('data-tbcourt') === TB.court ? 'true' : 'false');
+  });
+  $$('#tbTool [data-tbtool]').forEach(function (b) {
+    b.setAttribute('aria-pressed', b.getAttribute('data-tbtool') === TB.tool ? 'true' : 'false');
+  });
+  const sub = $('#tbSub');
+  if (sub) sub.textContent = TB.mode + '파전 · ' + (TB.court === 'full' ? '올코트' : '반코트') + ' · ' + (TB.tool === 'pen' ? '펜' : TB.tool === 'eraser' ? '지우개' : '이동');
+  $$('#tbFootTeams i').forEach(function (el) {
+    const t = el.getAttribute('data-tbteam');
+    if (!t) return;
+    if (TB_TN[TB.mode].indexOf(t) < 0) el.setAttribute('hidden', ''); else el.removeAttribute('hidden');
+  });
+  const cv = $('#tbLineCv');
+  if (cv) cv.classList.toggle('tbmove', TB.tool === 'move');
+  const undo = $('#tbUndo');
+  if (undo) undo.disabled = !TB.strokes.length;
+}
+function tbCourtUnits() { return TB.court === 'full' ? { w: 28, h: 15 } : { w: 15, h: 14 }; }
+/* 코트 크기·캔버스 해상도 맞추기 — 화면을 돌리거나 창 크기가 바뀜 때마다 */
+function tbFit() {
+  const stage = $('#tbStage'), court = $('#tbCourt');
+  if (!stage || !court) return;
+  const sw = stage.clientWidth - 12, sh = stage.clientHeight - 12;
+  const u = tbCourtUnits(), ar = u.w / u.h;
+  let w = Math.max(120, sw), h = Math.round(w / ar);
+  if (h > sh) { h = Math.max(120, sh); w = Math.round(h * ar); }
+  court.style.width = w + 'px';
+  court.style.height = h + 'px';
+  court.style.setProperty('--tb-tok', Math.round(Math.max(26, Math.min(46, Math.min(w, h) * 0.105))) + 'px');
+  const dpr = Math.min(3, window.devicePixelRatio || 1);
+  [['#tbCourtCv', tbDrawCourt], ['#tbLineCv', null]].forEach(function (pair) {
+    const cv = $(pair[0]);
+    if (!cv) return;
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+  });
+  tbDrawCourt();
+  tbRedraw();
+}
+function tbDrawCourt() {
+  const cv = $('#tbCourtCv');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const u = tbCourtUnits();
+  /* ctx 는 devicePixelRatio 로 확대해 두었으므로 그리기 좌표는 CSS px 기준 */
+  const W = cv.clientWidth, H = cv.clientHeight;
+  if (!W || !H) return;
+  const pad = Math.round(Math.min(W, H) * 0.026);
+  const sc = Math.min((W - pad * 2) / u.w, (H - pad * 2) / u.h);
+  const ox = (W - u.w * sc) / 2, oy = (H - u.h * sc) / 2;
+  const X = function (m) { return ox + m * sc; }, Y = function (m) { return oy + m * sc; };
+  ctx.save();
+  /* 바닥 — 어두운 슬레이트에 살짝 우드 톤 */
+  const g = ctx.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, '#12202f');
+  g.addColorStop(1, '#0b1622');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  /* 키(페인트) 영역 */
+  ctx.fillStyle = 'rgba(255,179,71,.09)';
+  const keyW = 4.9, keyL = 5.8;
+  if (TB.court === 'full') {
+    ctx.fillRect(X(0), Y((u.h - keyW) / 2), keyL * sc, keyW * sc);
+    ctx.fillRect(X(u.w - keyL), Y((u.h - keyW) / 2), keyL * sc, keyW * sc);
+  } else {
+    ctx.fillRect(X((u.w - keyW) / 2), Y(0), keyW * sc, keyL * sc);
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,.62)';
+  ctx.lineWidth = Math.max(1.2, sc * 0.045);
+  ctx.lineCap = 'round';
+  function line(x1, y1, x2, y2) { ctx.beginPath(); ctx.moveTo(X(x1), Y(y1)); ctx.lineTo(X(x2), Y(y2)); ctx.stroke(); }
+  function circ(cx, cy, r) { ctx.beginPath(); ctx.arc(X(cx), Y(cy), r * sc, 0, Math.PI * 2); ctx.stroke(); }
+  function arc(cx, cy, r, a1, a2, ccw) { ctx.beginPath(); ctx.arc(X(cx), Y(cy), r * sc, a1, a2, ccw); ctx.stroke(); }
+  function rect(x, y, w2, h2) { ctx.beginPath(); ctx.rect(X(x), Y(y), w2 * sc, h2 * sc); ctx.stroke(); }
+  if (TB.court === 'full') {
+    rect(0, 0, u.w, u.h);
+    line(u.w / 2, 0, u.w / 2, u.h);
+    circ(u.w / 2, u.h / 2, 1.8);
+    [1, -1].forEach(function (s) {
+      const bx = s > 0 ? 0 : u.w;                       /* 베이스라인 x */
+      const rimX = s > 0 ? 1.575 : u.w - 1.575;
+      rect(s > 0 ? 0 : u.w - keyL, (u.h - keyW) / 2, keyL, keyW);
+      circ(s > 0 ? keyL : u.w - keyL, u.h / 2, 1.8);
+      line(s > 0 ? 1.2 : u.w - 1.2, u.h / 2 - 0.9, s > 0 ? 1.2 : u.w - 1.2, u.h / 2 + 0.9);
+      circ(rimX, u.h / 2, 0.225);
+      /* 3점 라인 — 코너 직선 + 6.75m 아크 */
+      const topY = 0.9, botY = u.h - 0.9;
+      const cy2 = u.h / 2, cx2 = rimX;
+      const dy = Math.abs(topY - cy2);
+      const dx = Math.sqrt(6.75 * 6.75 - dy * dy);
+      const nearX = s > 0 ? cx2 + dx : cx2 - dx;
+      line(bx, topY, nearX, topY);
+      line(bx, botY, nearX, botY);
+      const aTop = Math.atan2(topY - cy2, nearX - cx2);
+      const aBot = Math.atan2(botY - cy2, nearX - cx2);
+      /* 왼쪽 바스켓은 반시계, 오른쪽 바스켓은 시계 방향으로 그려야 코트 안쪽 호가 나옵니다 */
+      arc(cx2, cy2, 6.75, aTop, aBot, s < 0);
+    });
+  } else {
+    rect(0, 0, u.w, u.h);
+    arc(u.w / 2, u.h, 1.8, Math.PI, Math.PI * 2, false);
+    rect((u.w - keyW) / 2, 0, keyW, keyL);
+    circ(u.w / 2, keyL, 1.8);
+    line(u.w / 2 - 0.9, 1.2, u.w / 2 + 0.9, 1.2);
+    circ(u.w / 2, 1.575, 0.225);
+    const cx3 = u.w / 2, cy3 = 1.575, r3 = 6.75;
+    const dx3 = Math.sqrt(r3 * r3 - (2.99 - cy3) * (2.99 - cy3));
+    line(0.9, 0, cx3 - dx3, 2.99);
+    line(u.w - 0.9, 0, cx3 + dx3, 2.99);
+    const a1 = Math.atan2(2.99 - cy3, (cx3 - dx3) - cx3);
+    const a2 = Math.atan2(2.99 - cy3, (cx3 + dx3) - cx3);
+    arc(cx3, cy3, r3, a1, a2, true);
+  }
+  ctx.restore();
+}
+function tbRedraw() {
+  const cv = $('#tbLineCv');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.clientWidth, H = cv.clientHeight;
+  if (!W || !H) return;
+  ctx.clearRect(0, 0, W, H);
+  if (!TB.strokes.length) return;
+  const lw = Math.max(1.6, Math.min(5, Math.min(W, H) * 0.0075));
+  TB.strokes.forEach(function (s) {
+    if (!s.pts.length) return;
+    ctx.beginPath();
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = s.color || '#ffd166';
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    const P = s.pts;
+    ctx.moveTo(P[0][0] * W, P[0][1] * H);
+    if (P.length === 1) { ctx.lineTo(P[0][0] * W + 0.1, P[0][1] * H + 0.1); }
+    for (let i = 1; i < P.length - 1; i++) {
+      const mx = (P[i][0] + P[i + 1][0]) / 2 * W, my = (P[i][1] + P[i + 1][1]) / 2 * H;
+      ctx.quadraticCurveTo(P[i][0] * W, P[i][1] * H, mx, my);
+    }
+    if (P.length > 1) ctx.lineTo(P[P.length - 1][0] * W, P[P.length - 1][1] * H);
+    ctx.stroke();
+  });
+}
+function tbPt(e) {
+  const c = $('#tbCourt');
+  if (!c) return { x: 0, y: 0 };
+  const r = c.getBoundingClientRect();
+  return { x: (e.clientX - r.left) / Math.max(1, r.width), y: (e.clientY - r.top) / Math.max(1, r.height) };
+}
+function tbUndo() {
+  if (!TB.strokes.length) return;
+  TB.strokes.pop();
+  tbRedraw();
+  tbSync();
+}
+function tbClearLines() {
+  if (TB.strokes.length) { TB.strokes = []; tbRedraw(); tbSync(); }
+}
+function tbResetAll() {
+  TB.strokes = [];
+  TB.tool = 'move';
+  tbResetToks();
+  tbPlace();
+  tbRedraw();
+  tbSync();
+}
+function tbOpen() {
+  const el = $('#tbScreen');
+  if (!el) return;
+  if (!Object.keys(TB.pos).length) tbResetToks();
+  el.hidden = false;
+  el.classList.add('open');
+  TB.open = true;
+  document.body.classList.add('mp-open');
+  document.body.style.overflow = 'hidden';
+  tbToks();
+  tbSync();
+  tbFit();
+  mpFsAuto(el);
+}
+function tbClose() {
+  const el = $('#tbScreen');
+  if (!el) return;
+  el.hidden = true;
+  el.classList.remove('open');
+  TB.open = false;
+  document.body.classList.remove('mp-open');
+  document.body.style.overflow = '';
+  if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (e) { } }
+}
+function tbEraseAt(p) {
+  const r = 0.045;
+  const before = TB.strokes.length;
+  TB.strokes = TB.strokes.filter(function (s) {
+    return !s.pts.some(function (q) { return Math.abs(q[0] - p.x) < r && Math.abs(q[1] - p.y) < r; });
+  });
+  if (TB.strokes.length !== before) { tbRedraw(); tbSync(); }
+}
+function tbBind() {
+  const el = $('#tbScreen');
+  if (!el || el.getAttribute('data-bound') === '1') return;
+  el.setAttribute('data-bound', '1');
+  el.addEventListener('click', function (e) {
+    if (e.target.closest('#tbClose')) { tbClose(); return; }
+    if (e.target.closest('#tbFull')) { if ($('#tbScreen')) mpFullscreenFor($('#tbScreen')); return; }
+    if (e.target.closest('#tbUndo')) { tbUndo(); return; }
+    if (e.target.closest('#tbClearLines')) { tbClearLines(); return; }
+    if (e.target.closest('#tbReset')) { tbResetAll(); return; }
+    const md = e.target.closest('[data-tbmode]');
+    if (md) {
+      const v = Number(md.getAttribute('data-tbmode'));
+      if (v !== TB.mode) { TB.mode = v; tbResetToks(); tbToks(); tbSync(); }
+      return;
+    }
+    const ct = e.target.closest('[data-tbcourt]');
+    if (ct) {
+      const v = ct.getAttribute('data-tbcourt');
+      if (v !== TB.court) { TB.court = v; tbResetToks(); tbFit(); tbPlace(); tbSync(); }
+      return;
+    }
+    const tl = e.target.closest('[data-tbtool]');
+    if (tl) { TB.tool = tl.getAttribute('data-tbtool'); tbSync(); return; }
+  });
+  /* 선수 말·공 드래그 */
+  $('#tbToks').addEventListener('pointerdown', function (e) {
+    const tk = e.target.closest('.tbtok');
+    if (!tk) return;
+    e.preventDefault();
+    TB.drag = { key: tk.getAttribute('data-tb'), id: e.pointerId };
+    tk.classList.add('drag');
+    try { tk.setPointerCapture(e.pointerId); } catch (err) { }
+  });
+  /* 펜·지우개 */
+  $('#tbLineCv').addEventListener('pointerdown', function (e) {
+    if (TB.tool === 'move') return;
+    e.preventDefault();
+    const p = tbPt(e);
+    if (TB.tool === 'eraser') { TB.draw = { erase: true, id: e.pointerId }; tbEraseAt(p); return; }
+    TB.draw = { id: e.pointerId };
+    TB.strokes.push({ pts: [[p.x, p.y]], color: '#ffd166' });
+    TB.strokes[TB.strokes.length - 1].pts.length = 1;
+    tbRedraw();
+    tbSync();
+  });
+  document.addEventListener('pointermove', function (e) {
+    if (TB.drag && TB.drag.id === e.pointerId) {
+      const p = tbPt(e), k = TB.drag.key;
+      TB.pos[k] = { x: Math.max(0.03, Math.min(0.97, p.x)), y: Math.max(0.04, Math.min(0.96, p.y)) };
+      tbPlace();
+      return;
+    }
+    if (!TB.draw) return;
+    const p = tbPt(e);
+    if (TB.draw.erase) { tbEraseAt(p); return; }
+    const s = TB.strokes[TB.strokes.length - 1];
+    if (!s) return;
+    const last = s.pts[s.pts.length - 1];
+    if (Math.abs(last[0] - p.x) + Math.abs(last[1] - p.y) < 0.004) return;
+    s.pts.push([p.x, p.y]);
+    tbRedraw();
+  }, { passive: true });
+  function tbEnd(e) {
+    if (TB.drag && TB.drag.id === e.pointerId) {
+      const tk = $$('#tbToks .tbtok').filter(function (x) { return x.getAttribute('data-tb') === TB.drag.key; })[0];
+      if (tk) tk.classList.remove('drag');
+      TB.drag = null;
+    }
+    if (TB.draw && TB.draw.id === e.pointerId) TB.draw = null;
+  }
+  document.addEventListener('pointerup', tbEnd);
+  document.addEventListener('pointercancel', tbEnd);
+  window.addEventListener('resize', function () { if (TB.open) tbFit(); });
+  window.addEventListener('orientationchange', function () { setTimeout(function () { if (TB.open) tbFit(); }, 220); });
+  document.addEventListener('keydown', function (e) {
+    if (!TB.open) return;
+    if (e.key === 'Escape') { e.preventDefault(); if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (err) { } } else tbClose(); }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); tbUndo(); }
+  });
+}
+/* 특정 요소 전체화면 토글 (작전판 ⛶) */
+function mpFullscreenFor(el) {
+  try {
+    if (document.fullscreenElement) { document.exitFullscreen(); return; }
+    const r = el.requestFullscreen ? el.requestFullscreen() : null;
+    if (r && r.catch) r.catch(function () { });
+  } catch (e) { }
+}
+
 /* ---------- 메인 화면 버튼 ---------- */
 document.addEventListener('click', function (e) {
+  if (e.target.closest('#tbBtn')) { tbOpen(); return; }
   if (e.target.closest('[data-mphero]')) { mpOpenEditor(); return; }
   const cn = e.target.closest('[data-mpcanon]');
   if (cn) {
@@ -6456,6 +7320,7 @@ document.addEventListener('keydown', function (e) {
   if ($('#mpScreen') && !$('#mpScreen').hidden) mpCloseScreen();
 });
 mpInit();
+tbResetToks();
 
 </script>
 </body>
