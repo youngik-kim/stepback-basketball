@@ -291,19 +291,32 @@ with sync_playwright() as pw:
            nos[:3])
         page.screenshot(path='%s/%s_4_rest.png' % (OUT, tag))
 
-        # ---- 쿼터 드래그 ----
-        first_q = page.get_attribute('#mpBody tr[data-qrow]', 'data-qrow')
-        if drag(page, '[data-dragq="%s"]' % first_q, 'tr[data-qrow="1"]'):
-            page.wait_for_timeout(220)
+        # ---- 쿼터 순서는 고정(▲▼·드래그 삭제), 쿼터 열 슬림 ----
+        ok('%s: 쿼터 ▲▼·드래그 컨트롤 삭제(순서 고정)' % tag,
+           page.locator('#mpBody [data-qmove]').count() == 0
+           and page.locator('#mpBody [data-dragq]').count() == 0
+           and page.locator('#mpBody .qh2').count() == 0, 'qmove/dragq 제거')
+        qw = page.evaluate('''() => { const th = document.querySelector('#mpBody tr[data-qrow] th.qh');
+            const td = document.querySelector('#mpBody tr[data-qrow] td');
+            return { qh: th.getBoundingClientRect().width, cell: td.getBoundingClientRect().width }; }''')
+        ok('%s: 쿼터 열 슬림(점수 칸 확보)' % tag, qw['qh'] <= 42 and qw['cell'] > qw['qh'] * 2, qw)
+        ok('%s: 쿼터 라벨 1Q~4Q 순서 유지' % tag,
+           page.eval_on_selector_all('#mpBody tr[data-qrow] th.qh', 'els => els.map(e => e.textContent.trim())')
+           == ['1Q', '2Q', '3Q', '4Q'],
+           page.eval_on_selector_all('#mpBody tr[data-qrow] th.qh', 'els => els.map(e => e.textContent.trim())'))
         qs = page.eval_on_selector_all('#mpBody tr[data-qrow]', 'els => els.map(e => e.getAttribute("data-qrow"))')
-        ok('%s: 쿼터 순서 드래그 변경' % tag, qs[0] != first_q, '%s → %s' % (first_q, qs[:4]))
+        ok('%s: 쿼터 행 순서 그대로(0,1,2,3)' % tag, qs == ['0', '1', '2', '3'], qs)
 
-        # ---- 쿼터 순서 클릭(▲▼) ----
-        q0 = page.eval_on_selector_all('#mpBody tr[data-qrow]', 'els => els.map(e => e.getAttribute("data-qrow"))')
-        page.click('#mpBody [data-qmove="%s:1"]' % q0[0])
-        page.wait_for_timeout(180)
-        q1_ = page.eval_on_selector_all('#mpBody tr[data-qrow]', 'els => els.map(e => e.getAttribute("data-qrow"))')
-        ok('%s: 쿼터 순서 클릭(▼) 변경' % tag, q1_[0] == q0[1] and q1_[1] == q0[0], '%s → %s' % (q0, q1_))
+        # ---- 합계행·순위카드 가운데 정렬 ----
+        al = page.evaluate('''() => {
+            const tot = document.querySelector('#mpBody tr.tot td');
+            const card = document.querySelector('#mpBody .mpsc');
+            const h = card.querySelector('.h'), rec = card.querySelector('.rec');
+            return { tot: getComputedStyle(tot).textAlign, card: getComputedStyle(card).textAlign,
+                     hjust: getComputedStyle(h).justifyContent, rec: getComputedStyle(rec).textAlign };
+          }''')
+        ok('%s: 합계행·팀 순위 카드 가운데 정렬' % tag,
+           al['tot'] == 'center' and al['card'] == 'center' and al['hjust'] == 'center', al)
 
         # ---- 매치업(경기) 순서 클릭·드래그 ----
         g0 = page.eval_on_selector_all('#mpBody thead th[data-gcol]', 'els => els.map(e => e.getAttribute("data-gcol"))')
@@ -919,6 +932,19 @@ with sync_playwright() as pw:
         ok('editor: 하단 🏀 경기 진행하기 버튼',
            page.locator('#mpEdStart').count() == 1 and '경기 진행하기' in txt(page, '#mpEdStart'),
            txt(page, '#mpEdStart'))
+        # 안내 문구 — 등록/취소 버튼 바로 위
+        n2 = page.evaluate('''() => {
+            const n = document.querySelector('#mpModal .mpnote2');
+            const f = document.querySelector('#mpModal .mpfoot');
+            if (!n || !f) return null;
+            return { txt: n.innerText.replace(/\\s+/g, ' ').trim(),
+                     above: n.getBoundingClientRect().bottom <= f.getBoundingClientRect().top + 1,
+                     visible: getComputedStyle(n).display !== 'none' };
+          }''')
+        ok('editor: 등록 버튼 바로 위 기기 저장 안내 문구',
+           bool(n2) and n2['above'] and n2['visible']
+           and '현재 기기(브라우저)' in n2['txt']
+           and '서버나 다른 팀원 화면에는 반영되지 않습니다' in n2['txt'], n2)
         # 정본이 있는 2026-11-29 → 정본 인원으로 복원
         page.fill('#mpDate', '2026-11-29')
         page.evaluate("""() => { const p = mpFromCanonical(mpFindCanonical('2026-11-29'));

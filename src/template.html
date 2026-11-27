@@ -878,6 +878,9 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mpmsg{font-size:10.5px;font-weight:800;color:var(--amber);margin:0 0 8px;line-height:1.5}
 .mpmsg[hidden]{display:none}
 .mpmsg.ok{color:var(--acc)}
+.mpnote2{margin:12px 0 6px;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,179,71,.5);
+  background:rgba(255,179,71,.12);color:#ffb347;font-size:11px;font-weight:800;line-height:1.55;word-break:keep-all}
+.mpnote2 b{color:#ffd166;font-weight:900}
 .mpfoot{display:flex;gap:6px;margin:10px 0 0}
 .mpfoot button{flex:1 1 0;height:44px;border-radius:12px;border:0;cursor:pointer;font-family:inherit;font-size:13px;font-weight:900}
 .mpSave{background:linear-gradient(120deg,var(--acc),#8af2dd);color:#04120f}
@@ -972,17 +975,17 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mpsum{display:grid;gap:6px;grid-template-columns:repeat(3,1fr);margin:0 0 9px}
 .mpsum.two{grid-template-columns:repeat(2,1fr)}
 .mpsc{border:1px solid var(--mpline);border-radius:11px;padding:7px 8px;background:var(--mpcard);min-width:0;
-  position:relative;overflow:hidden}
+  position:relative;overflow:hidden;text-align:center}
 .mpsc::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--tcol,transparent)}
-.mpsc .h .rk{margin-left:auto;flex:0 0 auto;font-size:8px;font-weight:900;padding:0 4px;border-radius:4px;line-height:1.5;
+.mpsc .h .rk{margin-left:2px;flex:0 0 auto;font-size:8px;font-weight:900;padding:0 4px;border-radius:4px;line-height:1.5;
   color:#0b1120;background:var(--tcol,var(--mpline))}
 .mps.mid .mpsc .h .rk,.mps.light .mpsc .h .rk{color:#ffffff}
 .mpsc.top{border-color:rgba(255,209,102,.6);box-shadow:0 0 0 1px rgba(255,209,102,.18) inset}
-.mpsc .h{display:flex;align-items:center;gap:4px;font-size:calc(12.5px * var(--mpx));font-weight:900;min-width:0;
+.mpsc .h{display:flex;align-items:center;justify-content:center;gap:4px;font-size:calc(12.5px * var(--mpx));font-weight:900;min-width:0;
   letter-spacing:-.02em}
 .mpsc .h .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:900}
 .mpsc .h .cr{font-size:8.5px;font-weight:900;color:#1a1405;background:var(--gold);border-radius:4px;padding:1px 4px;flex:0 0 auto}
-.mpsc .rec{font-size:calc(16px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:1px;white-space:nowrap}
+.mpsc .rec{font-size:calc(16px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:1px;white-space:nowrap;text-align:center}
 .mpsc .rec .w{color:var(--acc)} .mpsc .rec .d{color:var(--gold)} .mpsc .rec .l{color:#ff9a9a}
 .mpsc .df{font-size:calc(9.5px * var(--mpx));color:var(--mptx3);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
 .mpsc .ex{font-size:calc(9px * var(--mpx));color:var(--mptx3);font-weight:800;margin-top:2px;white-space:nowrap;
@@ -1001,8 +1004,9 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mpg .g2 button{width:20px;height:17px;border:0;border-radius:4px;background:rgba(255,255,255,.06);
   color:var(--mptx3);font-family:inherit;font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
 .mps.mid .mpg .g2 button,.mps.light .mpg .g2 button{background:rgba(15,23,42,.07)}
-.mpg .qh{background:transparent;border:0;color:var(--mptx3);font-size:calc(9.5px * var(--mpx));width:52px}
-.mpg tr.tot .qh{width:52px}
+.mpg .qh{background:transparent;border:0;color:var(--mptx3);font-size:calc(10px * var(--mpx));width:34px;
+  text-align:center;font-weight:900}
+.mpg tr.tot .qh{width:34px}
 .mpg .qh .qhbox{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
 .mpg .qh1{display:flex;align-items:center;gap:1px}
 .mpg .qh2{display:flex;gap:2px}
@@ -1028,7 +1032,7 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mprestl{display:flex;align-items:center;justify-content:center;gap:5px;font-size:calc(8.5px * var(--mpx));
   font-weight:900;color:var(--gold);line-height:1.3;margin-top:2px;white-space:nowrap}
 .mprestl .g{display:inline-flex;align-items:center;gap:2px}
-.mpg tr.tot td{background:var(--mpcard2);border-color:var(--mpline)}
+.mpg tr.tot td{background:var(--mpcard2);border-color:var(--mpline);text-align:center}
 .mpg tr.tot .tv{font-size:calc(13px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;white-space:nowrap}
 .mpg tr.tot .bd{display:block;font-size:calc(8.5px * var(--mpx));font-weight:900;color:var(--mptx3);margin-top:1px}
 .mpg tr.tot .bd.w{color:var(--acc)} .mpg tr.tot .bd.l{color:#ff9a9a} .mpg tr.tot .bd.d{color:var(--gold)}
@@ -1142,7 +1146,7 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   .mpsc2 .tl{flex:0 1 auto;max-width:58%;font-size:8.5px;gap:2px}
   .mpsc2 .tl .dot{width:7px;height:7px}
   .mprestl{font-size:7.5px;margin-top:1px;gap:2px}
-  .mpg .qh{width:42px}
+  .mpg .qh{width:30px}
   .mpg .qh2 button{width:14px;height:11px;font-size:7px}
   .mpg tr.tot .tv{font-size:10.5px}
   .mpg tr.tot .bd{font-size:7px}
@@ -1185,7 +1189,7 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   .mpsc2.two input{flex:0 0 36px;width:36px}
   .mpsc2 .tl{font-size:10px}
   .mprestl{font-size:8.5px}
-  .mpg .qh{width:48px}
+  .mpg .qh{width:34px}
   .mpg .qh2 button{width:15px;height:13px;font-size:8px}
   .mpg tr.tot .tv{font-size:13px}
   .mprt{padding:7px}
@@ -1766,6 +1770,7 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
       <div class="pchipbox"><div class="pchips" id="mpPool"></div></div>
     </div>
 
+    <p class="mpnote2">※ 등록·수정한 내용은 <b>현재 기기(브라우저)</b>에만 임시 저장되며, 서버나 다른 팀원 화면에는 반영되지 않습니다.</p>
     <div class="mpfoot">
       <button type="button" class="mpCancel" data-mpclose>취소</button>
       <button type="button" class="mpSave" id="mpSave">등록하기</button>
@@ -1774,7 +1779,7 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
       <button type="button" class="mpGo" id="mpEdStart">🏀 경기 진행하기</button>
       <button type="button" class="mpEdReset" id="mpEdRestore">🧩 매치 프리뷰 초기화 (서버 정본)</button>
     </div>
-    <p class="pnote">등록한 매치 프리뷰와 진행 기록은 <b>이 기기(localStorage)</b>에만 저장됩니다. 팀 이름·인원·쿼터를 바꾸면 경기 진행 화면에 바로 반영됩니다.</p>
+    <p class="pnote">팀 이름·인원·쿼터를 바꾸면 경기 진행 화면에 바로 반영됩니다.</p>
   </div>
   <div class="mpcf ed" id="mpEdConfirm" hidden>
     <div class="bx" role="alertdialog" aria-modal="true" aria-labelledby="mpEdCfMsg">
@@ -3181,7 +3186,7 @@ const CHANGELOG = [
   { date: '2026-11-27', tag: '기능', items: [
     '<b>🏀 경기진행패치</b> — 상단 히어로 <b>📝 매치 프리뷰</b> 버튼으로 3파전·2파전 인원을 직접 구성하고, 등록한 카드에서 <b>🏀 경기 진행하기</b>로 실전 기록지 화면에 들어갑니다',
     '🤝 짝꿍 승률 계산기 · ⚖️ 팀 구성 추천 결과에서 <b>📝 매치 프리뷰 등록하기</b>로 구성된 팀·인원을 바로 연동 (이 기기에만 저장)',
-    '경기 진행 — 점수 칸 직접 입력(팀별 승·무·패·득실·우승 자동 계산), 쿼터·매치업 드래그 순서, 명단 순서 드래그, 🌓 테마(어두운·중간·밝은) · 🔎 글씨 크기(기본 크게) · ⛶ 전체화면 · 🔆 화면꺼짐 방지 · 🖨️ A4 인쇄 · 📸 사진 저장 · 🧩 매치 프리뷰 초기화(서버 정본 복원) · 🔄 전체 초기화(확인 팝업)',
+    '경기 진행 — 점수 칸 직접 입력(팀별 승·무·패·득실·우승 자동 계산), 매치업 열 드래그·◀▶ 순서(쿼터는 1Q→4Q 고정으로 칸을 더 넓게), 명단 순서 드래그, 🌓 테마(어두운·중간·밝은) · 🔎 글씨 크기(기본 크게) · ⛶ 전체화면 · 🔆 화면꺼짐 방지 · 🖨️ A4 인쇄 · 📸 사진 저장(테마+잉크절약 2장) · 🧩 매치 프리뷰 초기화(서버 정본 복원) · 🔄 전체 초기화(확인 팝업)',,
     '<b>3파전</b> — 팀 형광·블랙·레드(팀당 최대 6명), 명단 옆 휴식 순서 + 누적 휴식 횟수(0→1→2→3→0), 팀별 <b>휴식 순서 정하기</b>',
     '<b>2파전</b> — 팀 블랙·레드(팀당 5~8명), <b>1~3Q / 1~4Q</b> 선택, 쿼터 점수 칸마다 <b>쉬는 순번</b> 자동 표기, 하이라이트 메모·휴식 횟수 없음',
     '⚙️ 설정 — 🌓 테마 <b>어두운 · 중간 · 밝은</b> 3단계(파란 기운의 중간 슬레이트·밝은 오프화이트 톤으로 눈부심 완화, 📸 사진 저장 PNG에도 동일 반영), 🔎 글씨 크기 기본 <b>크게</b>',
@@ -5567,12 +5572,7 @@ function mpGridHtml(p, st) {
   });
   h += '</tr></thead><tbody>';
   p.qOrder.forEach(function (qi) {
-    h += '<tr data-qrow="' + qi + '"><th class="qh"><div class="qhbox">'
-      + '<div class="qh1"><span class="mpdrag" data-dragq="' + qi + '" role="button" aria-label="쿼터 순서 드래그">⋮⋮</span>'
-      + '<span>' + (qi + 1) + 'Q</span></div>'
-      + '<div class="qh2"><button type="button" data-qmove="' + qi + ':-1" aria-label="쿼터 위로">▲</button>'
-      + '<button type="button" data-qmove="' + qi + ':1" aria-label="쿼터 아래로">▼</button></div>'
-      + '</div></th>';
+    h += '<tr data-qrow="' + qi + '"><th class="qh">' + (qi + 1) + 'Q</th>';
     games.forEach(function (gi) { h += mpCellHtml(p, gi, qi); });
     h += '</tr>';
   });
@@ -5594,7 +5594,7 @@ function mpRender() {
     + '<div class="mpsum' + (p.type === '2' ? ' two' : '') + '" id="mpSum">' + mpSumHtml(p, st) + '</div>'
     + mpGridHtml(p, st)
     + '<p class="mpnote">점수 칸을 누르면 숫자를 직접 넣을 수 있고, 승·무·패·득실·우승팀은 자동 계산됩니다. '
-    + '쿼터·매치업은 <b>⋮⋮ 드래그</b>나 ◀▶로, 명단 순서는 <b>⋮⋮ 드래그</b>로 바꿉니다. '
+    + '매치업 열은 <b>⋮⋮ 드래그</b>나 ◀▶로, 명단 순서는 <b>⋮⋮ 드래그</b>로 바꿉니다. '
     + (p.type === '3' ? '명단의 <b>회수 버튼</b>을 누르면 휴식 횟수가 0 → 1 → 2 → 3 → 0으로 바뀌고, <b>휴식 순서 정하기</b>로 1번부터 번호를 붙입니다. ' : '')
     + '인원을 추가·삭제·수정하려면 매치 프리뷰 수정을 이용해 주세요.</p>'
     + '</div>'
