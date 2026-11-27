@@ -8,7 +8,7 @@
       2파전 1~3Q/1~4Q·쉬는 순번·휴식 횟수 없음, 테마·글씨 크기·전체화면·초기화 확인·사진 저장(PNG)·A4 인쇄,
       JS 오류 0건, 평문 이름 0건.
 """
-import functools, http.server, io, itertools, json, os, socketserver, sys, threading
+import functools, http.server, io, itertools, json, os, shutil, socketserver, subprocess, sys, threading
 from playwright.sync_api import sync_playwright
 
 SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -123,6 +123,16 @@ with sync_playwright() as pw:
            and max(h2['w'] for h2 in hb) - min(h2['w'] for h2 in hb) <= 1
            and not any(h2['clip'] for h2 in hb), hb)
         page.screenshot(path='%s/%s_0_hero.png' % (OUT, tag))
+
+        # ---- 📋 주요 변경점 기록 ----
+        page.click('#chgBtn')
+        page.wait_for_timeout(260)
+        first = txt(page, '#chgList .cl.top')
+        ok('%s: 주요 변경점 최상단 2026-11-27 · 기능 · 경기진행패치' % tag,
+           '2026-11-27' in first and '기능' in first and '경기진행패치' in first,
+           first[:80].replace('\n', ' '))
+        page.click('#chgModal .x')
+        page.wait_for_timeout(200)
 
         # ---- 등록 버튼 (경기 결과 상단) ----
         btn = page.locator('#mpRegBtn')
@@ -261,6 +271,13 @@ with sync_playwright() as pw:
         qs = page.eval_on_selector_all('#mpBody tr[data-qrow]', 'els => els.map(e => e.getAttribute("data-qrow"))')
         ok('%s: 쿼터 순서 드래그 변경' % tag, qs[0] != first_q, '%s → %s' % (first_q, qs[:4]))
 
+        # ---- 쿼터 순서 클릭(▲▼) ----
+        q0 = page.eval_on_selector_all('#mpBody tr[data-qrow]', 'els => els.map(e => e.getAttribute("data-qrow"))')
+        page.click('#mpBody [data-qmove="%s:1"]' % q0[0])
+        page.wait_for_timeout(180)
+        q1_ = page.eval_on_selector_all('#mpBody tr[data-qrow]', 'els => els.map(e => e.getAttribute("data-qrow"))')
+        ok('%s: 쿼터 순서 클릭(▼) 변경' % tag, q1_[0] == q0[1] and q1_[1] == q0[0], '%s → %s' % (q0, q1_))
+
         # ---- 매치업(경기) 순서 클릭·드래그 ----
         g0 = page.eval_on_selector_all('#mpBody thead th[data-gcol]', 'els => els.map(e => e.getAttribute("data-gcol"))')
         page.click('#mpBody [data-gmove="%s:1"]' % g0[0])
@@ -279,47 +296,75 @@ with sync_playwright() as pw:
         after = page.eval_on_selector_all('#mpBody .mprt[data-rt="1"] .mprl li .nm', 'els => els.map(e => e.textContent)')
         ok('%s: 명단 인원 순서 드래그 변경' % tag, after != before, '%s → %s' % (before[:3], after[:3]))
 
-        # ---- 테마 · 글씨 크기 · 전체화면 · 화면꺼짐 방지 ----
-        page.click('[data-mpctl="theme"]')
-        page.wait_for_timeout(200)
+        # ---- 상단 바 1줄(제목 · ⚙️ 설정 · ⛶ · ✕) ----
+        bar = page.evaluate('''() => { const b = document.querySelector('.mpbar'); return {
+              h: Math.round(b.getBoundingClientRect().height),
+              btns: Array.from(b.querySelectorAll('button')).map(e => e.id),
+              ctrls: document.querySelectorAll('.mpctrls').length }; }''')
+        ok('%s: 상단 바 1줄 초컴팩트(제목·설정·전체화면·닫기)' % tag,
+           bar['h'] <= 56 and bar['btns'] == ['mpSetBtn', 'mpFullBtn', 'mpClose'] and bar['ctrls'] == 0, bar)
+
+        # ---- ⚙️ 설정 패널 ----
+        page.click('#mpSetBtn')
+        page.wait_for_timeout(240)
+        ok('%s: ⚙️ 설정 패널 열림·옵션 모음' % tag,
+           page.locator('#mpSet').is_visible() and page.locator('#mpSet .row').count() >= 4
+           and page.locator('#mpSet [data-mpctl="print"]').count() == 1
+           and page.locator('#mpSet [data-mpctl="photo"]').count() == 1
+           and page.locator('#mpSet [data-mpctl="reset"]').count() == 1
+           and page.locator('#mpSetEdit').count() == 1)
+        page.screenshot(path='%s/%s_4b_settings.png' % (OUT, tag))
+        page.click('[data-mptheme="light"]')
+        page.wait_for_timeout(220)
         ok('%s: 🌓 밝은 테마 전환' % tag,
            page.evaluate("document.querySelector('#mpScreen').classList.contains('light')")
-           and '어두운 테마' in txt(page, '#mpThemeBtn'))
+           and page.get_attribute('[data-mptheme="light"]', 'aria-pressed') == 'true')
         page.screenshot(path='%s/%s_5_light.png' % (OUT, tag))
-        page.click('[data-mpctl="theme"]')
-        page.wait_for_timeout(150)
+        page.click('[data-mptheme="dark"]')
+        page.wait_for_timeout(160)
         ok('%s: 🌓 어두운 테마 복귀' % tag,
            not page.evaluate("document.querySelector('#mpScreen').classList.contains('light')")
-           and '밝은 테마' in txt(page, '#mpThemeBtn'))
+           and page.get_attribute('[data-mptheme="dark"]', 'aria-pressed') == 'true')
         base_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprl li .nm')).fontSize)")
-        page.click('[data-mpctl="font"]')
+        page.click('[data-mpfont="large"]')
         page.wait_for_timeout(160)
         big_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprl li .nm')).fontSize)")
-        ok('%s: 🔎 글씨 크기 조절(보통→크게)' % tag, big_fs > base_fs and '크게' in txt(page, '#mpFontBtn'),
+        ok('%s: 🔎 글씨 크기 조절(보통→크게)' % tag, big_fs > base_fs
+           and page.get_attribute('[data-mpfont="large"]', 'aria-pressed') == 'true',
            '%s → %s' % (base_fs, big_fs))
-        page.click('[data-mpctl="font"]')
-        page.wait_for_timeout(120)
+        page.click('[data-mpfont="small"]')
+        page.wait_for_timeout(140)
         small_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprl li .nm')).fontSize)")
-        ok('%s: 🔎 글씨 크기 작게' % tag, small_fs < base_fs and '작게' in txt(page, '#mpFontBtn'),
-           '%s → %s' % (base_fs, small_fs))
-        page.click('[data-mpctl="font"]')
-        page.wait_for_timeout(120)
-        page.click('[data-mpctl="full"]')
+        ok('%s: 🔎 글씨 크기 작게' % tag, small_fs < base_fs, '%s → %s' % (base_fs, small_fs))
+        page.click('[data-mpfont="normal"]')
+        page.wait_for_timeout(140)
+        ok('%s: 🔆 화면꺼짐 방지 토글(진입 시 자동 ON)' % tag,
+           page.get_attribute('#mpSetWake', 'aria-pressed') == 'true' and txt(page, '#mpSetWake').strip() == 'ON')
+        page.click('#mpSetWake')
+        page.wait_for_timeout(200)
+        ok('%s: 🔆 화면꺼짐 방지 OFF 전환' % tag,
+           page.get_attribute('#mpSetWake', 'aria-pressed') == 'false')
+        page.click('#mpSetWake')
+        page.wait_for_timeout(200)
+        page.click('#mpSet .x2')
+        page.wait_for_timeout(200)
+        ok('%s: ⚙️ 설정 패널 닫힘' % tag, page.locator('#mpSet').is_hidden())
+        page.click('#mpFullBtn')
         page.wait_for_timeout(320)
         ok('%s: ⛶ 전체화면 버튼 동작(요청 또는 오버레이 폴백)' % tag,
-           page.get_attribute('#mpFullBtn', 'aria-pressed') == 'true' and '전체화면 종료' in txt(page, '#mpFullBtn'),
-           txt(page, '#mpFullBtn'))
-        page.click('[data-mpctl="full"]')
+           page.get_attribute('#mpFullBtn', 'aria-pressed') == 'true'
+           and page.get_attribute('#mpFullBtn', 'aria-label') in ('전체화면 종료',))
+        page.click('#mpFullBtn')
         page.wait_for_timeout(220)
         ok('%s: ⛶ 전체화면 해제' % tag,
-           page.get_attribute('#mpFullBtn', 'aria-pressed') == 'false' and '전체화면' in txt(page, '#mpFullBtn'))
-        ok('%s: 🔆 화면꺼짐 방지 토글(진입 시 자동 ON)' % tag,
-           page.get_attribute('#mpWakeBtn', 'aria-pressed') == 'true' and 'ON' in txt(page, '#mpWakeBtn'))
+           page.get_attribute('#mpFullBtn', 'aria-pressed') == 'false')
 
         # ---- 사진 저장(PNG) ----
+        page.click('#mpSetBtn')
+        page.wait_for_timeout(200)
         try:
             with page.expect_download(timeout=15000) as dl:
-                page.click('[data-mpctl="photo"]')
+                page.click('#mpSet [data-mpctl="photo"]')
             d = dl.value
             path = '%s/%s_photo_%s' % (OUT, tag, d.suggested_filename)
             d.save_as(path)
@@ -332,7 +377,7 @@ with sync_playwright() as pw:
 
         # ---- A4 인쇄 ----
         try:
-            page.click('[data-mpctl="print"]', timeout=4000)
+            page.click('#mpSet [data-mpctl="print"]', timeout=4000)
         except Exception:
             pass
         page.wait_for_timeout(250)
@@ -352,8 +397,8 @@ with sync_playwright() as pw:
 
         # ---- 초기화 확인 팝업 ----
         page.screenshot(path='%s/%s_7_before_reset.png' % (OUT, tag))
-        page.click('[data-mpctl="reset"]')
-        page.wait_for_timeout(160)
+        page.click('#mpSet [data-mpctl="reset"]')
+        page.wait_for_timeout(180)
         ok('%s: 🔄 전체 초기화 확인 팝업 문구' % tag,
            page.locator('#mpConfirm').is_visible()
            and txt(page, '#mpCfMsg').strip() == '초기화 시 기록이 삭제됩니다. 계속 진행하시겠어요?',
@@ -362,16 +407,19 @@ with sync_playwright() as pw:
         page.click('#mpCfNo')
         page.wait_for_timeout(120)
         ok('%s: 초기화 취소 시 기록 유지' % tag, page.input_value('#mpBody [data-sc="0:0:a"]') != '')
-        page.click('[data-mpctl="reset"]')
+        page.click('#mpSet [data-mpctl="reset"]')
         page.wait_for_timeout(140)
         page.click('#mpCfOk')
         page.wait_for_timeout(220)
         empt = page.eval_on_selector_all('#mpBody [data-sc]', 'els => els.filter(e => e.value !== "").length')
         ok('%s: 초기화 확인 → 점수·기록 삭제' % tag, empt == 0 and '미입력' in txt(page, '#mpBody'), empt)
 
-        # ---- 매치 프리뷰 수정하기(진행 화면 안) ----
-        page.click('#mpEditBtn')
-        page.wait_for_timeout(240)
+        # ---- 매치 프리뷰 수정하기(설정 패널) ----
+        if page.locator('#mpSet').is_hidden():
+            page.click('#mpSetBtn')
+            page.wait_for_timeout(200)
+        page.click('#mpSetEdit')
+        page.wait_for_timeout(260)
         ok('%s: 진행 화면 → ✏️ 매치 프리뷰 수정하기' % tag,
            page.locator('#mpModal').is_visible() and '수정' in txt(page, '#mpTitle'))
         page.screenshot(path='%s/%s_9_edit_from_screen.png' % (OUT, tag))
@@ -417,8 +465,10 @@ with sync_playwright() as pw:
         page.screenshot(path='%s/%s_10_screen2.png' % (OUT, tag))
 
         # 1~4Q 로 바꾸면 칸 수 증가
-        page.click('#mpEditBtn')
-        page.wait_for_timeout(240)
+        page.click('#mpSetBtn')
+        page.wait_for_timeout(220)
+        page.click('#mpSetEdit')
+        page.wait_for_timeout(260)
         page.click('#mpQtr [data-mpq="4"]')
         page.wait_for_timeout(140)
         page.click('#mpSave')
@@ -473,7 +523,122 @@ with sync_playwright() as pw:
         ok('%s: JS 오류 0건' % tag, not errs, ' / '.join(errs[:3]))
         ctx.close()
 
-    # 데스크톱 진행 화면 스크린샷(전체)
+    # ---- 가로모드(844×390) — 좌: 점수표+순위 / 우: 명단, 스크롤 없이 한 화면 ----
+    ctx = browser.new_context(viewport={'width': 844, 'height': 390}, device_scale_factor=2)
+    page = ctx.new_page()
+    lerrs = []
+    page.on('pageerror', lambda e: lerrs.append(str(e)))
+    page.on('console', lambda m: lerrs.append('console: ' + m.text) if m.type == 'error' else None)
+    page.goto(URL, wait_until='load')
+    page.evaluate("localStorage.clear()")
+    page.reload(wait_until='load')
+    page.wait_for_timeout(300)
+    page.fill('#code', CODE)
+    page.click('#go')
+    page.wait_for_timeout(1000)
+    page.click('#teamBtn')
+    page.wait_for_timeout(700)
+    page.click('#tResult [data-mpfromteam]')
+    page.wait_for_timeout(500)
+    page.click('[data-mpgo]')
+    page.wait_for_timeout(450)
+    geo = page.evaluate('''() => {
+          const b = document.querySelector('.mpbody');
+          const L = document.querySelector('.mpleft').getBoundingClientRect();
+          const R = document.querySelector('.mpright').getBoundingClientRect();
+          const S = document.querySelector('#mpScreen');
+          const bar = document.querySelector('.mpbar').getBoundingClientRect();
+          return {display: getComputedStyle(b).display, leftRight: L.right, rightLeft: R.left,
+                  sameTop: Math.abs(L.top - R.top) < 2, screenScroll: S.scrollHeight,
+                  bodyScroll: b.scrollHeight, vh: innerHeight, rightBottom: R.bottom,
+                  cols: getComputedStyle(document.querySelector('.mprosters')).gridTemplateColumns.split(' ').length,
+                  barH: Math.round(bar.height)};
+        }''')
+    ok('l: 가로모드 좌우 분할(왼 점수표·순위 / 오른 명단)', geo['display'] == 'grid'
+       and geo['sameTop'] and geo['leftRight'] <= geo['rightLeft'] + 1, geo)
+    ok('l: 가로모드 명단 3열(3파전)', geo['cols'] == 3, geo['cols'])
+    ok('l: 스크롤 없이 한 화면(100dvh) 수납', geo['screenScroll'] <= geo['vh'] + 1
+       and geo['rightBottom'] <= geo['vh'] + 1 and geo['barH'] <= 46,
+       'scroll=%s vh=%s rightBottom=%s bar=%s' % (geo['screenScroll'], geo['vh'], geo['rightBottom'], geo['barH']))
+    rest_visible = page.locator('#mpBody [data-rest]').count()
+    ok('l: 가로모드에서도 점수표·명단 모두 보임', page.locator('#mpBody .mpg').is_visible()
+       and page.locator('#mpBody .mprt').first.is_visible() and rest_visible >= 15, rest_visible)
+    page.screenshot(path='%s/l_landscape.png' % OUT)
+    page.click('#mpSetBtn')
+    page.wait_for_timeout(260)
+    ok('l: 가로모드 ⚙️ 설정 패널', page.locator('#mpSet').is_visible())
+    page.screenshot(path='%s/l_landscape_settings.png' % OUT)
+    page.click('#mpSet .x2')
+    page.wait_for_timeout(180)
+    ok('l: JS 오류 0건', not lerrs, ' / '.join(lerrs[:3]))
+    ctx.close()
+
+    # ---- 정본(data.json) 매치 프리뷰 연동 — 임시 빌드로 확인 ----
+    tmp = os.path.join(OUT, '_canon')
+    if os.path.isdir(tmp):
+        shutil.rmtree(tmp)
+    os.makedirs(os.path.join(tmp, 'src'))
+    shutil.copy(os.path.join(SITE, 'src', 'template.html'), os.path.join(tmp, 'src', 'template.html'))
+    shutil.copy(os.path.join(SITE, 'src', 'build_site.py'), os.path.join(tmp, 'src', 'build_site.py'))
+    shutil.copy(os.path.join(SITE, '.entry-code'), os.path.join(tmp, '.entry-code'))
+    cdata = json.loads(json.dumps(DATA))
+    cnames = POOL[:18]
+    cdata['upcomingPreviews'] = [{
+        'date': '2026-11-29', 'type': '3파전',
+        'teams': [{'team': '레드', 'rate': 48.0, 'players': cnames[0:6]},
+                  {'team': '블랙', 'rate': 50.0, 'players': cnames[6:12]},
+                  {'team': '형광', 'rate': 52.0, 'players': cnames[12:18]}],
+        'expected': {'team': '형광', 'rate': 52.0}, 'written': '2026-11-27', 'note': ''}]
+    io.open(os.path.join(tmp, 'src', 'data.json'), 'w', encoding='utf-8').write(json.dumps(cdata, ensure_ascii=False))
+    r = subprocess.run([sys.executable, 'src/build_site.py', '--code', CODE], cwd=tmp, capture_output=True, text=True)
+    ok('canon: 정본 프리뷰 포함 임시 빌드', r.returncode == 0, (r.stdout or r.stderr)[-120:])
+    if r.returncode == 0:
+        class Quiet2(http.server.SimpleHTTPRequestHandler):
+            def log_message(self, *a):
+                pass
+        h2 = functools.partial(Quiet2, directory=tmp)
+        srv2 = socketserver.ThreadingTCPServer(('127.0.0.1', 0), h2)
+        threading.Thread(target=srv2.serve_forever, daemon=True).start()
+        U2 = 'http://127.0.0.1:%d/' % srv2.server_address[1]
+        ctx = browser.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=2)
+        page = ctx.new_page()
+        cerrs = []
+        page.on('pageerror', lambda e: cerrs.append(str(e)))
+        page.goto(U2, wait_until='load')
+        page.evaluate("localStorage.clear()")
+        page.reload(wait_until='load')
+        page.wait_for_timeout(300)
+        page.fill('#code', CODE)
+        page.click('#go')
+        page.wait_for_timeout(1000)
+        ok('canon: 메인 정본 프리뷰 카드에 🏀·✏️ 버튼', page.locator('#previewSlot .pvacts button').count() == 2
+           and '경기 진행하기' in page.inner_text('#previewSlot .pvacts')
+           and '수정하기' in page.inner_text('#previewSlot .pvacts'),
+           page.inner_text('#previewSlot .pvacts').replace('\n', ' '))
+        page.screenshot(path='%s/c_1_canoncard.png' % OUT)
+        page.click('#mpHeroBtn')
+        page.wait_for_timeout(320)
+        cnt = page.eval_on_selector_all('#mpTeams .cnt', 'els => els.map(e => e.textContent)')
+        ok('canon: 📝 모달이 빈 0명 대신 정본 팀·인원으로 시작', cnt == ['6/6명', '6/6명', '6/6명'],
+           '%s | %s' % (cnt, txt(page, '#mpMsg')[:50]))
+        page.screenshot(path='%s/c_2_canonmodal.png' % OUT)
+        page.click('#mpModal .x')
+        page.wait_for_timeout(200)
+        page.click('#previewSlot [data-mpcanon="start:2026-11-29"]')
+        page.wait_for_timeout(420)
+        ok('canon: 정본 카드 🏀 → 경기 진행 화면', page.locator('#mpScreen').is_visible()
+           and page.locator('#mpBody [data-sc]').count() == 24
+           and page.locator('#mpBody [data-rest]').count() == 18,
+           page.locator('#mpBody [data-sc]').count())
+        page.screenshot(path='%s/c_3_canonscreen.png' % OUT)
+        page.click('#mpClose')
+        page.wait_for_timeout(250)
+        ok('canon: 진행 후 메인 카드도 등록 상태', page.locator('#mpCard').count() == 1
+           and page.locator('#mpCard [data-mpgo]').count() == 1)
+        ok('canon: JS 오류 0건', not cerrs, ' / '.join(cerrs[:3]))
+        ctx.close()
+        srv2.shutdown()
+
     browser.close()
 
 if httpd:
