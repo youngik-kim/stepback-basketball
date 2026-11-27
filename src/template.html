@@ -199,6 +199,7 @@ body.locked .wrap{display:none}
 .tchipbox{max-height:250px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1px 1px 3px;border-radius:10px;scrollbar-width:thin}
 .tchipbox::-webkit-scrollbar{width:4px}
 .tchipbox::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:4px}
+.tchipbox+.tnote{margin-top:8px}
 #tResult:empty{display:none}
 .tcard{border:1px solid var(--line2);border-left-width:4px;border-radius:12px;padding:9px 10px;margin:0 0 7px;
   background:rgba(255,255,255,.035)}
@@ -1369,6 +1370,7 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
       </div>
       <label class="ptoggle"><input type="checkbox" id="tGuest" checked> 게스트 포함 <span style="color:var(--tx3);font-weight:700">· 가상 선수는 항상 표시</span></label>
       <div class="tchipbox"><div class="pchips" id="tChips"></div></div>
+      <p class="tnote" id="tFakeHint" hidden></p>
     </div>
 
     <p class="pnote" id="tNote">팀 인원은 ±1명 이내로 나눕니다. 기준 점수의 팀 평균 편차를 가장 작게 만들면서 포지션(가드·포워드·센터) 분산과 짝꿍 상성을 함께 점수화해 조합을 찾습니다. 포지션 미등록자는 포지션 균형 계산에서 제외하고 인원만 맞춥니다.</p>
@@ -3670,6 +3672,14 @@ function pTogglePick(name) {
     }
     var chips = $('#tChips');
     if (chips) chips.innerHTML = tChipsHtml();
+    var fh = $('#tFakeHint');
+    if (fh) {
+      if (FAKES.length) { fh.hidden = true; }
+      else {
+        fh.hidden = false;
+        fh.innerHTML = '가상 선수(용병)는 <b>🤝 짝꿍 승률 계산하기</b> 시트에서 추가하면 이 목록에도 함께 나옵니다.';
+      }
+    }
     var res = $('#tResult');
     if (res) res.innerHTML = tResultHtml();
   }
