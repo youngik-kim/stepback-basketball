@@ -943,40 +943,40 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mic[aria-pressed="true"]{color:var(--mpacc);border-color:rgba(51,224,196,.55);background:rgba(51,224,196,.14)}
 .mic.x{font-size:14px}
 /* ⚙️ 설정 패널 */
+/* ⚙️ 설정 시트 — 리버스 양식: 제목줄(⚙️ 설정 · 부제 · ✕) + 라벨/버튼줄 + 하단 안내 */
 .mpset{position:fixed;inset:0;z-index:240;display:flex;align-items:flex-end;justify-content:center}
 .mpset[hidden]{display:none}
-.mpset .bd{position:absolute;inset:0;background:rgba(3,6,12,.62);backdrop-filter:blur(3px)}
-.mpset .pn{position:relative;width:100%;max-width:430px;max-height:86vh;overflow:auto;color:var(--mptx);
-  background:var(--mpcard2);border:1px solid var(--mpline);border-bottom:0;border-radius:16px 16px 0 0;
-  padding:10px 14px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.42)}
-.mpset .ph{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 6px}
-.mpset .ph b{font-size:13.5px;font-weight:900;letter-spacing:-.02em}
-.mpset .x2{width:28px;height:28px;border-radius:8px;border:1px solid var(--mpline);background:transparent;
+.mpset .bd{position:absolute;inset:0;background:rgba(3,6,12,.66);backdrop-filter:blur(3px)}
+.mpset .pn{position:relative;width:100%;max-width:560px;max-height:88dvh;overflow:auto;-webkit-overflow-scrolling:touch;
+  color:var(--mptx);background:var(--mpcard);border:1px solid var(--mpline);border-bottom:0;
+  border-radius:16px 16px 0 0;padding:9px 11px calc(14px + env(safe-area-inset-bottom));
+  box-shadow:0 -12px 40px rgba(0,0,0,.45)}
+.mpset .ph{display:flex;align-items:center;gap:6px;margin:0 0 8px;position:sticky;top:-9px;z-index:2;
+  background:var(--mpcard);padding:2px 0 5px}
+.mpset .ph b{flex:0 0 auto;font-size:13.5px;font-weight:900;letter-spacing:-.02em}
+.mpset .ph .phs{flex:1 1 auto;min-width:0;font-size:9.5px;font-weight:800;color:var(--mptx3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mpset .x2{flex:0 0 auto;width:28px;height:28px;border-radius:8px;border:1px solid var(--mpline);background:transparent;
   color:var(--mptx2);font-family:inherit;font-size:12px;cursor:pointer;line-height:1}
-.mpset .row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--mpline)}
-.mpset .row:last-of-type{border-bottom:0}
-.mpset .row .k{flex:0 0 auto;min-width:86px;font-size:11px;font-weight:900;color:var(--mptx2)}
-.mpset .seg{flex:1 1 auto;display:flex;gap:4px;justify-content:flex-end}
-.mpset .seg button{flex:1 1 0;max-width:96px;height:30px;border-radius:8px;border:1px solid var(--mpline);
-  background:var(--mpcard);color:var(--mptx2);font-family:inherit;font-size:10.5px;font-weight:900;cursor:pointer}
+.mpset .row{display:grid;grid-template-columns:46px minmax(0,1fr);align-items:center;gap:5px;margin-bottom:6px}
+.mpset .row .k{font-size:9.5px;font-weight:900;color:var(--mptx3)}
+.mpset .seg{display:flex;flex-wrap:wrap;gap:4px;min-width:0}
+.mpset .seg button{flex:0 0 auto;height:30px;padding:0 9px;border-radius:8px;border:1px solid var(--mpline);
+  background:var(--mpcard2);color:var(--mptx2);font-family:inherit;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap}
+.mpset .seg button:active{transform:translateY(1px)}
 .mpset .seg button[aria-pressed="true"]{background:linear-gradient(120deg,var(--mpacc),#8af2dd);color:#04120f;border-color:transparent}
-.mpset .tog{margin-left:auto;height:30px;min-width:58px;border-radius:8px;border:1px solid var(--mpline);
-  background:var(--mpcard);color:var(--mptx3);font-family:inherit;font-size:11px;font-weight:900;cursor:pointer}
-.mpset .tog[aria-pressed="true"]{color:var(--mpacc);border-color:rgba(51,224,196,.55);background:rgba(51,224,196,.14)}
-.mpset .acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0 0}
-.mpset .acts button{height:38px;border-radius:10px;border:1px solid var(--mpline);background:var(--mpcard);
-  color:var(--mptx);font-family:inherit;font-size:11px;font-weight:900;cursor:pointer}
-.mpset .acts button.danger{color:#ff9a9a;border-color:rgba(255,107,107,.4)}
-.mpset .acts button.wide{grid-column:1/-1}
-.mps.mid .mpset .acts button.danger{color:#b91c3c;border-color:rgba(185,28,60,.35)}
-.mps.light .mpset .acts button.danger{color:#b91c3c;border-color:rgba(185,28,60,.3)}
-.mpbody{flex:1 1 auto;overflow:auto;-webkit-overflow-scrolling:touch;width:100%;max-width:1000px;margin:0 auto;
-  padding:9px 12px calc(22px + env(safe-area-inset-bottom))}
-.mpsum{display:grid;gap:6px;grid-template-columns:repeat(3,1fr);margin:0 0 9px}
+.mps.mid .mpset .seg button[aria-pressed="true"],.mps.light .mpset .seg button[aria-pressed="true"]{color:#ffffff}
+.mpset .seg button.danger{background:rgba(255,92,92,.14);border-color:rgba(255,92,92,.5);color:#ff9a9a}
+.mps.mid .mpset .seg button.danger,.mps.light .mpset .seg button.danger{color:#b91c3c;background:rgba(200,40,40,.1);
+  border-color:rgba(180,31,31,.45)}
+.mpset .mpsnote{margin:8px 0 0;font-size:10px;line-height:1.5;color:var(--mptx3);font-weight:700;word-break:keep-all}
+.mpset .mpsnote b{color:var(--mptx2);font-weight:900}
+.mpbody{flex:1 1 auto;overflow:auto;-webkit-overflow-scrolling:touch;width:100%;max-width:1180px;margin:0 auto;
+  padding:7px 9px calc(10px + env(safe-area-inset-bottom))}
+.mpsum{display:grid;gap:4px;grid-template-columns:repeat(3,1fr);margin:6px 0 0}
 .mpsum.two{grid-template-columns:repeat(2,1fr)}
-.mpsc{border:1px solid var(--mpline);border-radius:11px;padding:7px 8px;background:var(--mpcard);min-width:0;
-  position:relative;overflow:hidden;text-align:center}
-.mpsc::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--tcol,transparent)}
+.mpsc{border:1px solid var(--mpline);border-top:3px solid var(--tcol,var(--mpline));border-radius:8px;
+  padding:3px 6px;background:var(--mpcard);min-width:0;position:relative;overflow:hidden;text-align:center}
 .mpsc .h .rk{margin-left:2px;flex:0 0 auto;font-size:8px;font-weight:900;padding:0 4px;border-radius:4px;line-height:1.5;
   color:#0b1120;background:var(--tcol,var(--mpline))}
 .mps.mid .mpsc .h .rk,.mps.light .mpsc .h .rk{color:#ffffff}
@@ -985,57 +985,69 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   letter-spacing:-.02em}
 .mpsc .h .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:900}
 .mpsc .h .cr{font-size:8.5px;font-weight:900;color:#1a1405;background:var(--gold);border-radius:4px;padding:1px 4px;flex:0 0 auto}
-.mpsc .rec{font-size:calc(16px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:1px;white-space:nowrap;text-align:center}
+.mpsc .rec{font-size:calc(13px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:0;white-space:nowrap;text-align:center}
 .mpsc .rec .w{color:var(--acc)} .mpsc .rec .d{color:var(--gold)} .mpsc .rec .l{color:#ff9a9a}
-.mpsc .df{font-size:calc(9.5px * var(--mpx));color:var(--mptx3);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
-.mpsc .ex{font-size:calc(9px * var(--mpx));color:var(--mptx3);font-weight:800;margin-top:2px;white-space:nowrap;
+.mpsc .df{font-size:calc(8.5px * var(--mpx));color:var(--mptx3);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mpsc .ex{font-size:calc(8px * var(--mpx));color:var(--mptx3);font-weight:800;margin-top:1px;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis}
-.mpg{width:100%;border-collapse:separate;border-spacing:4px;table-layout:fixed;margin:0 0 4px}
-.mpg th{font-weight:900;color:var(--mptx2);font-size:calc(10px * var(--mpx));letter-spacing:-.02em;padding:0;vertical-align:bottom}
-.mpg thead th{background:var(--mpcard);border:1px solid var(--mpline);border-radius:9px;padding:5px 3px;
-  font-size:calc(10px * var(--mpx));line-height:1.35;position:relative;overflow:hidden}
-.mpg thead th.gcol::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;
+/* 가로 한 화면 배율(zoom)용 래퍼 */
+.mpfit{width:100%}
+@media (max-width:600px){ .mpg.g2{min-width:440px} }
+/* 점수표 — 왼쪽 쿼터 라벨 + 매치업(3파전)/경기(2파전) 열, 점수는 좌우 [ ] : [ ] 나란히 큰 박스 (리버스 양식) */
+.mpgwrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.mpgwrap::-webkit-scrollbar{display:none}
+.mpg{width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed;margin:0}
+.mpg th{font-weight:900;color:var(--mptx2);font-size:calc(9.5px * var(--mpx));letter-spacing:-.02em;padding:0;
+  vertical-align:middle;text-align:center}
+.mpg thead th.mh{background:var(--mpcard);border:1px solid var(--mpline);border-radius:7px;padding:4px 3px 3px;
+  position:relative;overflow:hidden}
+.mpg thead th.mh::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;
   background:linear-gradient(90deg,var(--ta,transparent) 0 50%,var(--tb,transparent) 50% 100%)}
-.mpg .gh{display:flex;flex-direction:column;gap:3px;min-width:0}
-.mpg .g1{display:flex;align-items:center;justify-content:center;gap:3px;min-width:0;flex-wrap:wrap}
-.mpg .g1 .tn{font-size:calc(11.5px * var(--mpx));font-weight:900;white-space:normal;line-height:1.15;word-break:keep-all;letter-spacing:-.02em}
-.mpg .g1 .vs{font-size:10px;color:var(--mptx3);font-weight:900}
-.mpg .g2{display:flex;justify-content:center;gap:3px}
-.mpg .g2 button{width:20px;height:17px;border:0;border-radius:4px;background:rgba(255,255,255,.06);
-  color:var(--mptx3);font-family:inherit;font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
+.mpg .mpair{display:flex;align-items:center;justify-content:center;gap:2px;flex-wrap:wrap;min-width:0}
+.mpg .tm{display:inline-flex;align-items:center;gap:3px;padding:0 4px;border-radius:6px;background:var(--mpcard2);
+  font-size:calc(10px * var(--mpx));font-weight:900;white-space:nowrap;box-shadow:inset 0 0 0 1px var(--mpline)}
+.mpg .tm .dot{width:7px;height:7px;border-radius:50%}
+.mpg .vs{font-size:calc(8px * var(--mpx));font-style:normal;color:var(--mptx3);font-weight:900}
+.mpg .g2{display:flex;justify-content:center;gap:3px;margin-top:2px}
+.mpg .g2 button{width:17px;height:14px;border:0;border-radius:4px;background:rgba(255,255,255,.06);
+  color:var(--mptx3);font-family:inherit;font-size:8px;font-weight:900;cursor:pointer;padding:0;line-height:1}
 .mps.mid .mpg .g2 button,.mps.light .mpg .g2 button{background:rgba(15,23,42,.07)}
-.mpg .qh{background:transparent;border:0;color:var(--mptx3);font-size:calc(10px * var(--mpx));width:34px;
+.mpg .qh{background:transparent;border:0;color:var(--mptx3);font-size:calc(9.5px * var(--mpx));width:30px;
   text-align:center;font-weight:900}
-.mpg tr.tot .qh{width:34px}
-.mpg .qh .qhbox{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
-.mpg .qh1{display:flex;align-items:center;gap:1px}
-.mpg .qh2{display:flex;gap:2px}
-.mpg .qh2 button{width:16px;height:13px;border:0;border-radius:3px;background:rgba(255,255,255,.06);
-  color:var(--mptx3);font-family:inherit;font-size:7.5px;font-weight:900;cursor:pointer;padding:0;line-height:1}
-.mps.mid .mpg .qh2 button,.mps.light .mpg .qh2 button{background:rgba(15,23,42,.07)}
-.mpg td{border:1px solid var(--mpline);border-radius:9px;background:var(--mpin);padding:4px 3px;vertical-align:middle}
+.mpg .qh .ql{display:block;font-size:calc(9.5px * var(--mpx));color:var(--mptx2);font-weight:900}
+.mpg th.corner{width:30px}
+.mpg .qh2{background:var(--mpcard2);border:1px solid var(--mpline);border-radius:7px;padding:2px 1px;color:var(--mptx2)}
+.mpg .gh{background:var(--mpcard2);border:1px solid var(--mpline);border-radius:7px;padding:2px 1px;width:34px}
+.mpg .gh .ggname{display:block;font-size:calc(9.5px * var(--mpx));font-weight:900;color:var(--mpacc)}
+.mpg .gh .gbtn{display:flex;gap:1px;justify-content:center;margin-top:1px}
+.mpg .gh .gbtn button{width:14px;height:12px;border:0;border-radius:3px;background:rgba(255,255,255,.06);
+  color:var(--mptx3);font-family:inherit;font-size:7px;font-weight:900;cursor:pointer;padding:0;line-height:1}
+.mpgcap{display:flex;align-items:center;gap:4px;justify-content:center;margin:0 0 3px;font-size:calc(10px * var(--mpx));
+  font-weight:900;color:var(--mpacc)}
+.mpgcap .tm{background:var(--mpcard)}
+.mpgcap .cap2{font-size:calc(8.5px * var(--mpx));color:var(--mptx3);font-weight:800}
+.mpg td{border:1px solid var(--mpline);border-radius:7px;background:var(--mpin);padding:3px;vertical-align:middle}
 .mpg td.on{border-color:rgba(51,224,196,.55);box-shadow:0 0 0 1px rgba(51,224,196,.18) inset}
-.mpsc2{display:flex;align-items:center;gap:3px;min-width:0}
-.mpsc2 .tl{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:3px;font-size:calc(9.5px * var(--mpx));
-  font-weight:900;color:var(--mptx2)}
-.mpsc2 .tl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mpsc2.two{justify-content:center;gap:2px}
+.mpsc2{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:3px;min-width:0}
 .mpsc2 .cl{color:var(--mptx3);font-weight:900;font-size:calc(11px * var(--mpx));flex:0 0 auto}
-.mpsc2 input{flex:0 0 40px;width:40px;height:26px;border-radius:6px;border:1px solid var(--mpline);
+.mpsc2 input{width:100%;min-width:0;height:calc(28px * var(--mpx));border-radius:6px;border:1px solid var(--mpline);
   background:var(--mpcard2);color:var(--mptx);text-align:center;font-family:inherit;
-  font-size:calc(14px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;padding:0;
+  font-size:calc(16px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;padding:0;
   -webkit-appearance:none;appearance:none}
 .mpsc2 input::placeholder{color:var(--mptx3);font-weight:800;opacity:.7}
 .mpsc2 input:focus{outline:2px solid rgba(51,224,196,.6);outline-offset:0;border-color:var(--mpacc)}
-.mpsc2.two input{flex:0 0 36px;width:36px}
 .mpsc2 input::-webkit-outer-spin-button,.mpsc2 input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.mprestl{display:flex;align-items:center;justify-content:center;gap:5px;font-size:calc(8.5px * var(--mpx));
-  font-weight:900;color:var(--gold);line-height:1.3;margin-top:2px;white-space:nowrap}
+.cum{margin-top:1px;min-height:10px;font-size:calc(8px * var(--mpx));font-weight:900;color:var(--mptx3);
+  text-align:center;line-height:1.2;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mprestl{display:flex;align-items:center;justify-content:center;gap:3px;font-size:calc(7.5px * var(--mpx));
+  font-weight:900;color:var(--gold);line-height:1.2;margin:0 0 2px;white-space:nowrap}
 .mprestl .g{display:inline-flex;align-items:center;gap:2px}
-.mpg tr.tot td{background:var(--mpcard2);border-color:var(--mpline);text-align:center}
-.mpg tr.tot .tv{font-size:calc(13px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;white-space:nowrap}
-.mpg tr.tot .bd{display:block;font-size:calc(8.5px * var(--mpx));font-weight:900;color:var(--mptx3);margin-top:1px}
-.mpg tr.tot .bd.w{color:var(--acc)} .mpg tr.tot .bd.l{color:#ff9a9a} .mpg tr.tot .bd.d{color:var(--gold)}
+.mprestl .sep{opacity:.6}
+.mpg tr.tot td,.mpg td.mptot{background:var(--mpcard2);border-color:var(--mpline);text-align:center}
+.mpg .tv{font-size:calc(12px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;
+  white-space:nowrap;text-align:center}
+.mpg .bd{display:block;font-size:calc(7.5px * var(--mpx));font-weight:900;color:var(--mptx3);margin-top:1px;text-align:center}
+.mpg .bd.w{color:var(--acc)} .mpg .bd.l{color:#ff9a9a} .mpg .bd.d{color:var(--gold)}
 .mpdrag{display:inline-flex;align-items:center;justify-content:center;width:14px;height:20px;border-radius:4px;
   color:var(--mptx3);font-size:10px;font-weight:900;cursor:grab;touch-action:none;flex:0 0 auto;letter-spacing:-2px}
 .mpdrag:active{cursor:grabbing}
@@ -1044,39 +1056,44 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
 .mpnudge button:active{background:rgba(255,255,255,.10)}
 .mpdropt{outline:2px dashed rgba(51,224,196,.75);outline-offset:-2px}
-.mprosters{display:grid;gap:7px;grid-template-columns:repeat(3,1fr);margin:10px 0 0}
-@media (max-width:560px){.mprosters{grid-template-columns:repeat(2,1fr)}
-  .mprosters .mprt:last-child:nth-child(odd){grid-column:1/-1}}
-.mprosters.two{grid-template-columns:repeat(2,1fr)}
-.mprt{border:1px solid var(--mpline);border-radius:12px;background:var(--mpcard);padding:7px;min-width:0;
-  position:relative;overflow:hidden}
-.mprt::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--tcol,transparent)}
-.mprt .rh{display:flex;align-items:center;gap:4px;margin:0 0 5px;min-width:0}
-.mprt .rh .nm{font-size:calc(12.5px * var(--mpx));font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mprt .rh .ct{font-size:9px;font-weight:900;color:var(--mptx3);flex:0 0 auto}
-.mprt .rb{display:block;width:100%;min-height:24px;margin:0 0 6px;border-radius:7px;border:1px dashed rgba(255,209,102,.55);
-  background:rgba(255,209,102,.10);color:var(--gold);font-family:inherit;font-size:9px;font-weight:900;cursor:pointer;
-  padding:3px 4px;line-height:1.25;white-space:normal;word-break:keep-all}
-.mprt .rb[aria-pressed="true"]{border-style:solid;background:rgba(255,209,102,.9);color:#1a1405}
-.mprt .pick{font-size:8.5px;color:var(--gold);font-weight:900;line-height:1.35;margin:-3px 0 5px;word-break:keep-all}
-.mprl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
-.mprl li{display:flex;align-items:center;gap:2px;border-radius:7px;background:var(--mpcard2);
-  border:1px solid var(--mpline);padding:2px 3px;min-width:0}
-.mprl li.sel{border-color:rgba(255,209,102,.7);background:rgba(255,209,102,.14)}
-.mprl li .mpdrag{width:9px;font-size:9px;letter-spacing:-1px}
-.mprl li .no{flex:0 0 auto;min-width:11px;text-align:center;font-size:8.5px;font-weight:900;color:var(--mptx3);
-  font-variant-numeric:tabular-nums}
-.mprl li .no.has{color:var(--mpacc)}
-.mprl li .nm{flex:1 1 auto;min-width:0;font-size:calc(10.5px * var(--mpx));font-weight:800;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.02em}
-.mprl li .k{flex:0 0 auto;font-size:7.5px;font-weight:900;color:var(--amber);background:rgba(255,179,71,.14);
-  border:1px solid rgba(255,179,71,.35);border-radius:3px;padding:0 2px}
-.mprl li .rc{flex:0 0 auto;height:18px;min-width:24px;padding:0 3px;border-radius:5px;border:1px solid var(--mpline);
-  background:rgba(255,255,255,.05);color:var(--mptx3);font-family:inherit;font-size:8px;font-weight:900;cursor:pointer;
-  font-variant-numeric:tabular-nums;line-height:1}
-.mprl li .rc.n1{color:var(--gold);border-color:rgba(255,209,102,.5);background:rgba(255,209,102,.12)}
-.mprl li .rc.n2{color:var(--amber);border-color:rgba(255,179,71,.55);background:rgba(255,179,71,.14)}
-.mprl li .rc.n3{color:#ff9a9a;border-color:rgba(255,107,107,.55);background:rgba(255,107,107,.14)}
+/* 명단 — 종이 기록지형 표: 왼쪽 번 열 + 팀별 열(3파전 3열 / 2파전 2열), 카드에 드래그·이름·0회 버튼 (리버스 양식) */
+.mprosters{display:flex;flex-direction:column;gap:3px;margin:0;min-height:0;--pgrh:30px}
+.mpassignhint{border:1px dashed rgba(255,209,102,.6);background:rgba(255,209,102,.1);color:var(--gold);
+  border-radius:7px;padding:4px 6px;font-size:calc(8.5px * var(--mpx));font-weight:900;line-height:1.4;word-break:keep-all}
+.mprshead,.mprsbody{display:grid;grid-template-columns:22px repeat(var(--nt,3),minmax(0,1fr));gap:3px}
+.mpnrh{display:flex;align-items:center;justify-content:center;height:26px;font-size:calc(8px * var(--mpx));
+  font-weight:900;color:var(--mptx3)}
+.mpth{display:flex;align-items:center;gap:3px;min-width:0;height:26px;padding:0 4px;background:var(--mpcard);
+  border:1px solid var(--mpline);border-top:2px solid var(--tone,var(--mpline));border-radius:7px}
+.mpth .dot{flex:0 0 auto;width:7px;height:7px;border-radius:50%}
+.mpth b{font-size:calc(10.5px * var(--mpx));font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mpth .mpct{flex:0 0 auto;font-size:calc(8px * var(--mpx));font-weight:800;color:var(--mptx3)}
+.mpasg{margin-left:auto;flex:0 0 auto;height:17px;padding:0 4px;border-radius:5px;border:1px solid var(--mpline);
+  background:transparent;color:var(--mptx2);font-family:inherit;font-size:8px;font-weight:900;cursor:pointer;white-space:nowrap}
+.mpasg.on{background:var(--gold);color:#1a1405;border-color:transparent}
+.mprsnum{display:flex;flex-direction:column;gap:3px}
+.mprsnum span{height:var(--pgrh);display:flex;align-items:center;justify-content:center;
+  font-size:calc(9px * var(--mpx));font-weight:900;color:var(--mptx3);font-variant-numeric:tabular-nums}
+.mprows{display:flex;flex-direction:column;gap:3px;align-content:start}
+.mprow{display:flex;align-items:center;gap:2px;height:var(--pgrh);min-width:0;padding:0 3px;
+  background:var(--mpcard2);border:1px solid var(--mpline);border-radius:6px;overflow:hidden;
+  user-select:none;-webkit-user-select:none;cursor:default}
+.mprow.dragging{opacity:.75;border-color:var(--mpacc);box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.mprow .mpdrag{width:8px;font-size:9px;letter-spacing:-1px;justify-content:center;display:inline-flex;
+  align-items:center;height:100%;color:var(--mptx3);cursor:grab;touch-action:none;flex:0 0 auto}
+.mprow .pgnm{flex:1 1 auto;min-width:0;font-size:calc(10.5px * var(--mpx));font-weight:800;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.02em;color:var(--mptx)}
+.mprow .k{flex:0 0 auto;font-size:calc(7px * var(--mpx));font-weight:900;color:var(--amber);
+  background:rgba(255,179,71,.14);border:1px solid rgba(255,179,71,.35);border-radius:3px;padding:0 2px}
+.mrow .mpirc,.mprow .mpirc{flex:0 0 auto;min-width:24px;height:16px;padding:0 3px;border-radius:5px;
+  border:1px solid var(--mpline);background:transparent;color:var(--mptx3);font-family:inherit;
+  font-size:calc(8px * var(--mpx));font-weight:900;cursor:pointer;font-variant-numeric:tabular-nums;line-height:1}
+.mprow .mpirc.n1{color:var(--gold);border-color:rgba(255,209,102,.55);background:rgba(255,209,102,.14)}
+.mprow .mpirc.n2{color:var(--amber);border-color:rgba(255,179,71,.55);background:rgba(255,179,71,.16)}
+.mprow .mpirc.n3{color:#ff9a9a;border-color:rgba(255,107,107,.55);background:rgba(255,107,107,.14)}
+.mppick{flex:0 0 auto;width:14px;height:14px;border-radius:50%;border:1px dashed var(--mpline);
+  display:inline-flex;align-items:center;justify-content:center;font-size:calc(8px * var(--mpx));font-weight:900;color:var(--mptx3)}
+.mppick.on{background:var(--gold);color:#1a1405;border-style:solid;border-color:transparent}
 .mpnote{margin:11px 2px 0;font-size:calc(9.5px * var(--mpx));color:var(--mptx3);font-weight:700;line-height:1.6;word-break:keep-all}
 .mpnote b{color:var(--mptx2);font-weight:900}
 .mpemptyb{margin:26px 0;text-align:center;color:var(--mptx3);font-size:12px;font-weight:800;line-height:1.7}
@@ -1097,6 +1114,16 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mptoast[hidden]{display:none}
 .mps.mid .mptoast{background:rgba(237,241,246,.97);color:#0f172a;box-shadow:0 10px 26px rgba(15,23,42,.2)}
 .mps.light .mptoast{background:rgba(249,250,251,.97);color:#111c30;box-shadow:0 10px 26px rgba(16,32,64,.16)}
+/* 📱 세로 모드 안내 토스트 — 3.5초 뒤 자동으로 사라지고, 가로로 돌리면 즉시 숨김. 화면 높이를 차지하지 않습니다 */
+.mps .mprot{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:275;
+  max-width:90vw;padding:9px 15px;border-radius:14px;
+  background:rgba(6,20,18,.95);border:1px solid rgba(51,224,196,.65);color:#d9fff8;
+  font-size:11.5px;font-weight:800;line-height:1.45;text-align:center;word-break:keep-all;
+  box-shadow:0 10px 26px rgba(0,0,0,.45);pointer-events:none;animation:mprotIn .18s ease-out}
+.mps .mprot[hidden]{display:none}
+.mps.mid .mprot{background:rgba(237,241,246,.97);border-color:rgba(13,148,136,.55);color:#0b3d36;box-shadow:0 10px 26px rgba(15,23,42,.2)}
+.mps.light .mprot{background:rgba(249,250,251,.97);border-color:rgba(10,156,134,.5);color:#0b3d36;box-shadow:0 10px 26px rgba(16,32,64,.16)}
+@keyframes mprotIn{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 /* 중간 · 밝은 테마 — 밝은 바탕에서도 읽히도록 금색·붉은색·손잡이 대비 보정 */
 .mps.mid .mpsc .rec .d,.mps.light .mpsc .rec .d,
 .mps.mid .mpg tr.tot .bd.d,.mps.light .mpg tr.tot .bd.d,
@@ -1112,7 +1139,7 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mps.light .mprl li .rc.n3{border-color:rgba(194,38,63,.4);background:rgba(194,38,63,.08)}
 .mps.mid .mprl li .rc,.mps.light .mprl li .rc{background:rgba(15,23,42,.05)}
 
-/* 가로모드·전체화면 — 한 화면(100dvh)에 점수표 + 명단 (좌: 점수표·순위 / 우: 명단) */
+/* 가로모드·전체화면 — 한 화면(100dvh)에 점수표 + 팀 순위 / 명단 표 (리버스 양식: 좌 점수표 · 우 명단) */
 .mpleft,.mpright{min-width:0}
 @media (orientation:landscape){
   .mpbar{padding:3px 8px;min-height:34px}
@@ -1120,85 +1147,128 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   .mpbarT span{font-size:8px}
   .mic{height:26px;min-width:26px;font-size:11px}
   .mic.set{font-size:10px}
-  .mpbody{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:8px;
-    align-items:start;overflow:hidden;padding:4px 9px 5px}
-  .mpnote{display:block}
+  .mpbody{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:7px;
+    align-items:start;overflow:hidden;padding:4px 8px 5px}
   .mpleft,.mpright{max-height:100%;overflow:auto;scrollbar-width:none}
   .mpleft::-webkit-scrollbar,.mpright::-webkit-scrollbar{display:none}
-  .mpsum{grid-template-columns:repeat(3,1fr);gap:4px;margin:0 0 4px}
-  .mpsum.two{grid-template-columns:repeat(2,1fr)}
-  .mpsc{padding:3px 5px;border-radius:8px}
-  .mpsc .h{font-size:10.5px}
-  .mpsc .rec{font-size:calc(12px * var(--mpx));margin-top:0}
-  .mpsc .df{font-size:8px}
+  .mpsum{gap:3px;margin:4px 0 0}
+  .mpsc{padding:2px 4px;border-radius:6px;border-top-width:2px}
+  .mpsc .h{font-size:9.5px}
+  .mpsc .h .rk{font-size:7px}
+  .mpsc .rec{font-size:calc(10.5px * var(--mpx))}
+  .mpsc .df{font-size:7px}
   .mpsc .ex{display:none}
   .mpg{border-spacing:2px}
-  .mpg thead th{padding:1px 2px;border-radius:6px}
-  .mpg .g1 .tn{font-size:9.5px;font-weight:900}
-  .mpg .g2 button{width:15px;height:12px;font-size:7.5px}
-  .mpg .qh .qhbox{flex-direction:row;gap:1px}
-  .mpg .qh1{gap:0}
-  .mpg .qh2 button{width:13px;height:11px}
-  .mpg td{padding:1px 2px;border-radius:6px}
-  .mpsc2 input{flex:0 0 32px;width:32px;height:20px;font-size:10.5px;border-radius:5px}
-  .mpsc2.two input{flex:0 0 32px;width:32px}
-  .mpsc2{justify-content:center;gap:5px}
-  .mpsc2 .tl{flex:0 1 auto;max-width:58%;font-size:8.5px;gap:2px}
-  .mpsc2 .tl .dot{width:7px;height:7px}
-  .mprestl{font-size:7.5px;margin-top:1px;gap:2px}
-  .mpg .qh{width:30px}
-  .mpg .qh2 button{width:14px;height:11px;font-size:7px}
-  .mpg tr.tot .tv{font-size:10.5px}
-  .mpg tr.tot .bd{font-size:7px}
-  .mpnote{font-size:calc(7px * var(--mpx));line-height:1.25;margin:2px 1px 0}
-  .mpg .mpdrag{width:8px;font-size:8px}
-  .mprosters{grid-template-columns:repeat(3,1fr);gap:5px;margin:0}
-  .mprosters.two{grid-template-columns:repeat(2,1fr)}
-  .mprosters .mprt:last-child:nth-child(odd){grid-column:auto}
-  .mprt{padding:5px;border-radius:8px}
-  .mprt .rh{margin:0 0 3px}
-  .mprt .rh .nm{font-size:11.5px}
-  .mprt .rb{min-height:17px;font-size:7.5px;padding:1px 3px;margin:0 0 4px;border-radius:5px}
-  .mprt .pick{display:block;font-size:calc(7px * var(--mpx));margin:-2px 0 3px;line-height:1.25}
-  .mprl{gap:0;border:1px solid var(--mpline);border-radius:5px;overflow:hidden}
-  .mprl li{border:0;border-radius:0;border-bottom:1px solid var(--mpline);padding:1px 3px;background:transparent}
-  .mprl li:last-child{border-bottom:0}
-  .mprl li .nm{font-size:calc(9.5px * var(--mpx))}
-  .mprl li .no{font-size:8px;min-width:9px}
-  .mprl li .rc{height:14px;min-width:18px;font-size:7px;border-radius:3px}
-  .mprl li .k{font-size:6.5px}
-  .mprl li .mpdrag{width:7px;font-size:7px}
+  .mpg thead th.mh{padding:2px 2px 1px;border-radius:6px}
+  .mpg .tm{font-size:8.5px;padding:0 3px;gap:2px}
+  .mpg .tm .dot{width:6px;height:6px}
+  .mpg .vs{font-size:7px}
+  .mpg .g2 button{width:14px;height:11px;font-size:7px}
+  .mpg .qh{width:26px;font-size:8px}
+  .mpg .qh .ql{font-size:8px}
+  .mpg .qh2{padding:1px}
+  .mpg .gh{width:28px}
+  .mpg td{padding:2px;border-radius:5px}
+  .mpsc2{gap:2px}
+  .mpsc2 input{height:21px;font-size:11.5px;border-radius:5px}
+  .mpsc2 .cl{font-size:9px}
+  .cum{font-size:6.5px;min-height:7px}
+  .mprestl{font-size:6.5px;margin:0 0 1px;gap:2px}
+  .mpg .tv{font-size:10.5px}
+  .mpg .bd{font-size:6.5px}
+  .mpgcap{margin:0 0 2px;font-size:8.5px}
+  .mpgcap .cap2{font-size:7px}
+  .mprosters{--pgrh:21px;gap:2px}
+  .mprshead,.mprsbody{gap:2px;grid-template-columns:18px repeat(var(--nt,3),minmax(0,1fr))}
+  .mpnrh{height:20px;font-size:6.5px}
+  .mpth{height:20px;padding:0 3px;gap:2px;border-radius:5px}
+  .mpth b{font-size:9px}
+  .mpth .dot{width:6px;height:6px}
+  .mpth .mpct{font-size:6.5px}
+  .mpasg{height:14px;font-size:6.5px;padding:0 3px;border-radius:4px}
+  .mprows{gap:2px}
+  .mprsnum{gap:2px}
+  .mprsnum span{font-size:7px}
+  .mprow{gap:1px;padding:0 2px;border-radius:4px}
+  .mprow .pgnm{font-size:calc(9px * var(--mpx))}
+  .mprow .k{font-size:6px}
+  .mprow .mpirc{height:13px;min-width:19px;font-size:6.5px;border-radius:3px}
+  .mppick{width:11px;height:11px;font-size:6px}
+  .mpassignhint{font-size:7px;padding:2px 4px;border-radius:5px}
 }
 /* 가로모드 + 넉넉한 높이(PC·태블릿) — 같은 분할 배치에 크기만 키움 */
 @media (orientation: landscape) and (min-height: 620px){
   .mps{--mpx:1.06}
-  .mpbody{max-width:1180px}
+  .mpbody{max-width:1240px;gap:10px}
   .mpbar{min-height:42px}
   .mpbarT b{font-size:14px}
   .mic{height:30px;min-width:30px;font-size:12px}
   .mic.set{font-size:11px}
-  .mpsc{padding:5px 7px}
-  .mpsc .h{font-size:12px}
-  .mpsc .rec{font-size:calc(15px * var(--mpx))}
-  .mpsc .df{font-size:9px}
-  .mpg thead th{padding:3px}
-  .mpg .g1 .tn{font-size:11.5px;font-weight:900}
-  .mpg .g2 button{width:18px;height:14px;font-size:8.5px}
+  .mpsc{padding:4px 6px}
+  .mpsc .h{font-size:11px}
+  .mpsc .rec{font-size:calc(13px * var(--mpx))}
+  .mpsc .df{font-size:8px}
+  .mpg thead th.mh{padding:3px 3px 2px}
+  .mpg .tm{font-size:10px;padding:0 4px}
+  .mpg .g2 button{width:16px;height:13px;font-size:8px}
   .mpg td{padding:3px}
-  .mpsc2 input{flex:0 0 38px;width:38px;height:26px;font-size:12.5px}
-  .mpsc2.two input{flex:0 0 36px;width:36px}
-  .mpsc2 .tl{font-size:10px}
-  .mprestl{font-size:8.5px}
-  .mpg .qh{width:34px}
-  .mpg .qh2 button{width:15px;height:13px;font-size:8px}
-  .mpg tr.tot .tv{font-size:13px}
-  .mprt{padding:7px}
-  .mprt .rh .nm{font-size:13px}
-  .mprt .rb{min-height:22px;font-size:9px;padding:2px 4px}
-  .mprl li{padding:3px 4px}
-  .mprl li .nm{font-size:calc(11px * var(--mpx))}
-  .mprl li .rc{height:17px;min-width:22px;font-size:8px}
-  .mpnote{font-size:9px;line-height:1.4;margin:5px 1px 0}
+  .mpsc2 input{height:26px;font-size:14px}
+  .cum{font-size:8px;min-height:9px}
+  .mprestl{font-size:7.5px}
+  .mpg .qh{width:30px;font-size:9px}
+  .mpg .qh .ql{font-size:9px}
+  .mpg .tv{font-size:12px}
+  .mpg .bd{font-size:7.5px}
+  .mprosters{--pgrh:26px}
+  .mprshead,.mprsbody{gap:3px;grid-template-columns:22px repeat(var(--nt,3),minmax(0,1fr))}
+  .mpnrh,.mpth{height:24px}
+  .mpth b{font-size:11px}
+  .mprow{padding:0 3px}
+  .mprow .pgnm{font-size:calc(11px * var(--mpx))}
+  .mprow .mpirc{height:16px;min-width:22px;font-size:8px}
+  .mpassignhint{font-size:8.5px}
+}
+/* 큰 화면(PC·태블릿 가로) — 같은 배치에 크기만 키워 빈 공간을 줄입니다 */
+@media (orientation: landscape) and (min-width: 1000px){
+  .mpbody{gap:12px;padding:9px 14px 11px}
+  .mpg{border-spacing:4px}
+  .mpg thead th.mh{padding:5px 5px 4px;border-radius:9px}
+  .mpg .tm{font-size:calc(13.5px * var(--mpx));padding:0 7px;gap:5px}
+  .mpg .tm .dot{width:9px;height:9px}
+  .mpg .vs{font-size:calc(10.5px * var(--mpx))}
+  .mpg .g2 button{width:22px;height:18px;font-size:calc(10px * var(--mpx));border-radius:5px}
+  .mpg .qh{width:42px;font-size:calc(13px * var(--mpx))}
+  .mpg .qh .ql{font-size:calc(13px * var(--mpx))}
+  .mpg .qh2{padding:4px 2px}
+  .mpg .gh{width:46px}
+  .mpg .gh .ggname{font-size:calc(13px * var(--mpx))}
+  .mpg .gh .gbtn button{width:18px;height:15px;font-size:calc(9px * var(--mpx))}
+  .mpg td{padding:5px;border-radius:9px}
+  .mpsc2{gap:5px}
+  .mpsc2 input{height:calc(42px * var(--mpx));font-size:calc(25px * var(--mpx));border-radius:8px}
+  .mpsc2 .cl{font-size:calc(17px * var(--mpx))}
+  .cum{font-size:calc(11.5px * var(--mpx));min-height:14px;margin-top:2px}
+  .mprestl{font-size:calc(10.5px * var(--mpx));margin:0 0 3px;gap:4px}
+  .mpg .tv{font-size:calc(19px * var(--mpx))} .mpg .bd{font-size:calc(11.5px * var(--mpx))}
+  .mpgcap{margin:0 0 6px;font-size:calc(13px * var(--mpx))} .mpgcap .cap2{font-size:calc(10.5px * var(--mpx))}
+  .mpsum{gap:7px;margin:9px 0 0}
+  .mpsc{padding:6px 9px;border-radius:10px}
+  .mpsc .h{font-size:calc(14.5px * var(--mpx))} .mpsc .h .rk{font-size:calc(11px * var(--mpx));padding:0 6px}
+  .mpsc .rec{font-size:calc(20px * var(--mpx))} .mpsc .df{font-size:calc(11.5px * var(--mpx))}
+  .mprosters{--pgrh:calc(42px * var(--mpx));gap:4px}
+  .mprshead,.mprsbody{grid-template-columns:32px repeat(var(--nt,3),minmax(0,1fr));gap:4px}
+  .mpnrh,.mpth{height:calc(38px * var(--mpx))}
+  .mpnrh{font-size:calc(10px * var(--mpx))}
+  .mpth{padding:0 6px;gap:5px}
+  .mpth b{font-size:calc(14.5px * var(--mpx))} .mpth .mpct{font-size:calc(11px * var(--mpx))} .mpth .dot{width:9px;height:9px}
+  .mpasg{height:calc(25px * var(--mpx));font-size:calc(11px * var(--mpx));padding:0 7px}
+  .mprows,.mprsnum{gap:4px}
+  .mprsnum span{font-size:calc(12px * var(--mpx))}
+  .mprow{padding:0 6px;gap:4px;border-radius:8px}
+  .mprow .pgnm{font-size:calc(15px * var(--mpx))} .mprow .k{font-size:calc(9.5px * var(--mpx))}
+  .mprow .mpirc{height:calc(25px * var(--mpx));min-width:34px;font-size:calc(12px * var(--mpx));border-radius:7px}
+  .mppick{width:18px;height:18px;font-size:calc(10px * var(--mpx))}
+  .mpassignhint{font-size:calc(11.5px * var(--mpx));padding:5px 8px}
 }
 /* 화면 잠금 · 인쇄 페이지 */
 body.mp-open{overflow:hidden}
@@ -1800,33 +1870,37 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
   <div class="mpset" id="mpSet" hidden>
     <div class="bd" data-mpsetclose></div>
     <div class="pn" role="dialog" aria-modal="true" aria-labelledby="mpSetT">
-      <div class="ph"><b id="mpSetT">⚙️ 설정</b><button type="button" class="x2" data-mpsetclose aria-label="설정 닫기">✕</button></div>
-      <div class="row"><span class="k">🌓 테마</span>
+      <div class="ph"><b id="mpSetT">⚙️ 설정</b><span class="phs" id="mpSetSub"></span><button type="button" class="x2" data-mpsetclose aria-label="설정 닫기">✕</button></div>
+      <div class="row"><span class="k">테마</span>
         <div class="seg" id="mpSetTheme">
-          <button type="button" data-mptheme="dark">어두운</button>
-          <button type="button" data-mptheme="mid">중간</button>
-          <button type="button" data-mptheme="light">밝은</button>
+          <button type="button" data-mptheme="dark">🌙 어두운</button>
+          <button type="button" data-mptheme="mid">🌤 중간</button>
+          <button type="button" data-mptheme="light">☀️ 밝은</button>
         </div></div>
-      <div class="row"><span class="k">🔎 글씨 크기</span>
+      <div class="row"><span class="k">화면</span>
         <div class="seg" id="mpSetFont">
-          <button type="button" data-mpfont="small">작게</button>
-          <button type="button" data-mpfont="normal">보통</button>
-          <button type="button" data-mpfont="large">크게</button>
+          <button type="button" data-mpfont="small">글씨 작게</button>
+          <button type="button" data-mpfont="normal">글씨 보통</button>
+          <button type="button" data-mpfont="large">글씨 크게</button>
+          <button type="button" class="tog" id="mpSetWake" aria-pressed="true">🔆 화면꺼짐 방지 ON</button>
         </div></div>
-      <div class="row"><span class="k">🔆 화면꺼짐 방지</span>
-        <button type="button" class="tog" id="mpSetWake" aria-pressed="true">ON</button></div>
-      <div class="row"><span class="k">🧮 쿼터</span>
+      <div class="row"><span class="k">쿼터</span>
         <div class="seg" id="mpSetQ">
           <button type="button" data-mpq2="3">1~3Q</button>
           <button type="button" data-mpq2="4">1~4Q</button>
         </div></div>
-      <div class="acts">
-        <button type="button" data-mpctl="print" id="mpPrintBtn">🖨️ A4 인쇄하기</button>
-        <button type="button" data-mpctl="photo" id="mpPhotoBtn">📸 사진 저장</button>
-        <button type="button" class="wide" id="mpSetEdit">✏️ 매치 프리뷰 수정하기</button>
-        <button type="button" class="wide" id="mpSetRestore">🧩 매치 프리뷰 초기화 (서버 정본 복원)</button>
-        <button type="button" class="wide danger" data-mpctl="reset" id="mpResetBtn">🔄 전체 초기화</button>
-      </div>
+      <div class="row"><span class="k">내보내기</span>
+        <div class="seg">
+          <button type="button" data-mpctl="print" id="mpPrintBtn">🖨️ A4 인쇄</button>
+          <button type="button" data-mpctl="photo" id="mpPhotoBtn">📸 사진 저장</button>
+          <button type="button" id="mpSetEdit">✏️ 매치 프리뷰 수정</button>
+        </div></div>
+      <div class="row"><span class="k">기록</span>
+        <div class="seg">
+          <button type="button" class="danger" data-mpctl="reset" id="mpResetBtn">🔄 전체 초기화</button>
+          <button type="button" class="danger" id="mpSetRestore">🧩 매치 프리뷰 초기화 (서버 정본 복원)</button>
+        </div></div>
+      <p class="mpsnote" id="mpSetNote"></p>
     </div>
   </div>
   <div class="mpcf" id="mpConfirm" hidden>
@@ -1836,6 +1910,7 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     </div>
   </div>
   <div class="mptoast" id="mpToast" hidden></div>
+  <div class="mprot" id="mpRotToast" hidden role="status" aria-live="polite"></div>
 </div>
 <div class="mpprint" id="mpPrint" aria-hidden="true"></div>
 
@@ -3184,6 +3259,9 @@ function closeNav() {
    형태로 추가하면 팝업에 날짜순(최신순)으로 그대로 나타납니다. */
 const CHANGELOG = [
   { date: '2026-11-27', tag: '기능', items: [
+    '📱 <b>경기 진행 세로 모드 안내</b> — 세로로 열면(또는 세로로 돌리면) <b>가로 모드에 최적화</b> 안내 토스트가 3.5초간 뜨고 자동으로 사라집니다. 가로로 돌리면 즉시 숨김(화면 높이를 차지하지 않음)',
+    '<b>경기 진행 UI를 리버스 양식으로 통일</b> — 점수 칸을 좌우 <b>[ ] : [ ]</b> 큰 박스로(아래 <b>누적</b> 표시), 팀 순위 카드는 <b>합계 행 아래</b>로, 명단은 <b>번 열 + 팀 열 표</b>(드래그·이름·0회 버튼)로, 긴 안내문은 <b>⚙️ 설정</b> 안으로 이동',
+    '<b>⚙️ 설정 시트도 리버스 양식</b> — 테마 · 화면(글씨·화면꺼짐 방지) · 쿼터 · 내보내기 · 기록 순서의 라벨/버튼 줄 + 하단 안내문구',
     '<b>🏀 경기진행패치</b> — 상단 히어로 <b>📝 매치 프리뷰</b> 버튼으로 3파전·2파전 인원을 직접 구성하고, 등록한 카드에서 <b>🏀 경기 진행하기</b>로 실전 기록지 화면에 들어갑니다',
     '🤝 짝꿍 승률 계산기 · ⚖️ 팀 구성 추천 결과에서 <b>📝 매치 프리뷰 등록하기</b>로 구성된 팀·인원을 바로 연동 (이 기기에만 저장)',
     '경기 진행 — 점수 칸 직접 입력(팀별 승·무·패·득실·우승 자동 계산), 매치업 열 드래그·◀▶ 순서(쿼터는 1Q→4Q 고정으로 칸을 더 넓게), 명단 순서 드래그, 🌓 테마(어두운·중간·밝은) · 🔎 글씨 크기(기본 크게) · ⛶ 전체화면 · 🔆 화면꺼짐 방지 · 🖨️ A4 인쇄 · 📸 사진 저장(테마+잉크절약 2장) · 🧩 매치 프리뷰 초기화(서버 정본 복원) · 🔄 전체 초기화(확인 팝업)',,
@@ -5408,10 +5486,11 @@ function mpOpenScreen() {
   s.hidden = false;
   document.body.classList.add('mp-open');
   const wb = $('#mpSetWake');
-  if (wb) { wb.setAttribute('aria-pressed', 'true'); wb.textContent = 'ON'; }
+  if (wb) { wb.setAttribute('aria-pressed', 'true'); wb.textContent = '🔆 화면꺼짐 방지 ON'; }
   mpSetOpen(false);
   mpApplyTheme();
   mpRender();
+  mpRotSync(true);
   mpWake(true);
 }
 function mpCloseScreen() {
@@ -5420,6 +5499,7 @@ function mpCloseScreen() {
   s.hidden = true;
   document.body.classList.remove('mp-open');
   MP_PICK = -1;
+  mpRotHide(); mpRotIn = null;
   mpWake(false);
   if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (e) { } }
   MPFS = false;
@@ -5459,6 +5539,39 @@ function mpToast(t) {
   el.hidden = !t;
   if (t) { clearTimeout(mpToast._t); mpToast._t = setTimeout(function () { el.hidden = true; }, 2600); }
 }
+/* 📱 세로 모드 안내 — 경기 진행 화면이 세로(innerHeight > innerWidth)일 때만 토스트로 3.5초 알립니다.
+   가로로 돌리면 남은 시간을 기다리지 않고 즉시 숨기고, 다시 세로로 돌리면 한 번 더 띄웁니다. */
+const MP_ROT_MSG = '📱 가로 모드에 최적화되어 있습니다 (화면을 가로로 돌려 보세요)';
+let mpRotTimer = 0, mpRotIn = null;
+function mpRotPortrait() { return window.innerWidth > 0 && window.innerHeight > window.innerWidth; }
+function mpRotHide() {
+  const el = $('#mpRotToast');
+  if (el) el.hidden = true;
+  clearTimeout(mpRotTimer); mpRotTimer = 0;
+}
+function mpRotShow() {
+  const el = $('#mpRotToast');
+  if (!el) return;
+  el.textContent = MP_ROT_MSG;
+  el.hidden = false;
+  clearTimeout(mpRotTimer);
+  mpRotTimer = setTimeout(mpRotHide, 3500);
+}
+let mpGridOrient = null;
+function mpRotSync(force) {
+  const s = $('#mpScreen');
+  if (!s || s.hidden) { mpRotIn = null; mpGridOrient = null; mpRotHide(); return; }
+  const portrait = mpRotPortrait();
+  /* 2파전 점수표는 세로=경기 열, 가로=경기 행 — 방향이 바뀌면 다시 그립니다 */
+  if (mpGridOrient === null) mpGridOrient = portrait;
+  else if (mpGridOrient !== portrait) { mpGridOrient = portrait; if (MP.preview) mpRender(); }
+  if (!portrait) { mpRotIn = false; mpRotHide(); return; }
+  if (force === true || mpRotIn !== true) { mpRotIn = true; mpRotShow(); return; }
+  mpRotIn = true;
+}
+window.addEventListener('resize', function () { mpRotSync(); });
+window.addEventListener('orientationchange', function () { mpRotSync(); });
+document.addEventListener('fullscreenchange', function () { mpRotSync(); });
 function mpSumHtml(p, st) {
   const rank = mpRateOrder(p);
   const expOf = {};
@@ -5471,7 +5584,7 @@ function mpSumHtml(p, st) {
     return '<div class="mpsc t-' + esc(t.name) + (st.winner && st.winner.slot === slot ? ' top' : '') + '">'
       + '<div class="h">' + (st.winner && st.winner.slot === slot ? '<span class="cr">우승</span>' : '')
       + '<i class="dot ' + dotCls(t.name) + '" aria-hidden="true"></i><span class="nm">' + esc(t.name) + '</span>'
-      + '<span class="rk" title="예상 순위">' + (posOf[slot] || '-') + '위</span></div>'
+      + '<span class="rk" title="현재 순위">' + (r.gp ? (r.pos || '-') + '위' : '-') + '</span></div>'
       + '<div class="rec"><span class="w">' + r.w + '</span>승 <span class="d">' + r.d + '</span>무 <span class="l">' + r.l + '</span>패</div>'
       + '<div class="df">득실 ' + mpDiffText(r.diff) + ' · ' + r.gp + '경기</div>'
       + '<div class="ex">예상 ' + (ex == null ? '기록 없음' : pct(ex) + '%') + (st.winner && st.winner.slot === slot ? ' · 1위' : '') + '</div>'
@@ -5487,99 +5600,184 @@ function mpTotHtml(p, gi, st) {
   else if (t.a < t.b) { bd = B.name + ' 승'; cls = 'w'; }
   return '<div class="tv">' + t.a + ' : ' + t.b + '</div><span class="bd ' + cls + '">' + esc(bd) + '</span>';
 }
+/* 점수 칸 — 좌우 [ ] : [ ] 나란히 큰 박스 + 아래 누적 (리버스 양식) */
+function mpCumText(p, gi, qi) {
+  let a = null, b = null;
+  const pos = p.qOrder.indexOf(qi);
+  for (let i = 0; i <= pos; i++) {
+    const s = p.scores['g' + gi + 'q' + p.qOrder[i]];
+    if (!s) continue;
+    if (s.a !== '' && s.a != null) a = (a == null ? 0 : a) + (Number(s.a) || 0);
+    if (s.b !== '' && s.b != null) b = (b == null ? 0 : b) + (Number(s.b) || 0);
+  }
+  return (a == null && b == null) ? '' : '누적 ' + (a || 0) + ' : ' + (b || 0);
+}
 function mpCellHtml(p, gi, qi) {
   const g = p.games[gi], A = p.teams[g.a], B = p.teams[g.b];
   const s = p.scores['g' + gi + 'q' + qi] || {};
   const av = s.a == null ? '' : String(s.a), bv = s.b == null ? '' : String(s.b);
-  const ia = 'data-sc="' + gi + ':' + qi + ':a"';
-  const ib = 'data-sc="' + gi + ':' + qi + ':b"';
-  const la = 'aria-label="' + esc(A.name) + ' ' + (qi + 1) + 'Q 점수"';
-  const lb = 'aria-label="' + esc(B.name) + ' ' + (qi + 1) + 'Q 점수"';
+  let rest = '';
   if (p.type === '2') {
     const idx = mpCellIndex(p, gi, qi);
     const ra = mpRestNums((p.order[g.a] || []).length, idx);
     const rb = mpRestNums((p.order[g.b] || []).length, idx);
-    return '<td data-cell="' + gi + ':' + qi + '">'
-      + '<div class="mpsc2 two">'
-      + '<input type="text" inputmode="numeric" ' + ia + ' value="' + esc(av) + '" placeholder="–" ' + la + '>'
-      + '<span class="cl">:</span>'
-      + '<input type="text" inputmode="numeric" ' + ib + ' value="' + esc(bv) + '" placeholder="–" ' + lb + '>'
-      + '</div>'
-      + '<div class="mprestl">'
-      + '<span class="g"><i class="dot ' + dotCls(A.name) + '"></i>휴식 ' + (ra.length ? ra.join('·') : '없음') + '</span>'
-      + '<span class="sep">/</span>'
-      + '<span class="g">' + (rb.length ? rb.join('·') : '없음') + '</span></div>'
-      + '</td>';
+    const same = ra.length === rb.length && ra.join(',') === rb.join(',');
+    rest = '<div class="mprestl">' + (same
+      ? '휴식 ' + (ra.length ? '<b>' + ra.join('·') + '</b>' : '없음')
+      : '<span class="g"><i class="dot ' + dotCls(A.name) + '"></i>' + (ra.length ? ra.join('·') : '없음') + '</span>'
+        + '<span class="sep">/</span>'
+        + '<span class="g"><i class="dot ' + dotCls(B.name) + '"></i>' + (rb.length ? rb.join('·') : '없음') + '</span>')
+      + '</div>';
   }
-  return '<td data-cell="' + gi + ':' + qi + '">'
-    + '<div class="mpsc2"><span class="tl"><i class="dot ' + dotCls(A.name) + '"></i><span>' + esc(A.name) + '</span></span>'
-    + '<input type="text" inputmode="numeric" ' + ia + ' value="' + esc(av) + '" placeholder="–" ' + la + '></div>'
-    + '<div class="mpsc2"><span class="tl"><i class="dot ' + dotCls(B.name) + '"></i><span>' + esc(B.name) + '</span></span>'
-    + '<input type="text" inputmode="numeric" ' + ib + ' value="' + esc(bv) + '" placeholder="–" ' + lb + '></div>'
+  return '<td class="mpcell" data-cell="' + gi + ':' + qi + '">' + rest
+    + '<div class="mpsc2">'
+    + '<input type="text" inputmode="numeric" data-sc="' + gi + ':' + qi + ':a" value="' + esc(av)
+    + '" placeholder="–" aria-label="' + esc(A.name) + ' ' + (qi + 1) + 'Q 점수">'
+    + '<span class="cl">:</span>'
+    + '<input type="text" inputmode="numeric" data-sc="' + gi + ':' + qi + ':b" value="' + esc(bv)
+    + '" placeholder="–" aria-label="' + esc(B.name) + ' ' + (qi + 1) + 'Q 점수">'
+    + '</div>'
+    + '<div class="cum" data-cum="' + gi + ':' + qi + '">' + mpCumText(p, gi, qi) + '</div>'
     + '</td>';
 }
-function mpRosterList(p, slot) {
+/* 명단 행 — 드래그 핸들 + 이름 + (3파전) 휴식 횟수 버튼 + (순서 지정 중) 번호 배지 */
+function mpRosterCol(p, slot) {
   const t = p.teams[slot];
-  const ord = p.order[slot] || [];
   const byName = {};
   t.players.forEach(function (x) { byName[x.name] = x; });
-  return ord.filter(function (n) { return byName[n]; }).map(function (n) {
-    const pl = byName[n];
-    const no = p.type === '3' ? (p.restNo[slot] || {})[n] : ord.indexOf(n) + 1;
+  const ord = (p.order[slot] || []).filter(function (n) { return byName[n]; });
+  const on = MP_PICK === slot;
+  return ord.map(function (n, i) {
+    const pl = byName[n] || { name: n };
     const rc = p.type === '3' ? ((p.rest[slot] || {})[n] || 0) : 0;
+    const pick = on ? (p.type === '3' ? ((p.restNo[slot] || {})[n] || 0) : i + 1) : 0;
     const k = pl.kind === 'guest' ? '<span class="k">G</span>' : pl.kind === 'fake' ? '<span class="k">가상</span>' : '';
-    return '<li data-prow="' + slot + '|' + esc(n) + '">'
-      + '<span class="mpdrag" data-dragp="' + slot + '|' + esc(n) + '" role="button" aria-label="명단 순서 드래그">⋮⋮</span>'
-      + '<span class="no' + (no ? ' has' : '') + '">' + (no || '–') + '</span>'
-      + '<span class="nm">' + esc(n) + '</span>' + k
+    return '<div class="mprow" data-prow="' + slot + '|' + esc(n) + '">'
+      + '<span class="mpdrag" data-dragp="' + slot + '|' + esc(n) + '" role="button" aria-label="명단 순서 드래그">⠿</span>'
+      + '<span class="pgnm">' + esc(n) + '</span>' + k
       + (p.type === '3'
-        ? '<button type="button" class="rc' + (rc ? ' n' + rc : '') + '" data-rest="' + slot + '|' + esc(n) + '" aria-label="' + esc(n) + ' 휴식 횟수 ' + rc + '회" title="휴식 횟수 (누르면 0→1→2→3→0)">' + rc + '회</button>'
+        ? '<button type="button" class="mpirc' + (rc ? ' n' + rc : '') + '" data-rest="' + slot + '|' + esc(n) + '" aria-label="' + esc(n) + ' 휴식 횟수 ' + rc + '회" title="휴식 횟수 (누르면 0→1→2→3→0)">' + rc + '회</button>'
         : '')
-      + '</li>';
+      + (on ? '<span class="mppick' + (pick ? ' on' : '') + '">' + (pick || '·') + '</span>' : '')
+      + '</div>';
   }).join('');
 }
+/* 명단 — 종이 기록지형 표: 왼쪽 번 열 + 팀별 열, 카드에 드래그·이름·0회 버튼 */
 function mpRosterHtml(p) {
-  return '<div class="mprosters' + (p.type === '2' ? ' two' : '') + '">' + p.tOrder.map(function (slot) {
-    const t = p.teams[slot];
-    const waiting = MP_PICK === slot;
-    const done = p.type === '3'
-      ? t.players.filter(function (x) { return (p.restNo[slot] || {})[x.name]; }).length
-      : (p.order[slot] || []).length;
-    return '<section class="mprt t-' + esc(t.name) + '" data-rt="' + slot + '">'
-      + '<div class="rh"><i class="dot ' + dotCls(t.name) + '"></i><span class="nm">' + esc(t.name) + '</span>'
-      + '<span class="ct">' + t.players.length + '명</span></div>'
-      + '<button type="button" class="rb" data-prd="' + slot + '" aria-pressed="' + (waiting ? 'true' : 'false') + '">'
-      + (waiting ? '정하기 완료' : t.name + ' 휴식 순서 정하기') + '</button>'
-      + (waiting ? '<div class="pick">명단을 차례로 누르면 1번부터 번호가 붙습니다. (' + done + '/' + t.players.length + ')</div>' : '')
-      + '<ul class="mprl">' + mpRosterList(p, slot) + '</ul></section>';
-  }).join('') + '</div>';
+  const nT = p.tOrder.length;
+  let maxN = 0;
+  p.tOrder.forEach(function (s) { maxN = Math.max(maxN, p.teams[s].players.length); });
+  const head = '<div class="mprshead"><span class="mpnrh">번</span>'
+    + p.tOrder.map(function (slot) {
+      const t = p.teams[slot], on = MP_PICK === slot;
+      return '<div class="mpth t-' + esc(t.name) + '" data-rt="' + slot + '" style="--tone:var(--tc-' + esc(t.name) + ')">'
+        + '<i class="dot ' + dotCls(t.name) + '"></i><b>' + esc(t.name) + '</b>'
+        + '<span class="mpct">' + t.players.length + '명</span>'
+        + '<button type="button" class="mpasg' + (on ? ' on' : '') + '" data-prd="' + slot + '" aria-pressed="' + (on ? 'true' : 'false') + '" aria-label="' + esc(t.name) + ' 휴식 순서 정하기" title="' + esc(t.name) + ' 휴식 순서 정하기">'
+        + (on ? '✓ 지정중' : '순서') + '</button></div>';
+    }).join('') + '</div>';
+  let numHtml = '';
+  for (let i = 1; i <= maxN; i++) numHtml += '<span>' + i + '</span>';
+  const body = '<div class="mprsnum">' + numHtml + '</div>'
+    + p.tOrder.map(function (slot) { return '<div class="mprows" data-rt="' + slot + '">' + mpRosterCol(p, slot) + '</div>'; }).join('');
+  const hint = MP_PICK >= 0
+    ? '<div class="mpassignhint">' + esc(p.teams[MP_PICK].name) + ' 명단을 차례로 누르면 1번부터 번호가 붙습니다 · 다시 누르면 해제 · <b>순서</b> 버튼으로 마칩니다.</div>'
+    : '';
+  return '<div class="mprosters" style="--nt:' + nT + '">' + hint + head + '<div class="mprsbody">' + body + '</div></div>';
 }
-function mpGridHtml(p, st) {
-  const games = p.gOrder;
-  let h = '<table class="mpg"><thead><tr><th class="qh" aria-label="쿼터"></th>';
-  games.forEach(function (gi, col) {
-    const g = p.games[gi], A = p.teams[g.a], B = p.teams[g.b];
-    h += '<th data-gcol="' + gi + '" class="gcol" style="--ta:var(--tc-' + esc(A.name) + ');--tb:var(--tc-' + esc(B.name) + ')"><div class="gh">'
-      + '<div class="g1"><span class="mpdrag" data-dragg="' + gi + '" role="button" aria-label="매치업 순서 드래그">⋮⋮</span>'
-      + (p.type === '2'
-        ? '<span class="tn">' + (col + 1) + '경기</span><span class="vs">' + esc(A.name) + ':' + esc(B.name) + '</span>'
-        : '<i class="dot ' + dotCls(A.name) + '"></i><span class="tn">' + esc(A.name) + '</span>'
-          + '<i class="dot ' + dotCls(B.name) + '"></i><span class="tn">' + esc(B.name) + '</span>')
-      + '</div>'
+function mpMatchupChips(p, gi) {
+  const g = p.games[gi], A = p.teams[g.a], B = p.teams[g.b];
+  return '<span class="tm"><i class="dot ' + dotCls(A.name) + '"></i>' + esc(A.name) + '</span>'
+    + '<i class="vs">VS</i>'
+    + '<span class="tm"><i class="dot ' + dotCls(B.name) + '"></i>' + esc(B.name) + '</span>';
+}
+/* 3파전 — 쿼터(행) × 매치업(열) */
+function mpGrid3(p, st) {
+  const cols = p.gOrder;
+  let head = '<tr><th class="qh corner">쿼터</th>';
+  cols.forEach(function (gi) {
+    const g = p.games[gi];
+    head += '<th class="gcol mh" data-gcol="' + gi + '" style="--ta:var(--tc-' + esc(p.teams[g.a].name) + ');--tb:var(--tc-' + esc(p.teams[g.b].name) + ')">'
+      + '<div class="mpair"><span class="mpdrag" data-dragg="' + gi + '" role="button" aria-label="매치업 순서 드래그">⠿</span>'
+      + mpMatchupChips(p, gi) + '</div>'
       + '<div class="g2"><button type="button" data-gmove="' + gi + ':-1" aria-label="매치업 앞으로">◀</button>'
-      + '<button type="button" data-gmove="' + gi + ':1" aria-label="매치업 뒤로">▶</button></div>'
-      + '</div></th>';
+      + '<button type="button" data-gmove="' + gi + ':1" aria-label="매치업 뒤로">▶</button></div></th>';
   });
-  h += '</tr></thead><tbody>';
+  head += '</tr>';
+  let rows = '';
   p.qOrder.forEach(function (qi) {
-    h += '<tr data-qrow="' + qi + '"><th class="qh">' + (qi + 1) + 'Q</th>';
-    games.forEach(function (gi) { h += mpCellHtml(p, gi, qi); });
-    h += '</tr>';
+    rows += '<tr data-qrow="' + qi + '"><th class="qh qfix"><span class="ql">' + (qi + 1) + 'Q</span></th>';
+    cols.forEach(function (gi) { rows += mpCellHtml(p, gi, qi); });
+    rows += '</tr>';
   });
-  h += '<tr class="tot"><th class="qh">합계</th>';
-  games.forEach(function (gi) { h += '<td data-tot="' + gi + '">' + mpTotHtml(p, gi, st) + '</td>'; });
-  h += '</tr></tbody></table>';
-  return h;
+  let tot = '<tr class="tot"><th class="qh qfix totqh">합계</th>';
+  cols.forEach(function (gi) { tot += '<td class="mptot" data-tot="' + gi + '">' + mpTotHtml(p, gi, st) + '</td>'; });
+  tot += '</tr>';
+  return '<div class="mpgwrap"><table class="mpg"><thead>' + head + '</thead><tbody>' + rows + tot + '</tbody></table></div>';
+}
+/* 2파전 — 경기(행) × 쿼터(열) 한 표 (리버스 양식), 쿼터 칸에 쉬는 순번 자동 표기 */
+function mpGrid2(p, st) {
+  if (window.innerHeight >= window.innerWidth) return mpGrid2Cols(p, st);
+  const cols = p.qOrder;
+  let head = '<tr><th class="qh gh">경기</th>';
+  cols.forEach(function (qi) { head += '<th class="qh2"><span class="ql">' + (qi + 1) + 'Q</span></th>'; });
+  head += '<th class="qh2"><span class="ql">합계</span></th></tr>';
+  let rows = '';
+  p.gOrder.forEach(function (gi, i) {
+    rows += '<tr data-grow="' + gi + '"><th class="gh"><span class="ggname">' + (i + 1) + 'G</span>'
+      + '<span class="gbtn"><button type="button" data-gmove="' + gi + ':-1" aria-label="경기 위로">▲</button>'
+      + '<button type="button" data-gmove="' + gi + ':1" aria-label="경기 아래로">▼</button></span></th>';
+    cols.forEach(function (qi) { rows += mpCellHtml(p, gi, qi); });
+    rows += '<td class="mptot" data-tot="' + gi + '">' + mpTotHtml(p, gi, st) + '</td></tr>';
+  });
+  const g0 = p.games[p.gOrder[0]] || p.games[0];
+  const cap = g0 ? '<div class="mpgcap"><span class="tm"><i class="dot ' + dotCls(p.teams[g0.a].name) + '"></i>'
+    + esc(p.teams[g0.a].name) + '</span><span class="vs">vs</span><span class="tm"><i class="dot '
+    + dotCls(p.teams[g0.b].name) + '"></i>' + esc(p.teams[g0.b].name) + '</span><span class="cap2">· '
+    + cols.length + '쿼터</span></div>' : '';
+  return '<div class="mpgwrap">' + cap + '<table class="mpg g2"><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>';
+}
+function mpGridHtml(p, st) { return p.type === '2' ? mpGrid2(p, st) : mpGrid3(p, st); }
+/* 2파전 세로 화면 — 경기를 열로(가로 스크롤 없이 한눈에) */
+function mpGrid2Cols(p, st) {
+  const cols = p.gOrder;
+  let head = '<tr><th class="qh corner">쿼터</th>';
+  cols.forEach(function (gi, i) {
+    const g = p.games[gi];
+    head += '<th class="gcol mh" data-gcol="' + gi + '" style="--ta:var(--tc-' + esc(p.teams[g.a].name) + ');--tb:var(--tc-' + esc(p.teams[g.b].name) + ')">'
+      + '<div class="mpair"><span class="ggname">' + (i + 1) + 'G</span></div>'
+      + '<div class="g2"><button type="button" data-gmove="' + gi + ':-1" aria-label="경기 앞으로">◀</button>'
+      + '<button type="button" data-gmove="' + gi + ':1" aria-label="경기 뒤로">▶</button></div></th>';
+  });
+  head += '</tr>';
+  let rows = '';
+  p.qOrder.forEach(function (qi) {
+    rows += '<tr data-qrow="' + qi + '"><th class="qh qfix"><span class="ql">' + (qi + 1) + 'Q</span></th>';
+    cols.forEach(function (gi) { rows += mpCellHtml(p, gi, qi); });
+    rows += '</tr>';
+  });
+  let tot = '<tr class="tot"><th class="qh qfix totqh">합계</th>';
+  cols.forEach(function (gi) { tot += '<td class="mptot" data-tot="' + gi + '">' + mpTotHtml(p, gi, st) + '</td>'; });
+  tot += '</tr>';
+  const g0 = p.games[cols[0]] || p.games[0];
+  const cap = g0 ? '<div class="mpgcap"><span class="tm"><i class="dot ' + dotCls(p.teams[g0.a].name) + '"></i>'
+    + esc(p.teams[g0.a].name) + '</span><span class="vs">vs</span><span class="tm"><i class="dot '
+    + dotCls(p.teams[g0.b].name) + '"></i>' + esc(p.teams[g0.b].name) + '</span><span class="cap2">· '
+    + cols.length + '경기 · ' + p.quarters + '쿼터</span></div>' : '';
+  return '<div class="mpgwrap">' + cap + '<table class="mpg"><thead>' + head + '</thead><tbody>' + rows + tot + '</tbody></table></div>';
+}
+function mpSetNoteText(p) {
+  const n = $('#mpSetNote');
+  if (n) {
+    n.innerHTML = '점수 칸을 누르면 숫자를 직접 넣을 수 있고, 승·무·패·득실·우승팀은 자동 계산됩니다. '
+      + '매치업 열은 <b>⠿ 드래그</b>나 ◀▶로, 명단 순서는 <b>⠿ 드래그</b>로 바꿉니다. '
+      + (p.type === '3'
+        ? '<b>0회</b> 버튼을 누르면 휴식 횟수가 0 → 1 → 2 → 3 → 0으로 바뀌고, <b>순서</b> 버튼으로 1번부터 번호를 붙입니다. '
+        : '2파전은 쿼터 칸 위에 그 쿼터에 <b>쉬는 번호</b>가 자동으로 표기됩니다. ')
+      + '인원을 추가·삭제·수정하려면 <b>매치 프리뷰 수정</b>을 이용해 주세요.';
+  }
+  const sub = $('#mpSetSub');
+  if (sub) sub.textContent = p.date + ' · ' + p.type + '파전 · ' + p.quarters + '쿼터';
 }
 function mpRender() {
   const p = MP.preview;
@@ -5589,16 +5787,13 @@ function mpRender() {
   $('#mpGameTitle').textContent = '🏀 ' + p.type + '파전 경기 진행';
   $('#mpGameSub').textContent = p.tOrder.map(function (s) { return p.teams[s].name; }).join(' · ')
     + ' · ' + p.quarters + '쿼터' + (st.played ? ' · 진행 중' : '');
+  mpSetNoteText(p);
   const body = $('#mpBody');
-  body.innerHTML = '<div class="mpleft">'
-    + '<div class="mpsum' + (p.type === '2' ? ' two' : '') + '" id="mpSum">' + mpSumHtml(p, st) + '</div>'
+  body.innerHTML = '<div class="mpleft"><div class="mpfit">'
     + mpGridHtml(p, st)
-    + '<p class="mpnote">점수 칸을 누르면 숫자를 직접 넣을 수 있고, 승·무·패·득실·우승팀은 자동 계산됩니다. '
-    + '매치업 열은 <b>⋮⋮ 드래그</b>나 ◀▶로, 명단 순서는 <b>⋮⋮ 드래그</b>로 바꿉니다. '
-    + (p.type === '3' ? '명단의 <b>회수 버튼</b>을 누르면 휴식 횟수가 0 → 1 → 2 → 3 → 0으로 바뀌고, <b>휴식 순서 정하기</b>로 1번부터 번호를 붙입니다. ' : '')
-    + '인원을 추가·삭제·수정하려면 매치 프리뷰 수정을 이용해 주세요.</p>'
-    + '</div>'
-    + '<div class="mpright">' + mpRosterHtml(p) + '</div>';
+    + '<div class="mpsum' + (p.type === '2' ? ' two' : '') + '" id="mpSum">' + mpSumHtml(p, st) + '</div>'
+    + '</div></div>'
+    + '<div class="mpright"><div class="mpfit">' + mpRosterHtml(p) + '</div></div>';
 }
 function mpPaintTotals() {
   const p = MP.preview;
@@ -5606,6 +5801,10 @@ function mpPaintTotals() {
   const st = mpStandings(p);
   $('#mpSum').innerHTML = mpSumHtml(p, st);
   $$('#mpBody [data-tot]').forEach(function (td) { td.innerHTML = mpTotHtml(p, td.getAttribute('data-tot'), st); });
+  $$('#mpBody [data-cum]').forEach(function (el) {
+    const v = String(el.getAttribute('data-cum')).split(':');
+    el.textContent = mpCumText(p, Number(v[0]), Number(v[1]));
+  });
   const sub = $('#mpGameSub');
   if (sub) sub.textContent = p.tOrder.map(function (s) { return p.teams[s].name; }).join(' · ') + ' · ' + p.quarters + '쿼터' + (st.played ? ' · 진행 중' : '');
 }
@@ -5632,7 +5831,7 @@ function mpCycleRest(slot, name) {
   const li = $('#mpBody [data-rest="' + slot + '|' + name + '"]');
   const prev = $('#mpBody [data-prow="' + slot + '|' + name + '"]');
   const rc = m[name];
-  if (li) { li.textContent = rc + '회'; li.className = 'rc' + (rc ? ' n' + rc : ''); }
+  if (li) { li.textContent = rc + '회'; li.className = 'mpirc' + (rc ? ' n' + rc : ''); }
   else if (prev) { mpRender(); }
 }
 function mpPickRest(slot) {
@@ -5796,7 +5995,7 @@ function mpInit() {
       const on = wb.getAttribute('aria-pressed') !== 'true';
       mpWake(on).then(function () {
         wb.setAttribute('aria-pressed', on ? 'true' : 'false');
-        wb.textContent = on ? 'ON' : 'OFF';
+        wb.textContent = '🔆 화면꺼짐 방지 ' + (on ? 'ON' : 'OFF');
       });
       return;
     }
@@ -5863,8 +6062,8 @@ function mpDragDown(e) {
     kind = 'p';
     const v = h.getAttribute('data-dragp').split('|');
     slot = Number(v[0]);
-    const ul = h.closest('ul');
-    $$('li[data-prow]', ul).forEach(function (li, i) {
+    const ul = h.closest('.mprows');
+    $$('[data-prow]', ul).forEach(function (li, i) {
       rects.push({ el: li, idx: i, r: li.getBoundingClientRect() });
       if (li.getAttribute('data-prow') === v[0] + '|' + v[1]) from = i;
     });

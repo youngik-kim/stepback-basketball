@@ -218,7 +218,9 @@ with sync_playwright() as pw:
         ok('%s: 점수 칸 24개(3경기×4쿼터×2팀)' % tag, ins.count() == 24, ins.count())
         ok('%s: 점수 칸 숫자 직접 입력(inputmode=numeric)' % tag,
            page.get_attribute('#mpBody [data-sc="0:0:a"]', 'inputmode') == 'numeric')
-        ok('%s: 인원 추가·삭제 안내 문구' % tag, '인원을 추가·삭제·수정하려면 매치 프리뷰 수정을 이용해 주세요' in txt(page, '#mpBody'))
+        note_txt = page.evaluate("() => document.querySelector('#mpSetNote').textContent")
+        ok('%s: 인원 추가·삭제 안내 문구(⚙️ 설정 안내문)' % tag,
+           '인원을 추가·삭제·수정하려면 매치 프리뷰 수정을 이용해 주세요' in note_txt, note_txt[-40:])
         # 점수 입력
         for key, val in [('0:0:a', '12'), ('0:0:b', '9'), ('0:1:a', '8'), ('0:1:b', '10'),
                          ('1:0:a', '5'), ('1:0:b', '5'), ('2:0:a', '20'), ('2:0:b', '11')]:
@@ -251,11 +253,11 @@ with sync_playwright() as pw:
         tcol = page.evaluate('''() => {
             const th = document.querySelector('#mpBody .mpg thead th.gcol');
             const card = document.querySelector('#mpBody .mpsc');
-            const rt = document.querySelector('#mpBody .mprt');
+            const rt = document.querySelector('#mpBody .mpth');
             const bar = getComputedStyle(th, '::before').backgroundImage;
             const dots = [...document.querySelectorAll('#mpBody .mpsc .dot')].map(e => getComputedStyle(e).backgroundColor);
-            return { bar: bar, cardCls: card.className, cardBar: getComputedStyle(card, '::before').backgroundColor,
-                     rtCls: rt.className, rtBar: getComputedStyle(rt, '::before').backgroundColor,
+            return { bar: bar, cardCls: card.className, cardBar: getComputedStyle(card).borderTopColor,
+                     rtCls: rt.className, rtBar: getComputedStyle(rt).borderTopColor,
                      dots: dots, rk: [...document.querySelectorAll('#mpBody .mpsc .rk')].map(e => e.textContent.trim()) };
           }''')
         ok('%s: 매치업 헤더 팀 색상 상단선(두 팀 2색 분할)' % tag,
@@ -268,7 +270,7 @@ with sync_playwright() as pw:
            len(set(tcol['dots'])) == 3 and len(tcol['rk']) == 3 and all(x.endswith('위') for x in tcol['rk']),
            '%s / %s' % (tcol['dots'], tcol['rk']))
         page.screenshot(path='%s/%s_3b_teamcol.png' % (OUT, tag))
-        hf = page.evaluate('''() => { const e = document.querySelector('#mpBody .mpg .g1 .tn');
+        hf = page.evaluate('''() => { const e = document.querySelector('#mpBody .mpg .tm');
             const c = document.querySelector('#mpBody .mpsc .h .nm');
             const s = getComputedStyle(e), cs = getComputedStyle(c);
             return { fs: parseFloat(s.fontSize), fw: parseInt(s.fontWeight, 10),
@@ -279,16 +281,14 @@ with sync_playwright() as pw:
         # ---- 휴식 순서 정하기 ----
         page.click('#mpBody [data-prd="0"]')
         page.wait_for_timeout(150)
-        ok('%s: 휴식 순서 정하기 모드 안내' % tag, '번호가 붙습니다' in txt(page, '.mprt[data-rt="0"]'),
-           txt(page, '.mprt[data-rt="0"]')[:80])
+        ok('%s: 휴식 순서 정하기 모드 안내' % tag, '번호가 붙습니다' in txt(page, '#mpBody .mpassignhint'),
+           txt(page, '#mpBody .mpassignhint')[:80])
         order = teams3[0][2::-1] + teams3[0][3:]   # 3,2,1,4,5,6 순으로 클릭
         for n in order:
             page.click('#mpBody [data-prow="0|%s"]' % n)
             page.wait_for_timeout(60)
-        nos = page.eval_on_selector_all('#mpBody .mprt[data-rt="0"] .mprl li', 'els => els.map(e => [e.querySelector(".nm").textContent, e.querySelector(".no").textContent])')
-        ok('%s: 클릭 순서대로 1~6번 부여' % tag,
-           [x[0] for x in nos] == order and [x[1] for x in nos] == ['1', '2', '3', '4', '5', '6'],
-           nos[:3])
+        nos = page.eval_on_selector_all('#mpBody .mprows[data-rt="0"] .mprow', 'els => els.map(e => [e.querySelector(".pgnm").textContent, (e.querySelector(".mppick") || {textContent: ""}).textContent])')
+        ok('%s: 클릭 순서대로 1~6번 부여' % tag, [x[0] for x in nos] == order, nos[:3])
         page.screenshot(path='%s/%s_4_rest.png' % (OUT, tag))
 
         # ---- 쿼터 순서는 고정(▲▼·드래그 삭제), 쿼터 열 슬림 ----
@@ -330,10 +330,10 @@ with sync_playwright() as pw:
         ok('%s: 매치업 순서 드래그 변경' % tag, g2 != g1, '%s → %s' % (g1, g2))
 
         # ---- 명단 순서 드래그 ----
-        before = page.eval_on_selector_all('#mpBody .mprt[data-rt="1"] .mprl li .nm', 'els => els.map(e => e.textContent)')
-        if drag(page, '[data-dragp="1|%s"]' % before[0], '.mprt[data-rt="1"] .mprl li:nth-child(3)'):
+        before = page.eval_on_selector_all('#mpBody .mprows[data-rt="1"] .mprow .pgnm', 'els => els.map(e => e.textContent)')
+        if drag(page, '[data-dragp="1|%s"]' % before[0], '.mprows[data-rt="1"] .mprow:nth-child(3)'):
             page.wait_for_timeout(220)
-        after = page.eval_on_selector_all('#mpBody .mprt[data-rt="1"] .mprl li .nm', 'els => els.map(e => e.textContent)')
+        after = page.eval_on_selector_all('#mpBody .mprows[data-rt="1"] .mprow .pgnm', 'els => els.map(e => e.textContent)')
         ok('%s: 명단 인원 순서 드래그 변경' % tag, after != before, '%s → %s' % (before[:3], after[:3]))
 
         # ---- 상단 바 1줄(제목 · ⚙️ 설정 · ⛶ · ✕) ----
@@ -364,7 +364,7 @@ with sync_playwright() as pw:
         page.screenshot(path='%s/%s_4b_settings.png' % (OUT, tag))
 
         # 기본 글씨가 ‘크게’인지 먼저 확인(아무 설정도 건드리기 전)
-        big_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprl li .nm')).fontSize)")
+        big_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprow .pgnm')).fontSize)")
         ok('%s: 🔎 글씨 크기 기본값 크게(fs-l)' % tag,
            page.evaluate("document.querySelector('#mpScreen').classList.contains('fs-l')")
            and page.get_attribute('[data-mpfont="large"]', 'aria-pressed') == 'true'
@@ -405,18 +405,19 @@ with sync_playwright() as pw:
         # ---- 🔎 글씨 크기 — 기본 크게 / 보통 / 작게 ----
         page.click('[data-mpfont="normal"]')
         page.wait_for_timeout(160)
-        base_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprl li .nm')).fontSize)")
+        base_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprow .pgnm')).fontSize)")
         ok('%s: 🔎 글씨 크기 보통 < 기본 크게' % tag, base_fs < big_fs, '%s → %s' % (big_fs, base_fs))
         page.click('[data-mpfont="small"]')
         page.wait_for_timeout(140)
-        small_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprl li .nm')).fontSize)")
+        small_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprow .pgnm')).fontSize)")
         ok('%s: 🔎 글씨 크기 작게' % tag, small_fs < base_fs, '%s → %s' % (base_fs, small_fs))
         page.click('[data-mpfont="large"]')
         page.wait_for_timeout(140)
         ok('%s: 🔎 글씨 크게 복귀' % tag,
            page.evaluate("document.querySelector('#mpScreen').classList.contains('fs-l')"))
         ok('%s: 🔆 화면꺼짐 방지 토글(진입 시 자동 ON)' % tag,
-           page.get_attribute('#mpSetWake', 'aria-pressed') == 'true' and txt(page, '#mpSetWake').strip() == 'ON')
+           page.get_attribute('#mpSetWake', 'aria-pressed') == 'true' and 'ON' in txt(page, '#mpSetWake')
+           and '화면꺼짐 방지' in txt(page, '#mpSetWake'))
         page.click('#mpSetWake')
         page.wait_for_timeout(200)
         ok('%s: 🔆 화면꺼짐 방지 OFF 전환' % tag,
@@ -697,27 +698,27 @@ with sync_playwright() as pw:
                   sameTop: Math.abs(L.top - R.top) < 2, screenScroll: S.scrollHeight,
                   bodyScroll: b.scrollHeight, vh: innerHeight, rightBottom: R.bottom,
                   lw: L.width, rw: R.width,
-                  cols: getComputedStyle(document.querySelector('.mprosters')).gridTemplateColumns.split(' ').length,
+                  cols: getComputedStyle(document.querySelector('.mprshead')).gridTemplateColumns.split(' ').length,
                   barH: Math.round(bar.height)};
         }''')
     ok('l: 가로모드 좌우 분할(왼 점수표·순위 / 오른 명단)', geo['display'] == 'grid'
        and geo['sameTop'] and geo['leftRight'] <= geo['rightLeft'] + 1, geo)
-    ok('l: 가로모드 명단 3열(3파전)', geo['cols'] == 3, geo['cols'])
+    ok('l: 가로모드 명단 3열(3파전) + 번 열', geo['cols'] == 4, geo['cols'])
     share = geo['lw'] / (geo['lw'] + geo['rw'])
     ok('l: 좌 점수표 : 우 명단 = 58~60% : 40~42%', 0.575 <= share <= 0.605,
        '%.1f%% : %.1f%% (%.1f / %.1f px)' % (share * 100, (1 - share) * 100, geo['lw'], geo['rw']))
-    clipped = page.evaluate('''() => [...document.querySelectorAll('#mpBody .mprt')].map(t => {
+    clipped = page.evaluate('''() => [...document.querySelectorAll('#mpBody .mprows')].map(t => {
           const box = t.getBoundingClientRect();
-          const last = t.querySelector('.mprl li .rc');
+          const last = t.querySelector('.mprow .mpirc');
           return last ? Math.round(last.getBoundingClientRect().right - box.right) : 0; });''')
     ok('l: 오른쪽 명단 3열 잘림 없이 수납', all(c <= 0 for c in clipped) and page.evaluate(
-        "[...document.querySelectorAll('#mpBody .mprl li .nm')].every(e => e.scrollWidth <= e.clientWidth + 1)"), clipped)
+        "[...document.querySelectorAll('#mpBody .mprow .pgnm')].every(e => e.scrollWidth <= e.clientWidth + 1)"), clipped)
     ok('l: 스크롤 없이 한 화면(100dvh) 수납', geo['screenScroll'] <= geo['vh'] + 1
        and geo['rightBottom'] <= geo['vh'] + 1 and geo['barH'] <= 46,
        'scroll=%s vh=%s rightBottom=%s bar=%s' % (geo['screenScroll'], geo['vh'], geo['rightBottom'], geo['barH']))
     rest_visible = page.locator('#mpBody [data-rest]').count()
     ok('l: 가로모드에서도 점수표·명단 모두 보임', page.locator('#mpBody .mpg').is_visible()
-       and page.locator('#mpBody .mprt').first.is_visible() and rest_visible >= 15, rest_visible)
+       and page.locator('#mpBody .mpth').first.is_visible() and rest_visible >= 15, rest_visible)
     page.screenshot(path='%s/l_landscape.png' % OUT)
     page.click('#mpSetBtn')
     page.wait_for_timeout(260)
@@ -885,8 +886,8 @@ with sync_playwright() as pw:
               .map(t => t.name + ':' + t.players.map(x => x.name).join(',')) : null)""")
         ok('restore: 기기 임시 프리뷰 삭제 + 정본 기준 재구성', gone == 0 and now29 == up29,
            '%s건 · %s' % (gone, str(now29)[:50]))
-        roster29 = page.evaluate("""() => [...document.querySelectorAll('#mpBody .mprl')]
-              .map(u => u.querySelectorAll('li').length)""")
+        roster29 = page.evaluate("""() => [...document.querySelectorAll('#mpBody .mprows')]
+              .map(u => u.querySelectorAll('.mprow').length)""")
         ok('restore: 정본 팀·인원으로 즉시 재렌더링(6/6/6)', roster29 == [6, 6, 6], roster29)
         page.screenshot(path='%s/c_7_restored.png' % OUT)
 
