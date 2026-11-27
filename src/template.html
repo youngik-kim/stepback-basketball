@@ -3401,7 +3401,7 @@ function pTogglePick(name) {
   }
   /* 스네이크 초안 → 같은 인원 팀끼리 1:1 교환을 반복해 비용을 낮춥니다(여러 번 시작). */
   function tAssign(names, m, info) {
-    var W = { spread: 1, pos: 2, empty: 1.5, pair: 0.03, ace: 1.2, prod: 8 };
+    var W = { spread: 1, pos: 2, empty: 1.5, pair: 0.03, ace: 3, prod: 8 };
     var N = names.length, sizes = tSizes(N, m), i;
     var known = 0, gsumAll = 0;
     names.forEach(function (n) { var p = info[n]; if (p.gs != null) { known++; gsumAll += p.gs; } });
