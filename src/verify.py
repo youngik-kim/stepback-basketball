@@ -1132,24 +1132,28 @@ with sync_playwright() as p:
         page.wait_for_selector(".hero h1", timeout=8000); page.wait_for_timeout(350)
 
         bb = page.locator("#pairBtn")
-        ok(f"{tag}: 짝꿍·팀 구성 — 히어로 버튼 2개·문구·dialog",
-           bb.count() == 1 and bb.is_visible() and "짝꿍 승률 계산하기" in bb.inner_text()
+        ok(f"{tag}: 히어로 버튼 3개 — 짝꿍 승률 · 팀 구성 · 매치 프리뷰",
+           bb.count() == 1 and bb.is_visible() and "짝꿍 승률" in bb.inner_text()
            and page.get_attribute("#pairBtn", "aria-controls") == "pairModal"
-           and page.locator("#teamBtn").count() == 1 and "팀 구성 추천하기" in page.inner_text("#teamBtn")
-           and page.get_attribute("#teamBtn", "aria-controls") == "teamModal",
+           and page.locator("#teamBtn").count() == 1 and "팀 구성" in page.inner_text("#teamBtn")
+           and page.get_attribute("#teamBtn", "aria-controls") == "teamModal"
+           and page.locator("#mpHeroBtn").count() == 1 and "매치 프리뷰" in page.inner_text("#mpHeroBtn")
+           and page.get_attribute("#mpHeroBtn", "aria-controls") == "mpModal",
            bb.inner_text().replace("\n", " "))
         geo = page.evaluate("""() => {
           const a = document.querySelector('#pairBtn').getBoundingClientRect();
           const b = document.querySelector('#teamBtn').getBoundingClientRect();
+          const c = document.querySelector('#mpHeroBtn').getBoundingClientRect();
           const s = document.querySelector('#heroStats').getBoundingClientRect();
-          const t = document.querySelector('#pairBtn .pbtxt'), u = document.querySelector('#teamBtn .pbtxt');
-          return {h: a.height, w: a.width, w2: b.width, sw: s.width, gap: a.top - s.bottom,
-                  oneLine: t.scrollWidth <= t.clientWidth + 1 && u.scrollWidth <= u.clientWidth + 1,
-                  sameRow: Math.abs(a.top - b.top) < 1, left: a.left, right: b.right};
+          const tx = [...document.querySelectorAll('#pairBtn .pbtxt, #teamBtn .pbtxt, #mpHeroBtn .pbtxt')];
+          return {h: a.height, w: [a.width, b.width, c.width], sw: s.width, gap: a.top - s.bottom,
+                  oneLine: tx.every(t => t.scrollWidth <= t.clientWidth + 1),
+                  sameRow: Math.abs(a.top - b.top) < 1 && Math.abs(b.top - c.top) < 1,
+                  left: a.left, right: c.right};
         }""")
-        ok(f"{tag}: 짝꿍·팀 구성 — 요약 카드 바로 아래 1:1 두 칸·한 줄·잘림 없음",
-           38 <= geo["h"] <= 46 and abs(geo["w"] - geo["w2"]) <= 1.5
-           and abs(geo["w"] * 2 + 6 - geo["sw"]) <= 2 and 0 <= geo["gap"] <= 14
+        ok(f"{tag}: 히어로 3버튼 한 줄 1:1:1·잘림 없음",
+           38 <= geo["h"] <= 46 and max(geo["w"]) - min(geo["w"]) <= 1.5
+           and abs(sum(geo["w"]) + 10 - geo["sw"]) <= 3 and 0 <= geo["gap"] <= 14
            and geo["oneLine"] and geo["sameRow"] and geo["left"] >= 0 and geo["right"] <= vw_, str(geo))
         page.screenshot(path=f"{OUT}/{tag}_pair_btn.png")
 

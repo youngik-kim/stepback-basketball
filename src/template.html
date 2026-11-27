@@ -168,16 +168,19 @@ body.locked .wrap{display:none}
 
 /* ---------- ⚖️ 팀 구성 추천 (3파전·2파전 밸런스 배정) ---------- */
 /* 히어로 요약 카드 바로 아래 — 짝꿍 승률 계산과 1:1 로 나란히 */
-.duobtns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:9px 0 0}
-.duobtns .pairbtn{width:auto;min-width:0;margin:0;padding:0 7px;gap:4px;font-size:11.5px;justify-content:center}
+.duobtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin:9px 0 0}
+.duobtns .pairbtn{width:auto;min-width:0;margin:0;padding:0 6px;gap:3px;font-size:11px;justify-content:center}
 .duobtns .pairbtn .pbtxt{white-space:nowrap;overflow:visible;text-overflow:clip}
 .duobtns .pairbtn .pbarw{margin-left:1px;font-size:13px}
 .pairbtn.teambtn{background:linear-gradient(96deg,#a78bfa,#d8c8ff);color:#140f26;box-shadow:0 6px 16px rgba(167,139,250,.24)}
+.pairbtn.mphbtn{background:linear-gradient(96deg,#ffd166,#ffeab0);color:#1a1405;box-shadow:0 6px 16px rgba(255,209,102,.24)}
+.pairbtn.mphbtn:active{transform:translateY(1px)}
+.pairbtn.mphbtn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(255,209,102,.42)}
 .pairbtn.teambtn:active{transform:translateY(1px)}
 .pairbtn.teambtn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(167,139,250,.42)}
 @media (max-width:400px){
-  .duobtns .pairbtn{font-size:11px;padding:0 5px;gap:3px}
-  .duobtns .pairbtn .pbico{font-size:12px}
+  .duobtns .pairbtn{font-size:10px;padding:0 3px;gap:2px;letter-spacing:-.03em}
+  .duobtns .pairbtn .pbico{font-size:11px}
   .duobtns .pairbtn .pbarw{display:none}
 }
 .tsheet{max-height:90vh}
@@ -740,6 +743,325 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   border:1px solid rgba(51,224,196,.4);background:rgba(51,224,196,.12);color:var(--acc);cursor:pointer}
 .pickbtn[disabled]{opacity:.45;border-color:var(--line);background:rgba(255,255,255,.04);color:var(--tx3)}
 
+/* ================= 경기 진행 패치 (매치 프리뷰 등록 · 경기 진행 기록지) ================= */
+/* ---- 경기 결과 상단 등록 버튼 ---- */
+.mpenrow{display:flex;gap:7px;margin:0 0 9px;flex-wrap:wrap}
+.mpen{flex:1 1 160px;min-width:0;height:40px;border-radius:11px;cursor:pointer;font-family:inherit;
+  font-size:12.5px;font-weight:900;letter-spacing:-.01em;padding:0 10px;white-space:nowrap;
+  border:1px dashed rgba(51,224,196,.55);color:var(--acc);
+  background:linear-gradient(120deg,rgba(51,224,196,.14),rgba(91,156,255,.07))}
+.mpen:active{transform:translateY(1px)}
+.mpen small{font-size:10px;font-weight:800;color:var(--tx3);margin-left:4px}
+/* ---- 등록된 매치 프리뷰 카드 ---- */
+.mpc{border:1px solid rgba(51,224,196,.34);border-radius:16px;padding:11px 12px 12px;margin:0 0 10px;
+  background:linear-gradient(170deg,rgba(51,224,196,.13),rgba(11,17,32,.72) 62%);
+  box-shadow:0 10px 28px rgba(0,0,0,.30)}
+.mpc[hidden]{display:none}
+.mpchd{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 9px}
+.mpctag{font-size:10px;font-weight:900;padding:2.5px 8px;border-radius:6px;color:#04120f;
+  background:linear-gradient(96deg,#33e0c4,#8af2dd);letter-spacing:-.01em}
+.mpcttl{font-size:12px;font-weight:900;letter-spacing:-.02em}
+.mpcd{font-size:10px;color:var(--tx3);font-weight:800;font-variant-numeric:tabular-nums}
+.mpcact{margin-left:auto;display:flex;gap:5px;flex-wrap:wrap}
+.mpcbtn{height:28px;padding:0 9px;border-radius:8px;border:1px solid var(--line2);cursor:pointer;
+  background:rgba(255,255,255,.07);color:var(--tx);font-family:inherit;font-size:10.5px;font-weight:900;white-space:nowrap}
+.mpcbtn.go{border-color:rgba(51,224,196,.6);background:linear-gradient(120deg,rgba(51,224,196,.9),rgba(140,240,216,.9));color:#04120f}
+.mpcbtn:active{transform:translateY(1px)}
+.mpcteams{display:grid;gap:6px;grid-template-columns:repeat(3,1fr)}
+.mpcteams.two{grid-template-columns:repeat(2,1fr)}
+.mpcrow{min-width:0;border:1px solid var(--line);border-radius:11px;padding:7px 8px;background:rgba(255,255,255,.045)}
+.mpcrow.top{border-color:rgba(255,209,102,.5);background:linear-gradient(170deg,rgba(255,209,102,.13),rgba(255,255,255,.03))}
+.mpcrow .h{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:900;min-width:0}
+.mpcrow .h .rk{font-size:9px;font-weight:900;color:var(--gold);flex:0 0 auto}
+.mpcrow .h .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mpcrow .r{font-size:15px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin:2px 0 0}
+.mpcrow .r.none{font-size:11px;color:var(--tx3);font-weight:800;letter-spacing:0}
+.mpcrow .pl{font-size:10px;color:var(--tx2);font-weight:700;margin-top:2px;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all}
+.mpcrow .bar{height:4px;border-radius:4px;background:rgba(255,255,255,.09);overflow:hidden;margin-top:5px}
+.mpcrow .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc))}
+.mpcfoot{font-size:10px;color:var(--tx2);font-weight:800;margin-top:8px;line-height:1.5}
+.mpcfoot b{color:var(--acc)}
+@media (max-width:430px){.mpcteams{grid-template-columns:1fr}.mpcteams.two{grid-template-columns:1fr 1fr}
+  .mpcact{width:100%;margin-left:0}}
+
+.mpdate{display:flex;align-items:center;gap:7px;margin:0 0 9px}
+.mpdate label{font-size:10px;font-weight:900;color:var(--tx3);letter-spacing:.04em}
+.mpdate input{flex:1 1 auto;min-width:0;height:34px;border-radius:9px;border:1px solid var(--line2);
+  background:#0b1119;color:var(--tx);font-family:inherit;font-size:12px;font-weight:800;padding:0 9px;
+  -webkit-appearance:none;appearance:none;font-variant-numeric:tabular-nums}
+.mpdate input:focus{outline:2px solid rgba(51,224,196,.55);outline-offset:0;border-color:var(--acc)}
+/* 매치 프리뷰 이력 (모달 상단) */
+.mphist{margin:0 0 10px;border:1px solid rgba(255,209,102,.32);border-radius:12px;
+  background:linear-gradient(180deg,rgba(255,209,102,.09),rgba(255,255,255,.02));padding:8px 9px}
+.mphist[hidden]{display:none}
+.mphh{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:900;color:var(--gold);letter-spacing:-.01em}
+.mphh .n{margin-left:auto;font-size:9.5px;color:var(--tx3);font-weight:800;letter-spacing:0}
+.mphlist{display:flex;flex-direction:column;gap:5px;margin-top:6px;max-height:34vh;overflow:auto;
+  -webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.mphrow{border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.045);padding:6px 7px;min-width:0}
+.mphrow[open]{border-color:rgba(51,224,196,.5);background:rgba(51,224,196,.07)}
+.mphrow.cur{border-color:rgba(51,224,196,.65);box-shadow:0 0 0 1px rgba(51,224,196,.2) inset}
+.mphrow summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:4px;flex-wrap:wrap;min-width:0}
+.mphrow summary::-webkit-details-marker{display:none}
+.mphrow .d{font-size:11px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.mphrow .tag{font-size:8.5px;font-weight:900;padding:1.5px 5px;border-radius:4px;background:rgba(255,255,255,.09);color:var(--tx2);white-space:nowrap}
+.mphrow .tag.loc{background:rgba(51,224,196,.20);color:var(--acc)}
+.mphrow .tag.site{background:rgba(255,209,102,.20);color:var(--gold)}
+.mphrow .e{font-size:10px;font-weight:800;color:var(--tx2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mphrow .chev{margin-left:auto;font-size:9px;color:var(--tx3);font-weight:900}
+.mphb{margin-top:6px;border-top:1px dashed var(--line);padding-top:6px}
+.mphb table{width:100%;border-collapse:collapse;font-size:9.5px;font-variant-numeric:tabular-nums}
+.mphb th,.mphb td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;font-weight:800}
+.mphb th{color:var(--tx3);font-size:8.5px;font-weight:900}
+.mphb td.num{text-align:right;white-space:nowrap}
+.mphb .hit{color:var(--acc);font-weight:900}
+.mphb .miss{color:var(--amber);font-weight:900}
+.mphb .who{display:flex;align-items:center;gap:4px;min-width:0}
+.mphb .who .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mphb .acts{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.mphb .acts button{height:26px;padding:0 9px;border-radius:7px;border:1px solid var(--line2);cursor:pointer;
+  background:rgba(255,255,255,.06);color:var(--tx2);font-family:inherit;font-size:10px;font-weight:900}
+.mphb .acts button.go{border-color:rgba(51,224,196,.6);background:rgba(51,224,196,.18);color:var(--acc)}
+.mphb .acts button:disabled{opacity:.4;cursor:default}
+.mphb .note{font-size:9px;color:var(--tx3);font-weight:800;margin-top:4px;line-height:1.45}
+.mphb .gline{font-size:9.5px;font-weight:900;color:var(--tx2);margin:0 0 4px}
+/* 경기 결과 카드 안 🔮 매치 프리뷰 배지 */
+.mpwbtn{margin-left:6px;height:22px;padding:0 7px;border-radius:6px;cursor:pointer;vertical-align:middle;
+  border:1px solid rgba(255,209,102,.5);background:rgba(255,209,102,.14);color:var(--gold);
+  font-family:inherit;font-size:9.5px;font-weight:900;white-space:nowrap}
+.mpwbtn:active{transform:translateY(1px)}
+
+/* ---- 매치 프리뷰 등록·수정 시트 ---- */
+#mpModal{z-index:210}
+#mpModal .sheet{max-width:560px}
+.mpsegs{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.mpsegs button{height:36px;border-radius:10px;border:1px solid var(--line2);background:rgba(255,255,255,.05);
+  color:var(--tx2);font-family:inherit;font-size:11.5px;font-weight:900;cursor:pointer}
+.mpsegs button[aria-pressed="true"]{color:#04120f;border-color:transparent;
+  background:linear-gradient(96deg,var(--acc),#8af2dd);box-shadow:0 4px 12px rgba(51,224,196,.22)}
+.mprule{font-size:10px;color:var(--tx3);font-weight:700;line-height:1.55;margin:5px 0 0;word-break:keep-all}
+.mprule b{color:var(--tx2);font-weight:900}
+.mpedit{display:grid;gap:7px;grid-template-columns:repeat(3,1fr);margin:0 0 8px}
+.mpedit.two{grid-template-columns:repeat(2,1fr)}
+.mpteam{border:1px solid var(--line2);border-radius:13px;padding:7px;background:rgba(255,255,255,.04);min-width:0}
+.mpteam.act{border-color:rgba(51,224,196,.65);background:rgba(51,224,196,.10);box-shadow:0 0 0 2px rgba(51,224,196,.12)}
+.mpteam .th{display:flex;align-items:center;gap:3px;margin:0 0 5px}
+.mpteam .mv{width:20px;height:24px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.06);
+  color:var(--tx2);font-family:inherit;font-size:10px;font-weight:900;cursor:pointer;padding:0;flex:0 0 auto}
+.mpteam .mv:disabled{opacity:.3}
+.mpteam select{flex:1 1 auto;min-width:0;height:24px;border-radius:6px;border:1px solid var(--line2);
+  background:#0b1119;color:var(--tx);font-family:inherit;font-size:11px;font-weight:900;padding:0 2px;
+  -webkit-appearance:none;appearance:none;text-align:center;text-align-last:center}
+.mpteam .cnt{display:block;font-size:9.5px;font-weight:900;color:var(--tx3);font-variant-numeric:tabular-nums;
+  text-align:right;margin:0 1px 4px}
+.mpteam .cnt.over{color:var(--red)}
+.mpteam .cnt.ok{color:var(--acc)}
+.mpteam .lst{display:flex;flex-direction:column;gap:3px;min-height:26px}
+.mpteam .who{display:flex;align-items:center;gap:3px;min-width:0;border-radius:6px;padding:2px 3px;
+  background:rgba(255,255,255,.05);font-size:10.5px;font-weight:800}
+.mpteam .who .n{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.02em}
+.mpteam .who .rm{flex:0 0 auto;width:15px;height:15px;border:0;border-radius:4px;background:rgba(255,255,255,.10);
+  color:var(--tx2);font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
+.mpteam .who .k{font-size:8px;font-weight:900;color:var(--amber);flex:0 0 auto}
+.mpteam .emp{font-size:9.5px;color:var(--tx3);font-weight:800;padding:3px 2px}
+.mpteam .rmv{display:block;width:100%;height:24px;margin-top:4px;border-radius:6px;border:0;cursor:pointer;
+  background:rgba(255,255,255,.06);color:var(--tx3);font-family:inherit;font-size:9.5px;font-weight:900}
+.mpmsg{font-size:10.5px;font-weight:800;color:var(--amber);margin:0 0 8px;line-height:1.5}
+.mpmsg[hidden]{display:none}
+.mpmsg.ok{color:var(--acc)}
+.mpfoot{display:flex;gap:6px;margin:10px 0 0}
+.mpfoot button{flex:1 1 0;height:44px;border-radius:12px;border:0;cursor:pointer;font-family:inherit;font-size:13px;font-weight:900}
+.mpSave{background:linear-gradient(120deg,var(--acc),#8af2dd);color:#04120f}
+.mpCancel{background:rgba(255,255,255,.08);color:var(--tx2);border:1px solid var(--line2)!important}
+.mpcapa{font-size:10px;color:var(--tx3);font-weight:700;margin:0 0 6px;display:flex;align-items:center;gap:5px}
+.mpcapa b{color:var(--tx2);font-weight:900}
+
+/* ---- 짝꿍·팀 구성 결과에서 등록 ---- */
+.mpreg2{display:block;width:100%;margin:8px 0 2px;height:38px;border-radius:11px;cursor:pointer;
+  border:1px dashed rgba(51,224,196,.6);background:rgba(51,224,196,.10);color:var(--acc);
+  font-family:inherit;font-size:12px;font-weight:900;letter-spacing:-.01em}
+.mpreg2:active{transform:translateY(1px)}
+
+/* ---- 경기 진행 화면 ---- */
+.mps{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;overflow:hidden;
+  --mpx:1;
+  --mpbg:#080e1a;--mpcard:#111b2e;--mpcard2:#16213a;--mpline:rgba(255,255,255,.11);
+  --mptx:#eef4ff;--mptx2:#a5b6d1;--mptx3:#6d7f9c;--mpin:#0a1120;--mpacc:#33e0c4;--mpsh:rgba(0,0,0,.4);
+  background:var(--mpbg);color:var(--mptx)}
+.mps[hidden]{display:none}
+.mps.light{--mpbg:#eef2f8;--mpcard:#ffffff;--mpcard2:#f3f6fb;--mpline:rgba(16,32,64,.16);
+  --mptx:#111c30;--mptx2:#3f4f6a;--mptx3:#7386a1;--mpin:#ffffff;--mpacc:#0a9c86;--mpsh:rgba(16,32,64,.12)}
+.mps.fs-s{--mpx:.9}
+.mps.fs-l{--mpx:1.14}
+.mpbar{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:9px 12px calc(9px);
+  border-bottom:1px solid var(--mpline);background:var(--mpcard2)}
+.mpbar .cl{width:32px;height:32px;border-radius:9px;border:1px solid var(--mpline);background:transparent;
+  color:var(--mptx2);font-size:14px;cursor:pointer;flex:0 0 auto;line-height:1}
+.mpbarT{flex:1 1 auto;min-width:0}
+.mpbarT b{display:block;font-size:calc(13.5px * var(--mpx));font-weight:900;letter-spacing:-.02em;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.mpbarT span{display:block;font-size:calc(10px * var(--mpx));color:var(--mptx3);font-weight:800;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mpbar .ed{flex:0 0 auto;height:30px;padding:0 9px;border-radius:8px;border:1px solid rgba(51,224,196,.5);
+  background:rgba(51,224,196,.12);color:var(--mpacc);font-family:inherit;font-size:10.5px;font-weight:900;cursor:pointer;white-space:nowrap}
+.mpctrls{flex:0 0 auto;display:flex;gap:5px;padding:7px 12px;overflow-x:auto;border-bottom:1px solid var(--mpline);
+  background:var(--mpcard);scrollbar-width:none}
+.mpctrls::-webkit-scrollbar{display:none}
+.mpctrls button{flex:0 0 auto;height:30px;padding:0 9px;border-radius:8px;border:1px solid var(--mpline);
+  background:var(--mpcard2);color:var(--mptx2);font-family:inherit;font-size:10.5px;font-weight:900;
+  cursor:pointer;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mpctrls button[aria-pressed="true"]{color:var(--mpacc);border-color:rgba(51,224,196,.55);background:rgba(51,224,196,.14)}
+.mpctrls button.danger{color:#ff9a9a;border-color:rgba(255,107,107,.4)}
+.mpbody{flex:1 1 auto;overflow:auto;-webkit-overflow-scrolling:touch;width:100%;max-width:1000px;margin:0 auto;
+  padding:9px 12px calc(22px + env(safe-area-inset-bottom))}
+.mpsum{display:grid;gap:6px;grid-template-columns:repeat(3,1fr);margin:0 0 9px}
+.mpsum.two{grid-template-columns:repeat(2,1fr)}
+.mpsc{border:1px solid var(--mpline);border-radius:11px;padding:7px 8px;background:var(--mpcard);min-width:0}
+.mpsc.top{border-color:rgba(255,209,102,.6);box-shadow:0 0 0 1px rgba(255,209,102,.18) inset}
+.mpsc .h{display:flex;align-items:center;gap:4px;font-size:calc(11px * var(--mpx));font-weight:900;min-width:0}
+.mpsc .h .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mpsc .h .cr{font-size:8.5px;font-weight:900;color:#1a1405;background:var(--gold);border-radius:4px;padding:1px 4px;flex:0 0 auto}
+.mpsc .rec{font-size:calc(16px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:1px;white-space:nowrap}
+.mpsc .rec .w{color:var(--acc)} .mpsc .rec .d{color:var(--gold)} .mpsc .rec .l{color:#ff9a9a}
+.mpsc .df{font-size:calc(9.5px * var(--mpx));color:var(--mptx3);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mpsc .ex{font-size:calc(9px * var(--mpx));color:var(--mptx3);font-weight:800;margin-top:2px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.mpg{width:100%;border-collapse:separate;border-spacing:4px;table-layout:fixed;margin:0 0 4px}
+.mpg th{font-weight:900;color:var(--mptx2);font-size:calc(10px * var(--mpx));letter-spacing:-.02em;padding:0;vertical-align:bottom}
+.mpg thead th{background:var(--mpcard);border:1px solid var(--mpline);border-radius:9px;padding:5px 3px;
+  font-size:calc(10px * var(--mpx));line-height:1.35}
+.mpg .gh{display:flex;flex-direction:column;gap:3px;min-width:0}
+.mpg .g1{display:flex;align-items:center;justify-content:center;gap:3px;min-width:0;flex-wrap:wrap}
+.mpg .g1 .tn{font-size:calc(9.5px * var(--mpx));white-space:normal;line-height:1.2;word-break:keep-all}
+.mpg .g1 .vs{font-size:8px;color:var(--mptx3);font-weight:900}
+.mpg .g2{display:flex;justify-content:center;gap:3px}
+.mpg .g2 button{width:20px;height:17px;border:0;border-radius:4px;background:rgba(255,255,255,.06);
+  color:var(--mptx3);font-family:inherit;font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
+.mps.light .mpg .g2 button{background:rgba(16,32,64,.07)}
+.mpg .qh{background:transparent;border:0;color:var(--mptx3);font-size:calc(9.5px * var(--mpx));width:46px}
+.mpg tr.tot .qh{width:46px}
+.mpg .qh .qhbox{display:flex;align-items:center;justify-content:center;gap:2px}
+.mpg td{border:1px solid var(--mpline);border-radius:9px;background:var(--mpin);padding:4px 3px;vertical-align:middle}
+.mpg td.on{border-color:rgba(51,224,196,.55);box-shadow:0 0 0 1px rgba(51,224,196,.18) inset}
+.mpsc2{display:flex;align-items:center;gap:3px;min-width:0}
+.mpsc2 .tl{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:3px;font-size:calc(9.5px * var(--mpx));
+  font-weight:900;color:var(--mptx2)}
+.mpsc2 .tl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mpsc2.two{justify-content:center;gap:2px}
+.mpsc2 .cl{color:var(--mptx3);font-weight:900;font-size:calc(11px * var(--mpx));flex:0 0 auto}
+.mpsc2 input{flex:0 0 40px;width:40px;height:26px;border-radius:6px;border:1px solid var(--mpline);
+  background:var(--mpcard2);color:var(--mptx);text-align:center;font-family:inherit;
+  font-size:calc(14px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;padding:0;
+  -webkit-appearance:none;appearance:none}
+.mpsc2 input::placeholder{color:var(--mptx3);font-weight:800;opacity:.7}
+.mpsc2 input:focus{outline:2px solid rgba(51,224,196,.6);outline-offset:0;border-color:var(--mpacc)}
+.mpsc2.two input{flex:0 0 36px;width:36px}
+.mpsc2 input::-webkit-outer-spin-button,.mpsc2 input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.mprestl{display:flex;align-items:center;justify-content:center;gap:5px;font-size:calc(8.5px * var(--mpx));
+  font-weight:900;color:var(--gold);line-height:1.3;margin-top:2px;white-space:nowrap}
+.mprestl .g{display:inline-flex;align-items:center;gap:2px}
+.mpg tr.tot td{background:var(--mpcard2);border-color:var(--mpline)}
+.mpg tr.tot .tv{font-size:calc(13px * var(--mpx));font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;white-space:nowrap}
+.mpg tr.tot .bd{display:block;font-size:calc(8.5px * var(--mpx));font-weight:900;color:var(--mptx3);margin-top:1px}
+.mpg tr.tot .bd.w{color:var(--acc)} .mpg tr.tot .bd.l{color:#ff9a9a} .mpg tr.tot .bd.d{color:var(--gold)}
+.mpdrag{display:inline-flex;align-items:center;justify-content:center;width:14px;height:20px;border-radius:4px;
+  color:var(--mptx3);font-size:10px;font-weight:900;cursor:grab;touch-action:none;flex:0 0 auto;letter-spacing:-2px}
+.mpdrag:active{cursor:grabbing}
+.mpnudge{display:inline-flex;gap:1px;flex:0 0 auto}
+.mpnudge button{width:15px;height:18px;border:0;border-radius:4px;background:transparent;color:var(--mptx3);
+  font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
+.mpnudge button:active{background:rgba(255,255,255,.10)}
+.mpdropt{outline:2px dashed rgba(51,224,196,.75);outline-offset:-2px}
+.mprosters{display:grid;gap:7px;grid-template-columns:repeat(3,1fr);margin:10px 0 0}
+@media (max-width:560px){.mprosters{grid-template-columns:repeat(2,1fr)}
+  .mprosters .mprt:last-child:nth-child(odd){grid-column:1/-1}}
+.mprosters.two{grid-template-columns:repeat(2,1fr)}
+.mprt{border:1px solid var(--mpline);border-radius:12px;background:var(--mpcard);padding:7px;min-width:0}
+.mprt .rh{display:flex;align-items:center;gap:4px;margin:0 0 5px;min-width:0}
+.mprt .rh .nm{font-size:calc(11.5px * var(--mpx));font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mprt .rh .ct{font-size:9px;font-weight:900;color:var(--mptx3);flex:0 0 auto}
+.mprt .rb{display:block;width:100%;min-height:24px;margin:0 0 6px;border-radius:7px;border:1px dashed rgba(255,209,102,.55);
+  background:rgba(255,209,102,.10);color:var(--gold);font-family:inherit;font-size:9px;font-weight:900;cursor:pointer;
+  padding:3px 4px;line-height:1.25;white-space:normal;word-break:keep-all}
+.mprt .rb[aria-pressed="true"]{border-style:solid;background:rgba(255,209,102,.9);color:#1a1405}
+.mprt .pick{font-size:8.5px;color:var(--gold);font-weight:900;line-height:1.35;margin:-3px 0 5px;word-break:keep-all}
+.mprl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+.mprl li{display:flex;align-items:center;gap:2px;border-radius:7px;background:var(--mpcard2);
+  border:1px solid var(--mpline);padding:2px 3px;min-width:0}
+.mprl li.sel{border-color:rgba(255,209,102,.7);background:rgba(255,209,102,.14)}
+.mprl li .mpdrag{width:9px;font-size:9px;letter-spacing:-1px}
+.mprl li .no{flex:0 0 auto;min-width:11px;text-align:center;font-size:8.5px;font-weight:900;color:var(--mptx3);
+  font-variant-numeric:tabular-nums}
+.mprl li .no.has{color:var(--mpacc)}
+.mprl li .nm{flex:1 1 auto;min-width:0;font-size:calc(10.5px * var(--mpx));font-weight:800;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.02em}
+.mprl li .k{flex:0 0 auto;font-size:7.5px;font-weight:900;color:var(--amber);background:rgba(255,179,71,.14);
+  border:1px solid rgba(255,179,71,.35);border-radius:3px;padding:0 2px}
+.mprl li .rc{flex:0 0 auto;height:18px;min-width:24px;padding:0 3px;border-radius:5px;border:1px solid var(--mpline);
+  background:rgba(255,255,255,.05);color:var(--mptx3);font-family:inherit;font-size:8px;font-weight:900;cursor:pointer;
+  font-variant-numeric:tabular-nums;line-height:1}
+.mprl li .rc.n1{color:var(--gold);border-color:rgba(255,209,102,.5);background:rgba(255,209,102,.12)}
+.mprl li .rc.n2{color:var(--amber);border-color:rgba(255,179,71,.55);background:rgba(255,179,71,.14)}
+.mprl li .rc.n3{color:#ff9a9a;border-color:rgba(255,107,107,.55);background:rgba(255,107,107,.14)}
+.mpnote{margin:11px 2px 0;font-size:calc(9.5px * var(--mpx));color:var(--mptx3);font-weight:700;line-height:1.6;word-break:keep-all}
+.mpnote b{color:var(--mptx2);font-weight:900}
+.mpemptyb{margin:26px 0;text-align:center;color:var(--mptx3);font-size:12px;font-weight:800;line-height:1.7}
+/* 확인 팝업 · 토스트 */
+.mpcf{position:fixed;inset:0;z-index:260;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:rgba(3,6,12,.66);backdrop-filter:blur(3px)}
+.mpcf[hidden]{display:none}
+.mpcf .bx{width:100%;max-width:330px;border-radius:16px;background:var(--mpcard2);border:1px solid var(--mpline);
+  padding:18px 16px 14px;box-shadow:0 20px 50px var(--mpsh);color:var(--mptx)}
+.mpcf p{margin:0 0 14px;font-size:13px;font-weight:800;line-height:1.6;word-break:keep-all;text-align:center}
+.mpcf .bs{display:flex;gap:7px}
+.mpcf .bs button{flex:1 1 0;height:42px;border-radius:11px;border:1px solid var(--mpline);cursor:pointer;
+  font-family:inherit;font-size:12.5px;font-weight:900;background:rgba(255,255,255,.08);color:var(--mptx)}
+.mpcf .bs button.ok{background:linear-gradient(120deg,#ff8a8a,#ff6b6b);color:#2a0606;border-color:transparent}
+.mptoast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:270;max-width:88vw;
+  padding:9px 14px;border-radius:999px;background:rgba(10,18,30,.94);color:#eaf1ff;border:1px solid var(--mpline);
+  font-size:11.5px;font-weight:800;box-shadow:0 10px 26px rgba(0,0,0,.4)}
+.mptoast[hidden]{display:none}
+.mps.light .mptoast{background:rgba(255,255,255,.97);color:#111c30}
+
+/* 화면 잠금 · 인쇄 페이지 */
+body.mp-open{overflow:hidden}
+.mpg thead th .vs{display:block;font-size:8.5px;color:var(--mptx3);font-weight:900;line-height:1.3}
+.mprestl .g .dot{width:6px;height:6px;border-radius:2px}
+.mprestl .sep{color:var(--mptx3);font-weight:900;opacity:.7}
+@media print{ @page{ size:A4 portrait; margin:10mm } }
+
+/* A4 인쇄 · 사진 저장용 출력 (고대비 흑백) */
+.mpprint{display:none}
+@media print{
+  html,body{background:#fff !important}
+  body.mp-printing>*:not(.mpprint){display:none !important}
+  body.mp-printing .mpprint{display:block !important;color:#000;background:#fff;
+    font-family:"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif}
+  .mpprint .pp{width:100%;max-width:190mm;margin:0 auto;color:#000}
+  .mpprint .pph{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2.4pt solid #000;
+    padding-bottom:2mm;margin-bottom:3mm}
+  .mpprint .pph b{font-size:16pt;font-weight:900;letter-spacing:-.02em}
+  .mpprint .pph span{font-size:9pt;font-weight:700}
+  .mpprint .ppsub{font-size:8.6pt;font-weight:700;margin:0 0 3mm}
+  .mpprint table{width:100%;border-collapse:collapse;margin:0 0 3mm}
+  .mpprint th,.mpprint td{border:.9pt solid #000;padding:1.4mm 1.6mm;font-size:9pt;vertical-align:middle}
+  .mpprint th{background:#eee;font-weight:900;font-size:8.6pt;text-align:center}
+  .mpprint .ppscore{font-size:13pt;font-weight:900;text-align:center;font-variant-numeric:tabular-nums;
+    letter-spacing:.02em;white-space:nowrap}
+  .mpprint .ppsmall{font-size:7.6pt;font-weight:700;text-align:center;line-height:1.35}
+  .mpprint .ppwn{font-weight:900}
+  .mpprint .ppros{display:grid;gap:2.5mm;grid-template-columns:repeat(3,1fr)}
+  .mpprint .ppros.two{grid-template-columns:repeat(2,1fr)}
+  .mpprint .ppt{border:1.2pt solid #000;padding:2mm}
+  .mpprint .ppt .t{font-size:10pt;font-weight:900;border-bottom:1pt solid #000;padding-bottom:1mm;margin-bottom:1.4mm}
+  .mpprint .ppt .ppl{list-style:none;margin:0;padding:0;font-size:9pt;font-weight:700;line-height:1.55}
+  .mpprint .ppt .ppl li{padding-left:0}
+  .mpprint .ppt li .n{font-weight:900}
+  .mpprint .ppfoot{margin-top:3mm;font-size:7.6pt;color:#333;text-align:right}
+  .mpprint .pgnote{font-size:8pt;font-weight:700;margin:0 0 1mm}
+}
+
 /* ---------- modal ---------- */
 .modal{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center}
 .modal[hidden]{display:none}
@@ -1077,10 +1399,13 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     <div class="stats" id="heroStats" role="group" aria-label="시즌 요약 — 탭하면 해당 섹션으로 이동"></div>
     <div class="duobtns">
       <button class="pairbtn" id="pairBtn" type="button" aria-haspopup="dialog" aria-controls="pairModal" title="짝꿍 승률 계산하기">
-        <span class="pbico" aria-hidden="true">🤝</span><span class="pbtxt">짝꿍 승률 계산하기</span><span class="pbarw" aria-hidden="true">›</span>
+        <span class="pbico" aria-hidden="true">🤝</span><span class="pbtxt">짝꿍 승률</span><span class="pbarw" aria-hidden="true">›</span>
       </button>
       <button class="pairbtn teambtn" id="teamBtn" type="button" aria-haspopup="dialog" aria-controls="teamModal" title="팀 구성 추천하기">
-        <span class="pbico" aria-hidden="true">⚖️</span><span class="pbtxt">팀 구성 추천하기</span><span class="pbarw" aria-hidden="true">›</span>
+        <span class="pbico" aria-hidden="true">⚖️</span><span class="pbtxt">팀 구성</span><span class="pbarw" aria-hidden="true">›</span>
+      </button>
+      <button class="pairbtn mphbtn" id="mpHeroBtn" type="button" data-mphero="1" aria-haspopup="dialog" aria-controls="mpModal" title="매치 프리뷰 등록·이력">
+        <span class="pbico" aria-hidden="true">📝</span><span class="pbtxt">매치 프리뷰</span><span class="pbarw" aria-hidden="true">›</span>
       </button>
     </div>
   </header>
@@ -1108,6 +1433,8 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
   <!-- ===== 경기 결과 ===== -->
   <section id="secResult" aria-labelledby="hResult">
     <div class="shead"><h2 id="hResult">경기 결과</h2><span class="n" id="resWeek"></span><span class="right" id="resRight"></span></div>
+    <div id="mpSlot"></div>
+    <div class="mpenrow"><button type="button" class="mpen" id="mpRegBtn" data-mpreg="1" aria-haspopup="dialog" aria-controls="mpModal">📝 매치 프리뷰 등록하기<small>3파전 · 2파전</small></button></div>
     <div id="previewSlot"></div>
     <div id="resultCard"></div>
   </section>
@@ -1210,6 +1537,96 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     <div id="mBody"></div>
   </div>
 </div>
+
+<div class="modal" id="mpModal" hidden>
+  <div class="bd" data-mpclose></div>
+  <div class="sheet mpsheet" role="dialog" aria-modal="true" aria-labelledby="mpTitle">
+    <div class="grab"></div>
+    <button class="x" data-mpclose aria-label="닫기">✕</button>
+    <h3 class="ptitle" id="mpTitle">📝 매치 프리뷰 등록하기</h3>
+    <p class="plead">팀별 인원을 구성하면 <b>예상 순위·평균 승률</b>이 계산되고, 그 카드에서 바로 <b>🏀 경기 진행</b>으로 들어갑니다. 팀 이름과 순서는 바꿀 수 있습니다.</p>
+    <div class="mpdate"><label for="mpDate">경기일</label><input id="mpDate" type="date" aria-label="경기일"></div>
+    <section class="mphist" id="mpHist" hidden>
+      <div class="mphh">📅 매치 프리뷰 이력 <span class="n" id="mpHistCnt"></span></div>
+      <div class="mphlist" id="mpHistList"></div>
+    </section>
+
+    <div class="tsec">
+      <div class="tsecT">1 · 경기 방식</div>
+      <div class="mpsegs" id="mpType" role="group" aria-label="경기 방식">
+        <button type="button" data-mptype="3" aria-pressed="true">3파전</button>
+        <button type="button" data-mptype="2" aria-pressed="false">2파전</button>
+      </div>
+      <p class="mprule" id="mpRule"></p>
+    </div>
+
+    <div class="tsec">
+      <div class="tsecT">2 · 쿼터 수</div>
+      <div class="mpsegs" id="mpQtr" role="group" aria-label="쿼터 수">
+        <button type="button" data-mpq="3" aria-pressed="false">1~3Q</button>
+        <button type="button" data-mpq="4" aria-pressed="true">1~4Q</button>
+      </div>
+      <p class="mprule">경기 진행 화면에서 점수 칸을 쿼터 수만큼 만듭니다. 2파전은 쿼터마다 <b>쉬는 순번</b>이 자동으로 표시됩니다.</p>
+    </div>
+
+    <div class="tsec">
+      <div class="tsecT">3 · 팀 구성 <span class="mpcapa" id="mpCapa" style="margin-left:auto"></span></div>
+      <div class="mpedit" id="mpTeams"></div>
+      <p class="mprule">팀 칸을 누르면 <b>선택된 팀</b>이 되고, 아래 명단에서 선수를 누르면 그 팀에 들어갑니다. <b>◀ ▶</b>로 팀 순서를 바꿉니다.</p>
+    </div>
+
+    <p class="mpmsg" id="mpMsg" role="status" aria-live="polite" hidden></p>
+
+    <div class="tsec">
+      <div class="tsecT">4 · 선수 명단 <span class="mpcapa" id="mpPoolNote" style="margin-left:auto"></span></div>
+      <label class="psearch" for="mpQ"><span aria-hidden="true">🔍</span>
+        <input id="mpQ" type="search" placeholder="이름 검색 (정회원·게스트·가상)" autocomplete="off" enterkeyhint="search" aria-label="선수 이름 검색">
+      </label>
+      <div class="pfilter" id="mpPosFilter" role="group" aria-label="포지션 필터">
+        <button type="button" data-mppos="" aria-pressed="true">전체</button>
+        <button type="button" data-mppos="PG" aria-pressed="false">PG</button>
+        <button type="button" data-mppos="SG" aria-pressed="false">SG</button>
+        <button type="button" data-mppos="SF" aria-pressed="false">SF</button>
+        <button type="button" data-mppos="PF" aria-pressed="false">PF</button>
+        <button type="button" data-mppos="C" aria-pressed="false">C</button>
+      </div>
+      <label class="ptoggle"><input type="checkbox" id="mpGuest" checked> 게스트 포함</label>
+      <div class="pchipbox"><div class="pchips" id="mpPool"></div></div>
+    </div>
+
+    <div class="mpfoot">
+      <button type="button" class="mpCancel" data-mpclose>취소</button>
+      <button type="button" class="mpSave" id="mpSave">등록하기</button>
+    </div>
+    <p class="pnote">등록한 매치 프리뷰와 진행 기록은 <b>이 기기(localStorage)</b>에만 저장됩니다. 팀 이름·인원·쿼터를 바꾸면 경기 진행 화면에 바로 반영됩니다.</p>
+  </div>
+</div>
+
+<div class="mps" id="mpScreen" hidden>
+  <div class="mpbar">
+    <button type="button" class="cl" id="mpClose" aria-label="경기 진행 닫기">✕</button>
+    <div class="mpbarT"><b id="mpGameTitle">🏀 경기 진행</b><span id="mpGameSub"></span></div>
+    <button type="button" class="ed" id="mpEditBtn">✏️ 매치 프리뷰 수정하기</button>
+  </div>
+  <div class="mpctrls" role="group" aria-label="경기 진행 화면 설정">
+    <button type="button" data-mpctl="theme" id="mpThemeBtn">🌓 밝은 테마</button>
+    <button type="button" data-mpctl="font" id="mpFontBtn">🔎 글씨 크기 보통</button>
+    <button type="button" data-mpctl="full" id="mpFullBtn" aria-pressed="false">⛶ 전체화면</button>
+    <button type="button" data-mpctl="wake" id="mpWakeBtn" aria-pressed="true">🔆 화면꺼짐 방지 ON</button>
+    <button type="button" data-mpctl="print" id="mpPrintBtn">🖨️ A4 인쇄하기</button>
+    <button type="button" data-mpctl="photo" id="mpPhotoBtn">📸 사진 저장</button>
+    <button type="button" data-mpctl="reset" id="mpResetBtn" class="danger">🔄 전체 초기화</button>
+  </div>
+  <div class="mpbody" id="mpBody"></div>
+  <div class="mpcf" id="mpConfirm" hidden>
+    <div class="bx" role="alertdialog" aria-modal="true" aria-labelledby="mpCfMsg">
+      <p id="mpCfMsg">초기화 시 기록이 삭제됩니다. 계속 진행하시겠어요?</p>
+      <div class="bs"><button type="button" class="ok" id="mpCfOk">확인</button><button type="button" id="mpCfNo">취소</button></div>
+    </div>
+  </div>
+  <div class="mptoast" id="mpToast" hidden></div>
+</div>
+<div class="mpprint" id="mpPrint" aria-hidden="true"></div>
 
 <div class="modal" id="navModal" hidden>
   <div class="bd" data-navclose></div>
@@ -1467,6 +1884,7 @@ function start(data) {
   $('#lock').hidden = true;
   if (!BOUND) { bind(); BOUND = true; }
   renderAll();
+  mpPaintHome();
   window.scrollTo(0, 0);
 }
 
@@ -1758,13 +2176,15 @@ function renderResult() {
   const multi = w.sheets.length > 1;
   const nP = w.sheets.reduce((a, sh) => a + Object.values(sh.rosters).reduce((x, y) => x + y.length, 0), 0);
   const { top, tied } = topInfo(w.sheets[0]);
+  const mpk = mpPreviewForDate(curDate);
+  const mpBadge = mpk ? '<button type="button" class="mpwbtn" data-mpweek="' + curDate + '" aria-haspopup="dialog" aria-controls="mpModal">🔮 매치 프리뷰</button>' : '';
   const badge = multi ? ''
     : tied.length > 1 ? `<span class="champ tie">동률 ${tied.map(t => esc(t.team)).join('·')}</span>`
     : `<span class="champ">1위 ${esc(top.team)}</span>`;
   $('#resultCard').innerHTML = `<div class="rcard">
     <div class="top">
       <div class="dbox"><div class="m">${+w.date.slice(5, 7)}월</div><div class="d">${w.date.slice(8, 10)}</div></div>
-      <div class="t"><div class="ttl">${esc(w.type)} ${badge}</div>
+      <div class="t"><div class="ttl">${esc(w.type)} ${badge}${mpBadge}</div>
         <div class="sub">${esc(DATA.venue)} · ${nP}명${multi ? ' · 기록지 ' + w.sheets.length + '장' : ''}</div></div>
     </div>
     ${w.preview ? pvBoxHtml(w.preview, { open: true, week: w }) : ''}
@@ -2547,6 +2967,13 @@ function closeNav() {
    형태로 추가하면 팝업에 날짜순(최신순)으로 그대로 나타납니다. */
 const CHANGELOG = [
   { date: '2026-11-27', tag: '기능', items: [
+    '<b>🏀 경기진행패치</b> — 경기 결과 상단 <b>📝 매치 프리뷰 등록하기</b>로 3파전·2파전 인원을 직접 구성하고, 등록한 카드에서 <b>🏀 경기 진행하기</b>로 실전 기록지 화면에 들어갑니다',
+    '🤝 짝꿍 승률 계산기 · ⚖️ 팀 구성 추천 결과에서 <b>📝 매치 프리뷰 등록하기</b>로 구성된 팀·인원을 바로 연동 (이 기기에만 저장)',
+    '경기 진행 — 점수 칸 직접 입력(팀별 승·무·패·득실·우승 자동 계산), 쿼터·매치업 드래그 순서, 명단 순서 드래그, 🌓 테마 · 🔎 글씨 크기 · ⛶ 전체화면 · 🔆 화면꺼짐 방지 · 🖨️ A4 인쇄 · 📸 사진 저장 · 🔄 전체 초기화(확인 팝업)',
+    '<b>3파전</b> — 팀 형광·블랙·레드(팀당 최대 6명), 명단 옆 휴식 순서 + 누적 휴식 횟수(0→1→2→3→1), 팀별 <b>휴식 순서 정하기</b>',
+    '<b>2파전</b> — 팀 블랙·레드(팀당 5~8명), <b>1~3Q / 1~4Q</b> 선택, 쿼터 점수 칸마다 <b>쉬는 순번</b> 자동 표기, 하이라이트 메모·휴식 횟수 없음',
+  ] },
+  { date: '2026-11-27', tag: '기능', items: [
     '<b>⚖️ 팀 구성 추천하기 추가</b> — 3파전·2파전과 참석 인원(정회원·게스트·가상)을 고르면 팀별 평균(현재 승률 / 5주 개인 스탯)·포지션·짝꿍 상성까지 맞춰 가장 대등한 조합과 구성 이유를 보여 줍니다',
     '팀 구성 기준 보완 — 3파전 최소 <b>15명</b>(3팀×5명)·2파전 최소 <b>10명</b>(2팀×5명), 팀 표시 순서 <b>레드 · 블랙 · 형광</b>(2파전 레드 · 블랙), 시트 안 <b>+ 가상 선수 추가</b>로 바로 반영',
     '<b>게스트 구분 정리</b> — 기존 구분을 없애고 해당 인원을 <b>게스트</b>로 표기, 백넘버가 있는 게스트는 로스터에 그대로 유지',
@@ -2976,7 +3403,10 @@ function paintPair() {
   const fchips = $('#pFakeChips');
   if (fchips) fchips.innerHTML = fakeChipsHtml();
   const res = $('#pResult');
-  if (res) res.innerHTML = pairResultHtml();
+  if (res) {
+    res.innerHTML = pairResultHtml();
+    if (PSEL.length) res.insertAdjacentHTML('beforeend', '<button type="button" class="mpreg2" data-mpfrompair="1">📝 매치 프리뷰 등록하기</button>');
+  }
   const fixWrap = $('#pFixWrap');
   if (fixWrap) {
     const members = ((DATA && DATA.members) || []).map(function (m) { return m.name; });
@@ -3214,6 +3644,7 @@ function pTogglePick(name) {
   btn.addEventListener('click', openPair);
   document.addEventListener('click', function (e) {
     if (modal.hidden) return;
+    if (e.target.closest('[data-mpfrompair]')) { mpRegisterFromPair(PSEL.slice()); return; }
     if (e.target.closest('[data-pclose2]')) { closePair(); return; }
     const chip = e.target.closest('[data-pick2]');
     if (chip) { pTogglePick(chip.getAttribute('data-pick2')); return; }
@@ -3798,7 +4229,10 @@ function pTogglePick(name) {
     var fch = $('#tFakeChips');
     if (fch) fch.innerHTML = tFakeRowsHtml();
     var res = $('#tResult');
-    if (res) res.innerHTML = tResultHtml();
+    if (res) {
+      res.innerHTML = tResultHtml();
+      if (n >= m * 5) res.insertAdjacentHTML('beforeend', '<button type="button" class="mpreg2" data-mpfromteam="1">📝 매치 프리뷰 등록하기</button>');
+    }
   }
   function tMsg(t) {
     var el = $('#tMsg');
@@ -3852,6 +4286,12 @@ function pTogglePick(name) {
   btn.addEventListener('click', openTeam);
   modal.addEventListener('click', function (e) {
     if (e.target.closest('[data-tclose]')) { closeTeam(); return; }
+    if (e.target.closest('[data-mpfromteam]')) {
+      var rr0 = tCompute();
+      closeTeam();
+      mpRegisterFromTeams(TMODE, T_TEAMS[TMODE], rr0.teams);
+      return;
+    }
     var chip = e.target.closest('[data-tpick]');
     if (chip) { tToggle(chip.getAttribute('data-tpick')); return; }
     if (e.target.closest('#tAddFake')) { tOpenFakeForm(null); return; }
@@ -4058,6 +4498,1265 @@ function bind() {
     if (e.key === 'ArrowRight' && e.altKey) $('#nextBtn').click();
   });
 }
+/* ======================= 경기 진행 패치 =======================
+   📝 매치 프리뷰 등록(localStorage) → 🏀 경기 진행 기록지 → 📸 사진 저장 / 🖨️ A4 인쇄
+   · 3파전: 팀당 최대 6명, 팀 형광·블랙·레드, 매치업 3경기 × 쿼터 점수, 명단 옆 휴식 순서 + 누적 휴식 횟수
+   · 2파전: 팀당 5~8명, 팀 블랙·레드, 3경기 × 쿼터 점수, 쿼터 칸마다 쉬는 순번 자동 표기
+   저장: 이 기기 localStorage(stepback-mpgame-v1) — 실제 기록·랭킹은 건드리지 않습니다. */
+const MP_KEY = 'stepback-mpgame-v1';
+const MP_TN = { 3: ['형광', '블랙', '레드'], 2: ['블랙', '레드'] };
+const MP_LIM = { 3: { min: 1, max: 6 }, 2: { min: 5, max: 8 } };
+const MP_QLABEL = { small: '작게', normal: '보통', large: '크게' };
+
+let MP = { preview: null, previews: [], theme: 'dark', font: 'normal' };
+let MPED = null, MPED_SLOT = 0;
+let MPQ = '', MPPOS = '', MP_PICK = -1, MPDG = null, MPWL = null, MPFS = false;
+let MP_NOTE = '';
+
+/* ---------- 저장 · 정규화 ---------- */
+function mpLoad() {
+  let o = null;
+  try { o = JSON.parse(localStorage.getItem(MP_KEY) || 'null'); } catch (e) { o = null; }
+  if (o && typeof o === 'object') {
+    MP.theme = o.theme === 'light' ? 'light' : 'dark';
+    MP.font = MP_QLABEL[o.font] ? o.font : 'normal';
+    const list = Array.isArray(o.previews) ? o.previews : (o.preview ? [o.preview] : []);
+    MP.previews = list.filter(function (p) { return p && p.teams && p.teams.length; });
+    MP.previews.forEach(function (p) { if (!p.date) p.date = mpNextSunday(); mpNormalize(p); });
+    const act = o.activeDate ? MP.previews.filter(function (p) { return p.date === o.activeDate; })[0] : null;
+    MP.preview = act || MP.previews[MP.previews.length - 1] || null;
+  }
+  if (MP.preview) mpNormalize(MP.preview);
+}
+function mpSave() {
+  try {
+    localStorage.setItem(MP_KEY, JSON.stringify({
+      previews: MP.previews, activeDate: MP.preview ? MP.preview.date : null,
+      theme: MP.theme, font: MP.font
+    }));
+  } catch (e) { }
+}
+/* 등록·수정한 프리뷰를 날짜 기준으로 이력에 저장하고 현재 프리뷰로 둡니다 */
+function mpUpsert(p) {
+  p.at = new Date().toISOString();
+  const i = MP.previews.findIndex(function (x) { return x.date === p.date; });
+  if (i >= 0) MP.previews[i] = p; else MP.previews.push(p);
+  MP.preview = p;
+  mpSave();
+}
+function mpNextSunday() {
+  const d = new Date();
+  d.setDate(d.getDate() + ((7 - d.getDay()) % 7));
+  const z = function (n) { return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate());
+}
+function mpClone(o) { return JSON.parse(JSON.stringify(o)); }
+function mpGameList(type) {
+  return type === '3'
+    ? [{ a: 0, b: 1 }, { a: 1, b: 2 }, { a: 0, b: 2 }]
+    : [{ a: 0, b: 1 }, { a: 0, b: 1 }, { a: 0, b: 1 }];
+}
+function mpNew(type, quarters) {
+  const names = MP_TN[type];
+  return {
+    at: new Date().toISOString(), date: mpNextSunday(), type: type, quarters: quarters || (type === '3' ? 4 : 3),
+    teams: names.map(function (n) { return { name: n, players: [] }; }),
+    tOrder: names.map(function (_, i) { return i; }),
+    games: mpGameList(type),
+    gOrder: [0, 1, 2], qOrder: [0, 1, 2, 3].slice(0, quarters || (type === '3' ? 4 : 3)),
+    scores: {}, rest: {}, restNo: {}, order: {}
+  };
+}
+function mpNormalize(p) {
+  if (!p.teams || !p.teams.length) return;
+  p.type = p.type === '2' ? '2' : '3';
+  p.quarters = p.quarters === 3 ? 3 : 4;
+  p.games = (p.games && p.games.length === 3) ? p.games : mpGameList(p.type);
+  if (!p.tOrder || p.tOrder.length !== p.teams.length) p.tOrder = p.teams.map(function (_, i) { return i; });
+  if (!p.gOrder || p.gOrder.length !== 3) p.gOrder = [0, 1, 2];
+  if (!p.qOrder || p.qOrder.length !== p.quarters) p.qOrder = [0, 1, 2, 3].slice(0, p.quarters);
+  p.scores = p.scores || {}; p.rest = p.rest || {}; p.restNo = p.restNo || {}; p.order = p.order || {};
+  p.teams.forEach(function (t, i) {
+    const names = t.players.map(function (x) { return x.name; });
+    const cur = Array.isArray(p.order[i]) ? p.order[i].filter(function (n) { return names.indexOf(n) >= 0; }) : [];
+    names.forEach(function (n) { if (cur.indexOf(n) < 0) cur.push(n); });
+    p.order[i] = cur;
+    const no = p.restNo[i] || (p.restNo[i] = {});
+    Object.keys(no).forEach(function (n) { if (names.indexOf(n) < 0) delete no[n]; });
+    const rc = p.rest[i] || (p.rest[i] = {});
+    Object.keys(rc).forEach(function (n) { if (names.indexOf(n) < 0) delete rc[n]; });
+  });
+}
+
+/* ---------- 사람 · 기록 도우미 ---------- */
+function mpKindOf(name) {
+  try { if (isFake(name)) return 'fake'; } catch (e) { }
+  try { if (isGuestRole(name) || isGuest(name)) return 'guest'; } catch (e) { }
+  return 'member';
+}
+function mpPoolAll() {
+  const out = [];
+  const seen = {};
+  function add(name, kind) { if (!name || seen[name]) return; seen[name] = 1; out.push({ name: name, kind: kind }); }
+  ((DATA && DATA.members) || []).forEach(function (m) { add(m.name, 'member'); });
+  ((DATA && DATA.outsiders) || []).forEach(function (m) { add(m.name, 'member'); });
+  ((DATA && DATA.guests) || []).forEach(function (g) { if (!g.absent) add(g.name, 'guest'); });
+  (typeof FAKES !== 'undefined' && FAKES ? FAKES : []).forEach(function (f) { add(f.name, 'fake'); });
+  return out;
+}
+function mpRateOf(name) {
+  const t = personTotals(name);
+  return t && t.g ? { rate: t.w / t.g * 100, g: t.g, w: t.w, d: t.d, l: t.l } : null;
+}
+function mpTeamRates(p) {
+  return p.teams.map(function (t, i) {
+    let sum = 0, n = 0, g = 0;
+    t.players.forEach(function (pl) {
+      const r = mpRateOf(pl.name);
+      if (r) { sum += r.rate; n++; g += r.g; }
+    });
+    return { slot: i, name: t.name, players: t.players, rate: n ? sum / n : null, n: n, g: g };
+  });
+}
+function mpRateOrder(p) {
+  return mpTeamRates(p).sort(function (a, b) {
+    const ra = a.rate == null ? -1 : a.rate, rb = b.rate == null ? -1 : b.rate;
+    return rb - ra || a.name.localeCompare(b.name);
+  });
+}
+function mpCellIndex(p, gi, qi) {
+  let idx = 0;
+  for (let k = 0; k < p.gOrder.length; k++) {
+    const g = p.gOrder[k];
+    if (g === gi) return idx + Math.max(0, p.qOrder.indexOf(qi));
+    idx += p.qOrder.length;
+  }
+  return -1;
+}
+/* 2파전 쉬는 순번 — 팀 인원 n명, 셀 순번 idx: (n-5)명씩 순환 (7명이면 1·2 → 3·4 → 5·6 → 7·1 …) */
+function mpRestNums(n, idx) {
+  const m = Math.max(0, n - 5);
+  if (!m || idx < 0) return [];
+  const start = (m * idx) % n, out = [];
+  for (let k = 0; k < m; k++) out.push(((start + k) % n) + 1);
+  return out;
+}
+function mpGameTotal(p, gi) {
+  let a = 0, b = 0, any = false;
+  p.qOrder.forEach(function (qi) {
+    const s = p.scores['g' + gi + 'q' + qi];
+    if (!s) return;
+    if (s.a !== '' && s.a != null) { a += Number(s.a) || 0; any = true; }
+    if (s.b !== '' && s.b != null) { b += Number(s.b) || 0; any = true; }
+  });
+  return { a: a, b: b, any: any };
+}
+function mpStandings(p) {
+  const rows = p.teams.map(function (t, i) { return { slot: i, name: t.name, w: 0, d: 0, l: 0, pf: 0, pa: 0, gp: 0, diff: 0, pos: 0 }; });
+  p.games.forEach(function (g, gi) {
+    const tot = mpGameTotal(p, gi);
+    if (!tot.any) return;
+    const A = rows[g.a], B = rows[g.b];
+    if (!A || !B) return;
+    A.pf += tot.a; A.pa += tot.b; B.pf += tot.b; B.pa += tot.a; A.gp++; B.gp++;
+    if (tot.a > tot.b) { A.w++; B.l++; } else if (tot.a < tot.b) { A.l++; B.w++; } else { A.d++; B.d++; }
+  });
+  rows.forEach(function (r) { r.diff = r.pf - r.pa; });
+  const order = rows.slice().sort(function (x, y) {
+    return y.w - x.w || y.diff - x.diff || y.pf - x.pf || x.name.localeCompare(y.name);
+  });
+  order.forEach(function (r, i) { r.pos = i + 1; });
+  const played = rows.some(function (r) { return r.gp > 0; });
+  return { rows: rows, order: order, played: played, winner: played ? order[0] : null };
+}
+function mpRecText(r) { return r.w + '승 ' + (r.d ? r.d + '무 ' : '') + r.l + '패'; }
+function mpDiffText(v) { return (v > 0 ? '+' : '') + v; }
+function mpDateStr() {
+  const d = new Date(), z = function (n) { return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate());
+}
+function mpSavedStr(p) {
+  if (!p.at) return '';
+  const d = new Date(p.at);
+  if (isNaN(d.getTime())) return '';
+  const z = function (n) { return (n < 10 ? '0' : '') + n; };
+  return (d.getMonth() + 1) + '/' + d.getDate() + ' 등록';
+}
+
+/* ---------- 매치 프리뷰 이력 (날짜별 예상 순위·평균 승률 ↔ 실제 결과) ---------- */
+function mpWeekOf(date) {
+  return ((DATA && DATA.weeks) || []).filter(function (w) { return w.date === date; })[0] || null;
+}
+function mpActualOf(date) {
+  const w = mpWeekOf(date);
+  if (!w) return null;
+  const map = {};
+  (w.sheets || []).forEach(function (sh) {
+    (sh.standings || []).forEach(function (s) {
+      const o = map[s.team] || (map[s.team] = { name: s.team, w: 0, d: 0, l: 0, diff: 0, pos: null });
+      o.w += s.w; o.d += s.d || 0; o.l += s.l; o.diff += s.diff || 0;
+      if (o.pos == null) o.pos = s.pos;
+    });
+  });
+  const rows = Object.keys(map).map(function (k) { return map[k]; });
+  const ord = rows.slice().sort(function (a, b) { return b.w - a.w || b.diff - a.diff; });
+  ord.forEach(function (r, i) { r.rank = i + 1; });
+  return map;
+}
+function mpPrevTeams(e) {
+  if (e.local) {
+    const p = e.local, rates = mpTeamRates(p);
+    return p.teams.map(function (t, i) {
+      return { name: t.name, rate: rates[i].rate, players: t.players.map(function (x) { return x.name; }) };
+    });
+  }
+  const pv = e.site || {};
+  return (pv.teams || []).map(function (t) {
+    const players = t.players || [];
+    let rt = (t.rate == null ? null : Number(t.rate));
+    if (rt == null) {
+      const rs = players.map(function (n) { const r = mpRateOf(n); return r ? r.rate : null; })
+        .filter(function (v) { return v != null; });
+      rt = rs.length ? rs.reduce(function (a, b) { return a + b; }, 0) / rs.length : null;
+    }
+    return { name: t.team, rate: rt, players: players };
+  });
+}
+function mpAllPreviews() {
+  const out = [], seen = {};
+  MP.previews.forEach(function (p) { seen[p.date] = 1; out.push({ date: p.date, type: p.type, local: p }); });
+  CHRONO().forEach(function (w) {
+    if (w.preview && !seen[w.date]) { seen[w.date] = 1; out.push({ date: w.date, type: w.type, site: w.preview }); }
+  });
+  ((DATA && DATA.upcomingPreviews) || []).forEach(function (pv) {
+    if (pv.date && !seen[pv.date]) { seen[pv.date] = 1; out.push({ date: pv.date, type: pv.type, site: pv }); }
+  });
+  return out.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+}
+function mpPreviewForDate(date) {
+  if (MP.previews.some(function (p) { return p.date === date; })) return 'local';
+  const w = mpWeekOf(date);
+  if (w && w.preview) return 'site';
+  if (((DATA && DATA.upcomingPreviews) || []).some(function (pv) { return pv.date === date; })) return 'site';
+  return null;
+}
+function mpHistRow(e) {
+  const teams = mpPrevTeams(e), act = mpActualOf(e.date);
+  const exp = teams.slice().sort(function (a, b) {
+    const ra = a.rate == null ? -1 : a.rate, rb = b.rate == null ? -1 : b.rate;
+    return rb - ra;
+  });
+  const expPos = {};
+  exp.forEach(function (t, i) { expPos[t.name] = i + 1; });
+  const top = exp[0];
+  const game = e.local ? mpStandings(e.local) : null;
+  const rows = teams.map(function (t) {
+    const a = act ? act[t.name] : null;
+    const g = a ? (a.w + a.d + a.l) : 0;
+    const hit = a ? a.rank === expPos[t.name] : null;
+    return '<tr><td><span class="who"><i class="dot ' + dotCls(t.name) + '"></i><span class="nm">' + esc(t.name) + '</span></span></td>'
+      + '<td class="num">' + (t.rate == null ? '–' : pct(t.rate) + '%') + '</td>'
+      + '<td class="num">' + expPos[t.name] + '위</td>'
+      + '<td class="num">' + (a ? (a.w + '승 ' + (a.d ? a.d + '무 ' : '') + a.l + '패' + (g ? ' ' + pct(a.w / g * 100) + '%' : '')) : '–') + '</td>'
+      + '<td class="num ' + (hit === null ? '' : (hit ? 'hit' : 'miss')) + '">' + (a ? a.rank + '위' + (hit ? ' ✓' : ' ✗') : '–') + '</td></tr>';
+  }).join('');
+  const sum = '예상 1위 <b>' + esc(top ? top.name : '–') + '</b>' + (top && top.rate != null ? ' ' + pct(top.rate) + '%' : '');
+  const actLine = (function () {
+    if (!act) return '';
+    const rows2 = Object.keys(act).map(function (k) { return act[k]; });
+    const first = rows2.filter(function (r) { return r.rank === 1; })[0];
+    if (!first) return '';
+    const e1 = expPos[first.name] || '–';
+    return ' · 실제 1위 <b>' + esc(first.name) + '</b> <span class="' + (String(e1) === '1' ? 'hit' : 'miss') + '">예상 ' + e1 + '위 ' + (String(e1) === '1' ? '✓' : '✗') + '</span>';
+  })();
+  const recLine = game && game.played
+    ? '<div class="gline">🏀 기록 ' + e.local.tOrder.map(function (s) {
+        const r = game.rows[s];
+        return esc(r.name) + ' ' + mpRecText(r);
+      }).join(' · ') + ' · 우승 ' + esc(game.winner ? game.winner.name : '–') + '</div>'
+    : '';
+  const acts = e.local
+    ? '<div class="acts"><button type="button" class="go" data-mpopendate="' + e.date + '">🏀 경기 진행</button>'
+      + '<button type="button" data-mpeditdate="' + e.date + '">✏️ 편집</button></div>'
+    : '<div class="note">홈페이지 정본 매치 프리뷰 — 경기 결과 카드에서 예상↔실제를 함께 봅니다.</div>';
+  return '<details class="mphrow' + (MP.preview && MP.preview.date === e.date ? ' cur' : '') + '" data-hdate="' + e.date + '">'
+    + '<summary><span class="d">' + short(e.date) + '</span>'
+    + '<span class="tag">' + e.type + '파전</span>'
+    + '<span class="tag ' + (e.local ? 'loc' : 'site') + '">' + (e.local ? '내 기록' : '정본') + '</span>'
+    + '<span class="e">' + (top ? '예상 1위 ' + esc(top.name) + (top.rate != null ? ' ' + pct(top.rate) + '%' : '') : '') + '</span>'
+    + '<span class="chev">▼</span></summary>'
+    + '<div class="mphb">'
+    + '<table><thead><tr><th>팀</th><th class="num">평균</th><th class="num">예상</th><th class="num">실제</th><th class="num">순위</th></tr></thead><tbody>' + rows + '</tbody></table>'
+    + '<div class="note" style="margin-top:5px">' + sum + actLine + '</div>'
+    + recLine + acts
+    + '</div></details>';
+}
+function mpRenderHist() {
+  const box = $('#mpHist'), list = $('#mpHistList');
+  if (!box || !list || !DATA) return;
+  const all = mpAllPreviews();
+  box.hidden = !all.length;
+  const cnt = $('#mpHistCnt');
+  if (cnt) cnt.textContent = all.length ? all.length + '건 · 최신순' : '';
+  list.innerHTML = all.map(mpHistRow).join('');
+}
+function mpOpenHist(date) {
+  mpOpenEditor();
+  const hit = date ? $('#mpHistList [data-hdate="' + date + '"]') : null;
+  if (hit) {
+    hit.open = true;
+    try { hit.scrollIntoView({ block: 'center' }); } catch (e) { }
+  }
+}
+
+/* ---------- 메인 화면 카드 ---------- */
+function mpPaintHome() {
+  const slot = $('#mpSlot');
+  if (!slot) return;
+  const p = MP.preview;
+  if (!p) { slot.innerHTML = ''; return; }
+  const st = mpStandings(p), rank = mpRateOrder(p);
+  const rankOf = {};
+  rank.forEach(function (r, i) { rankOf[r.slot] = i + 1; });
+  const cards = p.tOrder.map(function (slotIdx) {
+    const t = p.teams[slotIdx], r = mpTeamRates(p)[slotIdx];
+    const pctV = r.rate == null ? null : r.rate;
+    return '<div class="mpcrow' + (rankOf[slotIdx] === 1 ? ' top' : '') + '" data-mpcteam="' + slotIdx + '">'
+      + '<div class="h"><span class="rk">' + (rankOf[slotIdx] === 1 ? '★' : rankOf[slotIdx] + '위') + '</span>'
+      + '<i class="dot ' + dotCls(t.name) + '"></i><span class="nm">' + esc(t.name) + '</span></div>'
+      + (pctV == null ? '<div class="r none">기록 없음</div>'
+        : '<div class="r">' + pct(pctV) + '%</div><div class="bar"><i style="width:' + Math.max(2, Math.min(100, pctV)) + '%"></i></div>')
+      + '<div class="pl">' + (t.players.length ? t.players.map(function (x) { return esc(x.name); }).join(' · ') : '명단 없음') + '</div>'
+      + '</div>';
+  }).join('');
+  const top = rank[0];
+  const line = top
+    ? '예상 1위 <b>' + esc(top.name) + (top.rate == null ? '' : ' ' + pct(top.rate) + '%') + '</b> · 예상 순위 '
+      + rank.map(function (r) { return esc(r.name); }).join(' › ')
+      + ' · ' + mpSavedStr(p)
+    : '';
+  slot.innerHTML = '<div class="mpc" id="mpCard">'
+    + '<div class="mpchd"><span class="mpctag">' + p.type + '파전</span><span class="mpcttl">📊 내 매치 프리뷰</span>'
+    + '<span class="mpcd">' + short(p.date || mpNextSunday()) + ' 경기 · ' + p.quarters + '쿼터 · ' + p.teams.reduce(function (a, t) { return a + t.players.length; }, 0) + '명'
+    + (st.played ? ' · 진행 중' : '') + '</span>'
+    + '<span class="mpcact"><button type="button" class="mpcbtn" data-mpedit="1">✏️ 수정</button>'
+    + '<button type="button" class="mpcbtn go" data-mpgo="1">🏀 경기 진행하기</button></span></div>'
+    + '<div class="mpcteams' + (p.type === '2' ? ' two' : '') + '">' + cards + '</div>'
+    + (line ? '<div class="mpcfoot">' + line + '</div>' : '')
+    + '</div>';
+  /* 주간 경기 결과 카드의 🔮 매치 프리뷰 배지도 함께 갱신 */
+  if (DATA && curDate && typeof renderResult === 'function') renderResult();
+}
+
+/* ---------- 등록 시트 ---------- */
+function mpOpenEditor(prep) {
+  if (!DATA) return;
+  if (prep) MPED = prep;
+  else MPED = MP.preview ? mpClone(MP.preview) : mpNew('3', 4);
+  mpNormalize(MPED);
+  MPED_SLOT = MPED.tOrder[0] || 0;
+  MPQ = ''; MPPOS = ''; MP_NOTE = '';
+  const q = $('#mpQ'); if (q) q.value = '';
+  const g = $('#mpGuest'); if (g) g.checked = true;
+  $('#mpTitle').textContent = MP.preview ? '📝 매치 프리뷰 수정하기' : '📝 매치 프리뷰 등록하기';
+  const dEl = $('#mpDate');
+  if (dEl) dEl.value = MPED.date || mpNextSunday();
+  $('#mpModal').hidden = false;
+  document.body.style.overflow = 'hidden';
+  mpRenderEditor();
+  mpRenderHist();
+  if (!prep) mpEditMsg('');
+  const x = $('#mpModal .x'); if (x) { try { x.focus(); } catch (e) { } }
+}
+function mpCloseEditor() {
+  $('#mpModal').hidden = true;
+  document.body.style.overflow = $('#mpScreen') && !$('#mpScreen').hidden ? 'hidden' : '';
+  MPED = null;
+}
+function mpEditMsg(t, ok) {
+  const el = $('#mpMsg');
+  if (!el) return;
+  el.textContent = t || '';
+  el.hidden = !t;
+  el.className = 'mpmsg' + (ok ? ' ok' : '');
+}
+function mpValidate(p) {
+  const lim = MP_LIM[p.type];
+  const names = {};
+  for (let i = 0; i < p.teams.length; i++) {
+    const t = p.teams[i];
+    if (names[t.name]) return t.name + ' 팀 이름이 중복입니다. 팀을 다시 골라 주세요.';
+    names[t.name] = 1;
+    if (t.players.length > lim.max) return t.name + ' 팀은 최대 ' + lim.max + '명까지 가능합니다. (현재 ' + t.players.length + '명)';
+    if (t.players.length < lim.min) {
+      return p.type === '2'
+        ? t.name + ' 팀은 최소 ' + lim.min + '명이 필요합니다. (현재 ' + t.players.length + '명)'
+        : t.name + ' 팀에 선수를 1명 이상 넣어 주세요.';
+    }
+  }
+  return '';
+}
+function mpPoolHtml() {
+  const p = MPED;
+  if (!p) return '';
+  const assigned = {};
+  p.teams.forEach(function (t) { t.players.forEach(function (x) { assigned[x.name] = 1; }); });
+  const q = MPQ.toLowerCase();
+  const list = mpPoolAll().filter(function (x) {
+    if (x.kind === 'guest' && !$('#mpGuest').checked) return false;
+    if (MPPOS) {
+      const toks = posTokens(x.name);
+      if (toks.indexOf(MPPOS) < 0) return false;
+    }
+    if (q && x.name.toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  const note = $('#mpPoolNote');
+  if (note) note.innerHTML = '명단 <b>' + list.length + '</b>명 · 팀 배정 <b>' + Object.keys(assigned).length + '</b>명';
+  if (!list.length) return '<div class="pempty" style="grid-column:1/-1">조건에 맞는 선수가 없습니다.</div>';
+  return list.map(function (x) {
+    const on = !!assigned[x.name];
+    const b = x.kind === 'guest' ? '<span class="pb gt">게스트</span>' : x.kind === 'fake' ? '<span class="pb fb">가상</span>' : '';
+    return '<button type="button" class="pchip" data-mppick="' + esc(x.name) + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
+      + '<span class="pn">' + esc(x.name) + '</span>' + b + '</button>';
+  }).join('');
+}
+function mpRenderEditor() {
+  const p = MPED;
+  if (!p) return;
+  $$('#mpType [data-mptype]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-mptype') === p.type ? 'true' : 'false'); });
+  $$('#mpQtr [data-mpq]').forEach(function (b) { b.setAttribute('aria-pressed', Number(b.getAttribute('data-mpq')) === p.quarters ? 'true' : 'false'); });
+  const lim = MP_LIM[p.type];
+  $('#mpRule').innerHTML = p.type === '3'
+    ? '3파전 — 팀 <b>형광 · 블랙 · 레드</b>, 팀당 <b>최대 6명</b>. 팀 선택과 순서를 바꿀 수 있습니다.'
+    : '2파전 — 팀 <b>블랙 · 레드</b>, 팀당 <b>5~8명</b>. 팀 선택과 순서를 바꿀 수 있습니다.';
+  const capa = $('#mpCapa');
+  if (capa) capa.innerHTML = p.type === '3' ? '팀당 최대 ' + lim.max + '명' : '팀당 ' + lim.min + '~' + lim.max + '명';
+  const wrap = $('#mpTeams');
+  wrap.className = 'mpedit' + (p.type === '2' ? ' two' : '');
+  wrap.innerHTML = p.tOrder.map(function (slot, pos) {
+    const t = p.teams[slot];
+    const names = MP_TN[p.type];
+    const sel = names.map(function (n) {
+      return '<option value="' + esc(n) + '"' + (n === t.name ? ' selected' : '') + '>' + esc(n) + '</option>';
+    }).join('');
+    const full = t.players.length >= lim.max;
+    const lst = t.players.length
+      ? t.players.map(function (pl) {
+        const k = pl.kind === 'guest' ? '<span class="k">G</span>' : pl.kind === 'fake' ? '<span class="k">가상</span>' : '';
+        return '<div class="who"><span class="n">' + esc(pl.name) + '</span>' + k
+          + '<button type="button" class="rm" data-mprm="' + slot + '|' + esc(pl.name) + '" aria-label="' + esc(pl.name) + ' 빼기">✕</button></div>';
+      }).join('')
+      : '<div class="emp">아래 명단에서 선수를 눌러 추가</div>';
+    const cntCls = t.players.length > lim.max ? 'over' : (t.players.length >= lim.min ? 'ok' : '');
+    return '<div class="mpteam' + (slot === MPED_SLOT ? ' act' : '') + '" data-mpslot="' + slot + '">'
+      + '<div class="th">'
+      + '<button type="button" class="mv" data-mpmove="' + slot + ':-1" aria-label="팀 순서 왼쪽"' + (pos === 0 ? ' disabled' : '') + '>◀</button>'
+      + '<select data-mpteamsel="' + slot + '" aria-label="팀 이름">' + sel + '</select>'
+      + '<button type="button" class="mv" data-mpmove="' + slot + ':1" aria-label="팀 순서 오른쪽"' + (pos === p.tOrder.length - 1 ? ' disabled' : '') + '>▶</button>'
+      + '</div>'
+      + '<div class="cnt ' + cntCls + '">' + t.players.length + '/' + lim.max + '명</div>'
+      + '<div class="lst">' + lst + '</div>'
+      + (t.players.length ? '<button type="button" class="rmv" data-mpclear="' + slot + '">명단 비우기</button>' : '')
+      + '</div>';
+  }).join('');
+  const pool = $('#mpPool');
+  if (pool) pool.innerHTML = mpPoolHtml();
+  $$('#mpPosFilter [data-mppos]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-mppos') === MPPOS ? 'true' : 'false'); });
+}
+function mpTogglePlayer(name) {
+  const p = MPED;
+  if (!p) return;
+  let where = -1;
+  p.teams.forEach(function (t, i) { t.players.forEach(function (x) { if (x.name === name) where = i; }); });
+  if (where >= 0) {
+    p.teams[where].players = p.teams[where].players.filter(function (x) { return x.name !== name; });
+    mpEditMsg('');
+    mpRenderEditor();
+    return;
+  }
+  const t = p.teams[MPED_SLOT];
+  const lim = MP_LIM[p.type];
+  if (t.players.length >= lim.max) { mpEditMsg(t.name + ' 팀은 최대 ' + lim.max + '명까지입니다. 다른 팀을 고르거나 인원을 빼 주세요.'); return; }
+  if (t.players.some(function (x) { return x.name === name; })) return;
+  t.players.push({ name: name, kind: mpKindOf(name) });
+  mpEditMsg('');
+  mpRenderEditor();
+}
+function mpSaveEditor() {
+  const p = MPED;
+  if (!p) return;
+  const err = mpValidate(p);
+  if (err) { mpEditMsg(err); return; }
+  const prev = MP.preview, prevDate = prev ? prev.date : null;
+  const sameShape = prev && prev.type === p.type && prev.quarters === p.quarters
+    && prev.teams.length === p.teams.length;
+  const dEl = $('#mpDate');
+  if (dEl && dEl.value) p.date = dEl.value;
+  if (!p.date) p.date = mpNextSunday();
+  mpNormalize(p);
+  if (!sameShape) { p.scores = {}; p.rest = {}; p.restNo = {}; }
+  if (prevDate && prevDate !== p.date) {
+    MP.previews = MP.previews.filter(function (x) { return x.date !== prevDate; });
+  }
+  mpUpsert(p);
+  mpPaintHome();
+  mpCloseEditor();
+  if ($('#mpScreen') && !$('#mpScreen').hidden) mpRender();
+  mpToast(prev ? '매치 프리뷰를 저장했습니다.' : (p.type + '파전 매치 프리뷰를 등록했습니다.'));
+}
+
+/* ---------- 결과 시트에서 등록 ---------- */
+function mpRegisterFromTeams(mode, names, teams) {
+  const p = mpNew(String(mode), String(mode) === '3' ? 4 : 3);
+  p.teams = names.map(function (n, i) {
+    return { name: n, players: (teams[i] || []).map(function (nm) { return { name: nm, kind: mpKindOf(nm) }; }) };
+  });
+  p.tOrder = names.map(function (_, i) { return i; });
+  const err = mpValidate(p);
+  if (err) { mpOpenEditor(p); mpEditMsg(err); return false; }
+  mpNormalize(p);
+  mpUpsert(p);
+  mpPaintHome();
+  mpToast('📝 ' + mode + '파전 매치 프리뷰를 등록했습니다. 카드에서 🏀 경기 진행하기를 누르세요.');
+  setTimeout(function () { const c = $('#mpCard'); if (c) scrollToTarget(c); }, 60);
+  return true;
+}
+function mpRegisterFromPair(names) {
+  const n = names.length;
+  const p = mpNew(n <= 6 ? '3' : '2', n <= 6 ? 4 : 3);
+  names.forEach(function (nm) { p.teams[0].players.push({ name: nm, kind: mpKindOf(nm) }); });
+  mpNormalize(p);
+  const err = mpValidate(p) || (n < 6 && p.type === '3' ? '3파전은 팀마다 5~6명이 맞습니다. 나머지 팀 인원을 채워 주세요.' : '');
+  mpOpenEditor(p);
+  mpEditMsg(err || ('선택한 ' + n + '명을 ' + p.teams[0].name + ' 팀에 넣었습니다. 나머지 팀 인원을 채우고 등록하세요.'), !err);
+}
+
+/* ---------- 경기 진행 화면 ---------- */
+function mpApplyTheme() {
+  const s = $('#mpScreen');
+  if (s) {
+    s.classList.toggle('light', MP.theme === 'light');
+    s.classList.toggle('fs-s', MP.font === 'small');
+    s.classList.toggle('fs-l', MP.font === 'large');
+  }
+  const th = $('#mpThemeBtn');
+  if (th) th.textContent = MP.theme === 'light' ? '🌓 어두운 테마' : '🌓 밝은 테마';
+  const fo = $('#mpFontBtn');
+  if (fo) fo.textContent = '🔎 글씨 크기 ' + MP_QLABEL[MP.font];
+}
+function mpOpenScreen() {
+  if (!MP.preview) { mpOpenEditor(); return; }
+  mpNormalize(MP.preview);
+  const s = $('#mpScreen');
+  if (!s) return;
+  MP_PICK = -1;
+  s.hidden = false;
+  document.body.classList.add('mp-open');
+  mpApplyTheme();
+  mpRender();
+  mpWake(true);
+}
+function mpCloseScreen() {
+  const s = $('#mpScreen');
+  if (!s) return;
+  s.hidden = true;
+  document.body.classList.remove('mp-open');
+  MP_PICK = -1;
+  mpWake(false);
+  if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (e) { } }
+  MPFS = false;
+  const fb = $('#mpFullBtn');
+  if (fb) { fb.setAttribute('aria-pressed', 'false'); fb.textContent = '⛶ 전체화면'; }
+  mpPaintHome();
+}
+async function mpWake(on) {
+  try {
+    if (on) {
+      if (!navigator.wakeLock || !navigator.wakeLock.request) return false;
+      if (!MPWL) MPWL = await navigator.wakeLock.request('screen');
+      return true;
+    }
+    if (MPWL) { try { await MPWL.release(); } catch (e) { } MPWL = null; }
+  } catch (e) { MPWL = null; }
+  return false;
+}
+async function mpFullscreen() {
+  const s = $('#mpScreen');
+  if (!s) return;
+  if (MPFS) {
+    try { if (document.fullscreenElement) await document.exitFullscreen(); } catch (e) { }
+    MPFS = false;
+  } else if (s.requestFullscreen) {
+    try { await s.requestFullscreen(); MPFS = true; }
+    catch (e) { MPFS = true; }
+  } else {
+    MPFS = true;
+  }
+  const b = $('#mpFullBtn');
+  if (b) { b.setAttribute('aria-pressed', MPFS ? 'true' : 'false'); b.textContent = MPFS ? '⛶ 전체화면 종료' : '⛶ 전체화면'; }
+}
+function mpToast(t) {
+  const el = $('#mpToast');
+  if (!el) return;
+  el.textContent = t || '';
+  el.hidden = !t;
+  if (t) { clearTimeout(mpToast._t); mpToast._t = setTimeout(function () { el.hidden = true; }, 2600); }
+}
+function mpSumHtml(p, st) {
+  const rank = mpRateOrder(p);
+  const expOf = {};
+  rank.forEach(function (r) { expOf[r.slot] = r.rate; });
+  return p.tOrder.map(function (slot) {
+    const t = p.teams[slot], r = st.rows[slot];
+    const ex = expOf[slot];
+    return '<div class="mpsc' + (st.winner && st.winner.slot === slot ? ' top' : '') + '">'
+      + '<div class="h">' + (st.winner && st.winner.slot === slot ? '<span class="cr">우승</span>' : '')
+      + '<i class="dot ' + dotCls(t.name) + '"></i><span class="nm">' + esc(t.name) + '</span></div>'
+      + '<div class="rec"><span class="w">' + r.w + '</span>승 <span class="d">' + r.d + '</span>무 <span class="l">' + r.l + '</span>패</div>'
+      + '<div class="df">득실 ' + mpDiffText(r.diff) + ' · ' + r.gp + '경기</div>'
+      + '<div class="ex">예상 ' + (ex == null ? '기록 없음' : pct(ex) + '%') + (st.winner && st.winner.slot === slot ? ' · 1위' : '') + '</div>'
+      + '</div>';
+  }).join('');
+}
+function mpTotHtml(p, gi, st) {
+  const t = mpGameTotal(p, gi);
+  if (!t.any) return '<div class="tv" style="color:var(--mptx3)">– : –</div><span class="bd">미입력</span>';
+  const A = st.rows[p.games[gi].a], B = st.rows[p.games[gi].b];
+  let bd = '무승부', cls = 'd';
+  if (t.a > t.b) { bd = A.name + ' 승'; cls = 'w'; }
+  else if (t.a < t.b) { bd = B.name + ' 승'; cls = 'w'; }
+  return '<div class="tv">' + t.a + ' : ' + t.b + '</div><span class="bd ' + cls + '">' + esc(bd) + '</span>';
+}
+function mpCellHtml(p, gi, qi) {
+  const g = p.games[gi], A = p.teams[g.a], B = p.teams[g.b];
+  const s = p.scores['g' + gi + 'q' + qi] || {};
+  const av = s.a == null ? '' : String(s.a), bv = s.b == null ? '' : String(s.b);
+  const ia = 'data-sc="' + gi + ':' + qi + ':a"';
+  const ib = 'data-sc="' + gi + ':' + qi + ':b"';
+  const la = 'aria-label="' + esc(A.name) + ' ' + (qi + 1) + 'Q 점수"';
+  const lb = 'aria-label="' + esc(B.name) + ' ' + (qi + 1) + 'Q 점수"';
+  if (p.type === '2') {
+    const idx = mpCellIndex(p, gi, qi);
+    const ra = mpRestNums((p.order[g.a] || []).length, idx);
+    const rb = mpRestNums((p.order[g.b] || []).length, idx);
+    return '<td data-cell="' + gi + ':' + qi + '">'
+      + '<div class="mpsc2 two">'
+      + '<input type="text" inputmode="numeric" ' + ia + ' value="' + esc(av) + '" placeholder="–" ' + la + '>'
+      + '<span class="cl">:</span>'
+      + '<input type="text" inputmode="numeric" ' + ib + ' value="' + esc(bv) + '" placeholder="–" ' + lb + '>'
+      + '</div>'
+      + '<div class="mprestl">'
+      + '<span class="g"><i class="dot ' + dotCls(A.name) + '"></i>휴식 ' + (ra.length ? ra.join('·') : '없음') + '</span>'
+      + '<span class="sep">/</span>'
+      + '<span class="g">' + (rb.length ? rb.join('·') : '없음') + '</span></div>'
+      + '</td>';
+  }
+  return '<td data-cell="' + gi + ':' + qi + '">'
+    + '<div class="mpsc2"><span class="tl"><i class="dot ' + dotCls(A.name) + '"></i><span>' + esc(A.name) + '</span></span>'
+    + '<input type="text" inputmode="numeric" ' + ia + ' value="' + esc(av) + '" placeholder="–" ' + la + '></div>'
+    + '<div class="mpsc2"><span class="tl"><i class="dot ' + dotCls(B.name) + '"></i><span>' + esc(B.name) + '</span></span>'
+    + '<input type="text" inputmode="numeric" ' + ib + ' value="' + esc(bv) + '" placeholder="–" ' + lb + '></div>'
+    + '</td>';
+}
+function mpRosterList(p, slot) {
+  const t = p.teams[slot];
+  const ord = p.order[slot] || [];
+  const byName = {};
+  t.players.forEach(function (x) { byName[x.name] = x; });
+  return ord.filter(function (n) { return byName[n]; }).map(function (n) {
+    const pl = byName[n];
+    const no = p.type === '3' ? (p.restNo[slot] || {})[n] : ord.indexOf(n) + 1;
+    const rc = p.type === '3' ? ((p.rest[slot] || {})[n] || 0) : 0;
+    const k = pl.kind === 'guest' ? '<span class="k">G</span>' : pl.kind === 'fake' ? '<span class="k">가상</span>' : '';
+    return '<li data-prow="' + slot + '|' + esc(n) + '">'
+      + '<span class="mpdrag" data-dragp="' + slot + '|' + esc(n) + '" role="button" aria-label="명단 순서 드래그">⋮⋮</span>'
+      + '<span class="no' + (no ? ' has' : '') + '">' + (no || '–') + '</span>'
+      + '<span class="nm">' + esc(n) + '</span>' + k
+      + (p.type === '3'
+        ? '<button type="button" class="rc' + (rc ? ' n' + rc : '') + '" data-rest="' + slot + '|' + esc(n) + '" aria-label="' + esc(n) + ' 휴식 횟수 ' + rc + '회" title="휴식 횟수 (누르면 0→1→2→3→1)">' + rc + '회</button>'
+        : '')
+      + '</li>';
+  }).join('');
+}
+function mpRosterHtml(p) {
+  return '<div class="mprosters' + (p.type === '2' ? ' two' : '') + '">' + p.tOrder.map(function (slot) {
+    const t = p.teams[slot];
+    const waiting = MP_PICK === slot;
+    const done = p.type === '3'
+      ? t.players.filter(function (x) { return (p.restNo[slot] || {})[x.name]; }).length
+      : (p.order[slot] || []).length;
+    return '<section class="mprt" data-rt="' + slot + '">'
+      + '<div class="rh"><i class="dot ' + dotCls(t.name) + '"></i><span class="nm">' + esc(t.name) + '</span>'
+      + '<span class="ct">' + t.players.length + '명</span></div>'
+      + '<button type="button" class="rb" data-prd="' + slot + '" aria-pressed="' + (waiting ? 'true' : 'false') + '">'
+      + (waiting ? '정하기 완료' : t.name + ' 휴식 순서 정하기') + '</button>'
+      + (waiting ? '<div class="pick">명단을 차례로 누르면 1번부터 번호가 붙습니다. (' + done + '/' + t.players.length + ')</div>' : '')
+      + '<ul class="mprl">' + mpRosterList(p, slot) + '</ul></section>';
+  }).join('') + '</div>';
+}
+function mpGridHtml(p, st) {
+  const games = p.gOrder;
+  let h = '<table class="mpg"><thead><tr><th class="qh" aria-label="쿼터"></th>';
+  games.forEach(function (gi, col) {
+    const g = p.games[gi], A = p.teams[g.a], B = p.teams[g.b];
+    h += '<th data-gcol="' + gi + '"><div class="gh">'
+      + '<div class="g1"><span class="mpdrag" data-dragg="' + gi + '" role="button" aria-label="매치업 순서 드래그">⋮⋮</span>'
+      + (p.type === '2'
+        ? '<span class="tn">' + (col + 1) + '경기</span><span class="vs">' + esc(A.name) + ':' + esc(B.name) + '</span>'
+        : '<i class="dot ' + dotCls(A.name) + '"></i><span class="tn">' + esc(A.name) + '</span>'
+          + '<i class="dot ' + dotCls(B.name) + '"></i><span class="tn">' + esc(B.name) + '</span>')
+      + '</div>'
+      + '<div class="g2"><button type="button" data-gmove="' + gi + ':-1" aria-label="매치업 앞으로">◀</button>'
+      + '<button type="button" data-gmove="' + gi + ':1" aria-label="매치업 뒤로">▶</button></div>'
+      + '</div></th>';
+  });
+  h += '</tr></thead><tbody>';
+  p.qOrder.forEach(function (qi) {
+    h += '<tr data-qrow="' + qi + '"><th class="qh"><div class="qhbox">'
+      + '<span class="mpdrag" data-dragq="' + qi + '" role="button" aria-label="쿼터 순서 드래그">⋮⋮</span>'
+      + '<span>' + (qi + 1) + 'Q</span></div></th>';
+    games.forEach(function (gi) { h += mpCellHtml(p, gi, qi); });
+    h += '</tr>';
+  });
+  h += '<tr class="tot"><th class="qh">합계</th>';
+  games.forEach(function (gi) { h += '<td data-tot="' + gi + '">' + mpTotHtml(p, gi, st) + '</td>'; });
+  h += '</tr></tbody></table>';
+  return h;
+}
+function mpRender() {
+  const p = MP.preview;
+  if (!p) return;
+  mpNormalize(p);
+  const st = mpStandings(p);
+  $('#mpGameTitle').textContent = '🏀 ' + p.type + '파전 경기 진행';
+  $('#mpGameSub').textContent = p.tOrder.map(function (s) { return p.teams[s].name; }).join(' · ')
+    + ' · ' + p.quarters + '쿼터' + (st.played ? ' · 진행 중' : '');
+  const body = $('#mpBody');
+  body.innerHTML = '<div class="mpsum' + (p.type === '2' ? ' two' : '') + '" id="mpSum">' + mpSumHtml(p, st) + '</div>'
+    + mpGridHtml(p, st) + mpRosterHtml(p)
+    + '<p class="mpnote">점수 칸을 누르면 숫자를 직접 넣을 수 있고, 승·무·패·득실·우승팀은 자동 계산됩니다. '
+    + '쿼터·매치업은 <b>⋮⋮ 드래그</b>나 ◀▶로, 명단 순서는 <b>⋮⋮ 드래그</b>로 바꿉니다. '
+    + (p.type === '3' ? '명단의 <b>회수 버튼</b>을 누르면 휴식 횟수가 0 → 1 → 2 → 3 → 1로 바뀌고, <b>휴식 순서 정하기</b>로 1번부터 번호를 붙입니다. ' : '')
+    + '인원을 추가·삭제·수정하려면 매치 프리뷰 수정을 이용해 주세요.</p>';
+}
+function mpPaintTotals() {
+  const p = MP.preview;
+  if (!p || !$('#mpSum')) return;
+  const st = mpStandings(p);
+  $('#mpSum').innerHTML = mpSumHtml(p, st);
+  $$('#mpBody [data-tot]').forEach(function (td) { td.innerHTML = mpTotHtml(p, td.getAttribute('data-tot'), st); });
+  const sub = $('#mpGameSub');
+  if (sub) sub.textContent = p.tOrder.map(function (s) { return p.teams[s].name; }).join(' · ') + ' · ' + p.quarters + '쿼터' + (st.played ? ' · 진행 중' : '');
+}
+function mpMoveOrder(arr, from, to) {
+  if (from === to || from < 0 || to < 0 || from >= arr.length || to >= arr.length) return false;
+  const v = arr.splice(from, 1)[0];
+  arr.splice(to, 0, v);
+  return true;
+}
+function mpNudgeGame(gi, dir) {
+  const p = MP.preview, i = p.gOrder.indexOf(gi);
+  if (mpMoveOrder(p.gOrder, i, i + dir)) { mpSave(); mpRender(); }
+}
+function mpNudgeQuarter(qi, dir) {
+  const p = MP.preview, i = p.qOrder.indexOf(qi);
+  if (mpMoveOrder(p.qOrder, i, i + dir)) { mpSave(); mpRender(); }
+}
+function mpCycleRest(slot, name) {
+  const p = MP.preview;
+  const m = p.rest[slot] || (p.rest[slot] = {});
+  const cur = m[name] || 0;
+  m[name] = cur >= 3 ? 1 : cur + 1;
+  mpSave();
+  const li = $('#mpBody [data-rest="' + slot + '|' + name + '"]');
+  const prev = $('#mpBody [data-prow="' + slot + '|' + name + '"]');
+  const rc = m[name];
+  if (li) { li.textContent = rc + '회'; li.className = 'rc' + (rc ? ' n' + rc : ''); }
+  else if (prev) { mpRender(); }
+}
+function mpPickRest(slot) {
+  const p = MP.preview;
+  if (MP_PICK === slot) { MP_PICK = -1; mpRender(); return; }
+  MP_PICK = slot;
+  mpRender();
+}
+function mpAssignPick(slot, name) {
+  const p = MP.preview, t = p.teams[slot];
+  if (p.type === '3') {
+    const m = p.restNo[slot] || (p.restNo[slot] = {});
+    if (m[name]) { delete m[name]; }
+    else {
+      let mx = 0;
+      Object.keys(m).forEach(function (k) { mx = Math.max(mx, m[k]); });
+      m[name] = mx + 1;
+    }
+    const all = t.players.every(function (x) { return m[x.name]; });
+    if (all) {
+      p.order[slot] = t.players.slice().sort(function (a, b) { return m[a.name] - m[b.name]; }).map(function (x) { return x.name; });
+      MP_PICK = -1;
+      mpToast(p.teams[slot].name + ' 휴식 순서를 1~' + t.players.length + '번으로 정렬했습니다.');
+    }
+  } else {
+    const seq = (p.order[slot] || []).filter(function (n) { return t.players.some(function (x) { return x.name === n; }); });
+    const i = seq.indexOf(name);
+    if (i >= 0) seq.splice(i, 1); else seq.push(name);
+    p.order[slot] = seq;
+    if (seq.length >= t.players.length) { MP_PICK = -1; mpToast(p.teams[slot].name + ' 쉬는 순서를 정했습니다.'); }
+  }
+  mpSave();
+  mpRender();
+}
+function mpResetAll() {
+  const p = MP.preview;
+  if (!p) return;
+  p.scores = {}; p.rest = {}; p.restNo = {};
+  p.teams.forEach(function (t, i) { p.order[i] = t.players.map(function (x) { return x.name; }); });
+  MP_PICK = -1;
+  mpSave();
+  mpRender();
+  mpToast('점수·기록을 초기화했습니다.');
+}
+
+/* ---------- 화면 이벤트 ---------- */
+function mpInit() {
+  mpLoad();
+  mpApplyTheme();
+  const s = $('#mpScreen');
+  if (!s || s.getAttribute('data-bound') === '1') return;
+  s.setAttribute('data-bound', '1');
+
+  s.addEventListener('click', function (e) {
+    const b = e.target.closest('button');
+    if (e.target.closest('#mpClose')) { mpCloseScreen(); return; }
+    if (e.target.closest('#mpEditBtn')) { mpOpenEditor(); return; }
+    if (e.target.closest('#mpCfOk')) { $('#mpConfirm').hidden = true; mpResetAll(); return; }
+    if (e.target.closest('#mpCfNo')) { $('#mpConfirm').hidden = true; return; }
+    const ctl = e.target.closest('[data-mpctl]');
+    if (ctl) {
+      const k = ctl.getAttribute('data-mpctl');
+      if (k === 'theme') { MP.theme = MP.theme === 'light' ? 'dark' : 'light'; mpSave(); mpApplyTheme(); mpRender(); }
+      else if (k === 'font') {
+        MP.font = MP.font === 'normal' ? 'large' : MP.font === 'large' ? 'small' : 'normal';
+        mpSave(); mpApplyTheme();
+        mpToast('글씨 크기: ' + MP_QLABEL[MP.font]);
+      }
+      else if (k === 'full') mpFullscreen();
+      else if (k === 'wake') {
+        const on = ctl.getAttribute('aria-pressed') !== 'true';
+        mpWake(on).then(function () {
+          ctl.setAttribute('aria-pressed', on ? 'true' : 'false');
+          ctl.textContent = '🔆 화면꺼짐 방지 ' + (on ? 'ON' : 'OFF');
+        });
+      }
+      else if (k === 'print') mpPrint();
+      else if (k === 'photo') mpPhoto();
+      else if (k === 'reset') { $('#mpConfirm').hidden = false; }
+      return;
+    }
+    const gm = e.target.closest('[data-gmove]');
+    if (gm) { const v = gm.getAttribute('data-gmove').split(':'); mpNudgeGame(Number(v[0]), Number(v[1])); return; }
+    const qm = e.target.closest('[data-qmove]');
+    if (qm) { const v = qm.getAttribute('data-qmove').split(':'); mpNudgeQuarter(Number(v[0]), Number(v[1])); return; }
+    const rc = e.target.closest('[data-rest]');
+    if (rc) { const v = rc.getAttribute('data-rest').split('|'); mpCycleRest(Number(v[0]), v[1]); return; }
+    const prd = e.target.closest('[data-prd]');
+    if (prd) { mpPickRest(Number(prd.getAttribute('data-prd'))); return; }
+    const pr = e.target.closest('[data-prow]');
+    if (pr && MP_PICK >= 0) {
+      const v = pr.getAttribute('data-prow').split('|');
+      if (Number(v[0]) === MP_PICK) { mpAssignPick(MP_PICK, v[1]); return; }
+    }
+  });
+  s.addEventListener('input', function (e) {
+    const el = e.target.closest('[data-sc]');
+    if (!el) return;
+    let v = String(el.value || '').replace(/[^0-9]/g, '').slice(0, 3);
+    if (el.value !== v) el.value = v;
+    const k = el.getAttribute('data-sc').split(':');
+    const key = 'g' + k[0] + 'q' + k[1];
+    const p = MP.preview;
+    const row = p.scores[key] || (p.scores[key] = { a: '', b: '' });
+    row[k[2]] = v;
+    mpSave();
+    mpPaintTotals();
+  });
+  s.addEventListener('pointerdown', mpDragDown);
+  document.addEventListener('pointermove', mpDragMove, { passive: true });
+  document.addEventListener('pointerup', mpDragUp);
+  document.addEventListener('pointercancel', mpDragUp);
+}
+
+/* ---------- 드래그(터치·포인터) ---------- */
+function mpDragDown(e) {
+  const h = e.target.closest('[data-dragg],[data-dragq],[data-dragp]');
+  if (!h) return;
+  const rects = [];
+  let axis = 'y', kind = '', from = 0, slot = -1;
+  if (h.hasAttribute('data-dragq')) {
+    kind = 'q';
+    $$('#mpBody tr[data-qrow]').forEach(function (tr, i) {
+      rects.push({ el: tr, idx: i, r: tr.getBoundingClientRect() });
+      if (Number(tr.getAttribute('data-qrow')) === Number(h.getAttribute('data-dragq'))) from = i;
+    });
+  } else if (h.hasAttribute('data-dragg')) {
+    kind = 'g'; axis = 'x';
+    $$('#mpBody thead th[data-gcol]').forEach(function (th, i) {
+      rects.push({ el: th, idx: i, r: th.getBoundingClientRect() });
+      if (Number(th.getAttribute('data-gcol')) === Number(h.getAttribute('data-dragg'))) from = i;
+    });
+  } else {
+    kind = 'p';
+    const v = h.getAttribute('data-dragp').split('|');
+    slot = Number(v[0]);
+    const ul = h.closest('ul');
+    $$('li[data-prow]', ul).forEach(function (li, i) {
+      rects.push({ el: li, idx: i, r: li.getBoundingClientRect() });
+      if (li.getAttribute('data-prow') === v[0] + '|' + v[1]) from = i;
+    });
+  }
+  MPDG = { kind: kind, axis: axis, slot: slot, from: from, target: from, moved: false, x: e.clientX, y: e.clientY, rects: rects };
+  try { h.setPointerCapture && h.setPointerCapture(e.pointerId); } catch (err) { }
+  e.preventDefault();
+}
+function mpDragMove(e) {
+  if (!MPDG) return;
+  if (!MPDG.moved && Math.abs(e.clientY - MPDG.y) + Math.abs(e.clientX - MPDG.x) < 7) return;
+  MPDG.moved = true;
+  let target = MPDG.target;
+  MPDG.rects.forEach(function (it) {
+    const r = it.r;
+    const hit = MPDG.axis === 'x'
+      ? (e.clientX >= r.left && e.clientX <= r.right)
+      : (e.clientY >= r.top && e.clientY <= r.bottom);
+    if (hit) target = it.idx;
+  });
+  if (target !== MPDG.target) {
+    MPDG.target = target;
+    MPDG.rects.forEach(function (it) { it.el.classList.toggle('mpdropt', it.idx === target && it.idx !== MPDG.from); });
+  }
+}
+function mpDragUp() {
+  if (!MPDG) return;
+  const d = MPDG;
+  MPDG = null;
+  d.rects.forEach(function (it) { it.el.classList.remove('mpdropt'); });
+  if (!d.moved || d.target === d.from) return;
+  const p = MP.preview;
+  if (d.kind === 'g') { if (mpMoveOrder(p.gOrder, d.from, d.target)) { mpSave(); mpRender(); } }
+  else if (d.kind === 'q') { if (mpMoveOrder(p.qOrder, d.from, d.target)) { mpSave(); mpRender(); } }
+  else if (d.kind === 'p') {
+    if (mpMoveOrder(p.order[d.slot], d.from, d.target)) { mpSave(); mpRender(); }
+  }
+}
+
+/* ---------- A4 인쇄 ---------- */
+function mpPrintHtml() {
+  const p = MP.preview, st = mpStandings(p);
+  const teams = p.tOrder.map(function (s) { return p.teams[s].name; }).join(' · ');
+  let head = '<tr><th style="width:16mm">쿼터</th>';
+  p.gOrder.forEach(function (gi, i) {
+    const g = p.games[gi];
+    head += '<th>' + (p.type === '2' ? (i + 1) + '경기 (' + esc(p.teams[g.a].name) + ' : ' + esc(p.teams[g.b].name) + ')' : esc(p.teams[g.a].name) + ' vs ' + esc(p.teams[g.b].name)) + '</th>';
+  });
+  head += '</tr>';
+  let rows = '';
+  p.qOrder.forEach(function (qi) {
+    rows += '<tr><th>' + (qi + 1) + 'Q</th>';
+    p.gOrder.forEach(function (gi) {
+      const g = p.games[gi], s = p.scores['g' + gi + 'q' + qi] || {};
+      const av = s.a == null || s.a === '' ? '' : s.a, bv = s.b == null || s.b === '' ? '' : s.b;
+      let rest = '';
+      if (p.type === '2') {
+        const idx = mpCellIndex(p, gi, qi);
+        const ra = mpRestNums((p.order[g.a] || []).length, idx);
+        const rb = mpRestNums((p.order[g.b] || []).length, idx);
+        rest = '<div class="ppsmall">휴식 ' + (ra.length ? ra.join('·') : '없음') + ' / ' + (rb.length ? rb.join('·') : '없음') + '</div>';
+      }
+      rows += '<td><div class="ppscore">' + (av === '' ? '–' : av) + ' : ' + (bv === '' ? '–' : bv) + '</div>' + rest + '</td>';
+    });
+    rows += '</tr>';
+  });
+  let tot = '<tr><th>합계</th>';
+  p.gOrder.forEach(function (gi) {
+    const t = mpGameTotal(p, gi);
+    tot += '<td><div class="ppscore">' + (t.any ? t.a + ' : ' + t.b : '– : –') + '</div>'
+      + '<div class="ppsmall">' + (t.any ? (t.a === t.b ? '무승부' : (t.a > t.b ? esc(p.teams[p.games[gi].a].name) : esc(p.teams[p.games[gi].b].name)) + ' 승') : '미입력') + '</div></td>';
+  });
+  tot += '</tr>';
+  const stand = '<table><thead><tr><th>팀</th><th>승</th><th>무</th><th>패</th><th>득점</th><th>실점</th><th>득실</th></tr></thead><tbody>'
+    + p.tOrder.map(function (slot) {
+      const r = st.rows[slot];
+      return '<tr><td class="ppwn">' + esc(r.name) + (st.winner && st.winner.slot === slot ? ' ★' : '') + '</td><td>' + r.w + '</td><td>' + r.d + '</td><td>' + r.l + '</td><td>' + r.pf + '</td><td>' + r.pa + '</td><td>' + mpDiffText(r.diff) + '</td></tr>';
+    }).join('') + '</tbody></table>';
+  const ros = '<div class="ppros' + (p.type === '2' ? ' two' : '') + '">' + p.tOrder.map(function (slot) {
+    const t = p.teams[slot];
+    const rows2 = (p.order[slot] || []).map(function (n, i) {
+      const no = p.type === '3' ? (p.restNo[slot] || {})[n] : i + 1;
+      const rc = p.type === '3' ? ((p.rest[slot] || {})[n] || 0) : null;
+      return '<li>' + (no ? '<span class="n">' + no + '.</span> ' : '') + esc(n)
+        + (rc ? ' <span class="n">(휴식 ' + rc + ')</span>' : '') + '</li>';
+    }).join('');
+    return '<div class="ppt"><div class="t">' + esc(t.name) + ' · ' + t.players.length + '명</div><ul class="ppl">' + rows2 + '</ul></div>';
+  }).join('') + '</div>';
+  return '<div class="pp">'
+    + '<div class="pph"><b>STEPBACK ' + p.type + '파전 경기 기록지</b><span>' + esc(p.date || mpDateStr()) + ' · ' + p.quarters + '쿼터</span></div>'
+    + '<div class="ppsub">' + esc(teams) + ' · 점수는 쿼터별 입력값, 합계가 그 경기 결과입니다.</div>'
+    + '<table><thead>' + head + '</thead><tbody>' + rows + tot + '</tbody></table>'
+    + stand
+    + '<div class="pgnote">명단 · ' + (p.type === '3' ? '휴식 순서와 누적 휴식 횟수' : '쉬는 순서') + '</div>'
+    + ros
+    + '<div class="ppfoot">STEPBACK BASKETBALL · 경기 진행 기록지</div></div>';
+}
+function mpPrint() {
+  if (!MP.preview) return;
+  const box = $('#mpPrint');
+  if (!box) return;
+  box.innerHTML = mpPrintHtml();
+  document.body.classList.add('mp-printing');
+  const done = function () {
+    document.body.classList.remove('mp-printing');
+    window.removeEventListener('afterprint', done);
+  };
+  window.addEventListener('afterprint', done);
+  try { window.print(); } catch (e) { }
+  setTimeout(done, 1600);
+}
+
+/* ---------- 사진 저장(PNG) ---------- */
+function mpPhoto() {
+  const p = MP.preview;
+  if (!p) return;
+  const st = mpStandings(p);
+  const light = MP.theme === 'light';
+  const C = light
+    ? { bg: '#eef2f8', card: '#ffffff', line: '#c9d4e6', tx: '#111c30', tx2: '#3f4f6a', tx3: '#7386a1', acc: '#0a9c86', gold: '#9a7600', inbg: '#f6f9fd', win: '#0a9c86' }
+    : { bg: '#080e1a', card: '#111b2e', line: '#2a3a55', tx: '#eef4ff', tx2: '#a5b6d1', tx3: '#6d7f9c', acc: '#33e0c4', gold: '#ffd166', inbg: '#0a1120', win: '#38e08b' };
+  const TEAMCOL = { '형광': light ? '#8fb300' : '#c8ff3d', '블랙': light ? '#33415c' : '#8fa1c0', '레드': light ? '#d23d3d' : '#ff6b6b' };
+  const W = 1080, PAD = 44;
+  const cols = p.gOrder.length, qs = p.qOrder.length;
+  const gridTop = 330;
+  const rowH = 96, headH = 76, totH = 96;
+  const maxPl = Math.max.apply(null, p.teams.map(function (t) { return t.players.length; }));
+  const rosH = 120 + maxPl * 34;
+  const H = gridTop + headH + qs * rowH + totH + 40 + rosH + 60;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  const F = function (sz, wt) { return (wt || 700) + ' ' + sz + 'px "Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif'; };
+  function T(txt, x, y, sz, col, wt, align) {
+    g.font = F(sz, wt); g.fillStyle = col; g.textAlign = align || 'left'; g.textBaseline = 'alphabetic';
+    g.fillText(String(txt), x, y);
+  }
+  function rr(x, y, w, h, r, fill, stroke) {
+    g.beginPath();
+    g.moveTo(x + r, y);
+    g.arcTo(x + w, y, x + w, y + h, r);
+    g.arcTo(x + w, y + h, x, y + h, r);
+    g.arcTo(x, y + h, x, y, r);
+    g.arcTo(x, y, x + w, y, r);
+    g.closePath();
+    if (fill) { g.fillStyle = fill; g.fill(); }
+    if (stroke) { g.strokeStyle = stroke; g.lineWidth = 2; g.stroke(); }
+  }
+  g.fillStyle = C.bg; g.fillRect(0, 0, W, H);
+  /* 헤더 */
+  T('STEPBACK ' + p.type + '파전 · 경기 진행 기록지', PAD, 74, 40, C.tx, 900);
+  const sub = p.tOrder.map(function (s) { return p.teams[s].name; }).join(' · ') + '  |  ' + p.quarters + '쿼터  |  ' + (p.date || mpDateStr());
+  T(sub, PAD, 118, 24, C.tx2, 800);
+  if (st.winner) {
+    const wtxt = '우승 ' + st.winner.name + ' (' + mpRecText(st.winner) + ')';
+    g.font = F(26, 900);
+    const ww = g.measureText(wtxt).width + 44;
+    rr(W - PAD - ww, 60, ww, 46, 23, C.gold);
+    T(wtxt, W - PAD - ww / 2, 91, 26, light ? '#1a1405' : '#1a1405', 900, 'center');
+  }
+  /* 팀 성적 카드 */
+  const cw = (W - PAD * 2 - (p.tOrder.length - 1) * 14) / p.tOrder.length;
+  p.tOrder.forEach(function (slot, i) {
+    const r = st.rows[slot];
+    const x = PAD + i * (cw + 14), y = 150, h = 150;
+    rr(x, y, cw, h, 18, C.card, st.winner && st.winner.slot === slot ? C.gold : C.line);
+    g.beginPath(); g.arc(x + 30, y + 36, 8, 0, Math.PI * 2);
+    g.fillStyle = TEAMCOL[p.teams[slot].name] || C.acc; g.fill();
+    T(p.teams[slot].name, x + 48, y + 44, 26, C.tx, 900);
+    T(mpRecText(r), x + 24, y + 96, 34, C.tx, 900);
+    T('득실 ' + mpDiffText(r.diff) + ' · ' + r.gp + '경기', x + 24, y + 128, 20, C.tx3, 800);
+  });
+  /* 점수 표 */
+  const labelW = 76;
+  const colW = (W - PAD * 2 - labelW) / cols;
+  let y = gridTop;
+  p.gOrder.forEach(function (gi, i) {
+    const gm = p.games[gi], x = PAD + labelW + i * colW;
+    rr(x + 2, y, colW - 4, headH - 10, 12, C.card, C.line);
+    const label = p.type === '2' ? (i + 1) + '경기'
+      : p.teams[gm.a].name + ' vs ' + p.teams[gm.b].name;
+    T(label, x + colW / 2, y + 40, 22, C.tx, 900, 'center');
+  });
+  y += headH;
+  p.qOrder.forEach(function (qi) {
+    T((qi + 1) + 'Q', PAD + 8, y + rowH / 2 + 8, 24, C.tx3, 900);
+    p.gOrder.forEach(function (gi, i) {
+      const gm = p.games[gi], x = PAD + labelW + i * colW;
+      const s = p.scores['g' + gi + 'q' + qi] || {};
+      const av = s.a == null || s.a === '' ? '–' : s.a, bv = s.b == null || s.b === '' ? '–' : s.b;
+      rr(x + 2, y + 4, colW - 4, rowH - 12, 12, C.inbg, C.line);
+      if (p.type === '2') {
+        T(av + ' : ' + bv, x + colW / 2, y + 46, 34, C.tx, 900, 'center');
+        const idx = mpCellIndex(p, gi, qi);
+        const ra = mpRestNums((p.order[gm.a] || []).length, idx);
+        const rb = mpRestNums((p.order[gm.b] || []).length, idx);
+        T('휴식 ' + (ra.length ? ra.join('·') : '없음') + ' / ' + (rb.length ? rb.join('·') : '없음'), x + colW / 2, y + 72, 17, C.gold, 800, 'center');
+      } else {
+        T(av + ' : ' + bv, x + colW / 2, y + 50, 30, C.tx, 900, 'center');
+        T(p.teams[gm.a].name + ' / ' + p.teams[gm.b].name, x + colW / 2, y + 74, 16, C.tx3, 800, 'center');
+      }
+    });
+    y += rowH;
+  });
+  p.gOrder.forEach(function (gi, i) {
+    const t = mpGameTotal(p, gi), x = PAD + labelW + i * colW;
+    rr(x + 2, y + 2, colW - 4, totH - 12, 12, C.card, C.line);
+    T(t.any ? t.a + ' : ' + t.b : '– : –', x + colW / 2, y + 40, 30, C.tx, 900, 'center');
+    const res = !t.any ? '미입력' : (t.a === t.b ? '무승부' : (t.a > t.b ? p.teams[p.games[gi].a].name : p.teams[p.games[gi].b].name) + ' 승');
+    T(res, x + colW / 2, y + 68, 18, t.any ? C.win : C.tx3, 900, 'center');
+  });
+  T('합계', PAD + 8, y + 46, 24, C.tx3, 900);
+  y += totH + 24;
+  /* 명단 */
+  T(p.type === '3' ? '명단 · 휴식 순서 / 누적 휴식' : '명단 · 쉬는 순서', PAD, y + 8, 22, C.tx2, 900);
+  y += 26;
+  const rw = (W - PAD * 2 - (p.tOrder.length - 1) * 14) / p.tOrder.length;
+  p.tOrder.forEach(function (slot, i) {
+    const t = p.teams[slot], x = PAD + i * (rw + 14);
+    rr(x, y, rw, rosH - 20, 16, C.card, C.line);
+    T(t.name + ' · ' + t.players.length + '명', x + 18, y + 34, 22, C.tx, 900);
+    (p.order[slot] || []).slice(0, maxPl).forEach(function (n, k) {
+      const no = p.type === '3' ? (p.restNo[slot] || {})[n] : k + 1;
+      const rc = p.type === '3' ? ((p.rest[slot] || {})[n] || 0) : null;
+      T((no ? no + '. ' : '· ') + n, x + 18, y + 66 + k * 32, 21, C.tx, 800);
+      if (rc != null) T('휴식 ' + rc, x + rw - 20, y + 66 + k * 32, 17, C.gold, 900, 'right');
+    });
+  });
+  T('STEPBACK BASKETBALL · 단톡방 공유용', W - PAD, H - 22, 17, C.tx3, 700, 'right');
+  cv.toBlob(function (b) {
+    if (!b) return;
+    window.MP_PHOTO = { w: W, h: H, bytes: b.size };
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = 'stepback-' + p.type + '파전-' + (p.date || mpDateStr()) + '.png';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    mpToast('📸 사진을 저장했습니다. (단톡방 공유용 PNG)');
+  }, 'image/png');
+}
+
+/* ---------- 메인 화면 버튼 ---------- */
+document.addEventListener('click', function (e) {
+  if (e.target.closest('[data-mphero]')) { mpOpenEditor(); return; }
+  if (e.target.closest('[data-mpweek]')) { mpOpenHist(e.target.closest('[data-mpweek]').getAttribute('data-mpweek')); return; }
+  const goD = e.target.closest('[data-mpopendate]');
+  if (goD) {
+    const dt = goD.getAttribute('data-mpopendate');
+    const pv = MP.previews.filter(function (x) { return x.date === dt; })[0];
+    if (pv) { MP.preview = pv; mpSave(); mpPaintHome(); mpCloseEditor(); mpOpenScreen(); }
+    return;
+  }
+  const edD = e.target.closest('[data-mpeditdate]');
+  if (edD) {
+    const dt = edD.getAttribute('data-mpeditdate');
+    const pv = MP.previews.filter(function (x) { return x.date === dt; })[0];
+    if (pv) mpOpenEditor(mpClone(pv));
+    return;
+  }
+  if (e.target.closest('[data-mpreg]')) { mpOpenEditor(); return; }
+  if (e.target.closest('[data-mpgo]')) {
+    if (!MP.preview) { mpOpenEditor(); return; }
+    mpOpenScreen(); return;
+  }
+  if (e.target.closest('[data-mpedit]')) { mpOpenEditor(); return; }
+  if (e.target.closest('[data-mpclose]')) { mpCloseEditor(); return; }
+  if (e.target.closest('#mpSave')) { mpSaveEditor(); return; }
+  const rm = e.target.closest('[data-mprm]');
+  if (rm && MPED) {
+    const v = rm.getAttribute('data-mprm').split('|');
+    const sl = Number(v[0]);
+    MPED.teams[sl].players = MPED.teams[sl].players.filter(function (x) { return x.name !== v[1]; });
+    mpEditMsg('');
+    mpRenderEditor(); return;
+  }
+  const cl = e.target.closest('[data-mpclear]');
+  if (cl && MPED) { MPED.teams[Number(cl.getAttribute('data-mpclear'))].players = []; mpEditMsg(''); mpRenderEditor(); return; }
+  const mv = e.target.closest('[data-mpmove]');
+  if (mv && MPED) {
+    const v = mv.getAttribute('data-mpmove').split(':');
+    const sl = Number(v[0]), dir = Number(v[1]), i = MPED.tOrder.indexOf(sl);
+    if (mpMoveOrder(MPED.tOrder, i, i + dir)) mpRenderEditor();
+    return;
+  }
+  const tm = e.target.closest('[data-mpslot]');
+  if (tm && MPED) {
+    const sl = Number(tm.getAttribute('data-mpslot'));
+    if (sl !== MPED_SLOT) { MPED_SLOT = sl; mpRenderEditor(); }
+    return;
+  }
+  const pk = e.target.closest('[data-mppick]');
+  if (pk && MPED) { mpTogglePlayer(pk.getAttribute('data-mppick')); return; }
+  const tp = e.target.closest('[data-mptype]');
+  if (tp && MPED) {
+    const t2 = tp.getAttribute('data-mptype');
+    if (t2 !== MPED.type) {
+      MPED.type = t2;
+      MPED.teams = MP_TN[t2].map(function (n) { return { name: n, players: [] }; });
+      MPED.tOrder = MP_TN[t2].map(function (_, i) { return i; });
+      MPED.games = mpGameList(t2);
+      MPED.gOrder = [0, 1, 2];
+      MPED.scores = {}; MPED.rest = {}; MPED.restNo = {}; MPED.order = {};
+      MPED_SLOT = 0;
+      mpRenderEditor();
+      mpEditMsg(t2 + '파전으로 바꿨습니다. 팀별 인원을 다시 구성해 주세요.');
+    }
+    return;
+  }
+  const tq = e.target.closest('[data-mpq]');
+  if (tq && MPED) {
+    const q = Number(tq.getAttribute('data-mpq'));
+    if (q !== MPED.quarters) {
+      MPED.quarters = q;
+      MPED.qOrder = [0, 1, 2, 3].slice(0, q);
+      mpRenderEditor();
+    }
+    return;
+  }
+  const pf = e.target.closest('[data-mppos]');
+  if (pf && MPED) { MPPOS = pf.getAttribute('data-mppos'); mpRenderEditor(); return; }
+});
+document.addEventListener('input', function (e) {
+  if (e.target && e.target.id === 'mpQ' && MPED) { MPQ = e.target.value.trim(); const p = $('#mpPool'); if (p) p.innerHTML = mpPoolHtml(); }
+});
+document.addEventListener('change', function (e) {
+  if (e.target && e.target.id === 'mpGuest' && MPED) { const p = $('#mpPool'); if (p) p.innerHTML = mpPoolHtml(); return; }
+  const sel = e.target && e.target.closest ? e.target.closest('[data-mpteamsel]') : null;
+  if (sel && MPED) {
+    const slot = Number(sel.getAttribute('data-mpteamsel'));
+    const nm = sel.value;
+    const other = MPED.teams.findIndex(function (t, i) { return i !== slot && t.name === nm; });
+    const old = MPED.teams[slot].name;
+    MPED.teams[slot].name = nm;
+    if (other >= 0) MPED.teams[other].name = old;
+    mpRenderEditor();
+  }
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Escape') return;
+  if ($('#mpConfirm') && !$('#mpConfirm').hidden) { $('#mpConfirm').hidden = true; return; }
+  if ($('#mpModal') && !$('#mpModal').hidden) { mpCloseEditor(); return; }
+  if ($('#mpScreen') && !$('#mpScreen').hidden) mpCloseScreen();
+});
+mpInit();
+
 </script>
 </body>
 </html>
