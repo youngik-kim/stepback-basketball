@@ -5145,7 +5145,7 @@ function mpStandings(p) {
   order.forEach(function (r, i) {
     const prev = order[i - 1];
     /* 승패(승률)가 같으면 같은 순위 번호 — 아직 경기가 없어 모두 0승이어도 공동 순위입니다 */
-    const tie = !!prev && prev.w * r.gp === r.w * prev.gp;
+    const tie = !!prev && Math.round(prev.rate * 1e6) === Math.round(r.rate * 1e6);
     r.pos = tie ? lastPos : i + 1;
     lastPos = r.pos;
   });
