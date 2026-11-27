@@ -4,9 +4,9 @@
     python3 src/verify_match_progress.py                 # 로컬 index.html (390×844 · 1280×800)
     MP_URL=https://youngik-kim.github.io/stepback-basketball/ python3 src/verify_match_progress.py   # 라이브
 
-검사: 프리뷰 등록(직접·짝꿍·팀 구성), 3파전 점수·휴식 횟수 0→1→2→3→1·휴식 순서 정하기·드래그,
-      2파전 1~3Q/1~4Q·쉬는 순번·휴식 횟수 없음, 테마·글씨 크기·전체화면·초기화 확인·사진 저장(PNG)·A4 인쇄,
-      JS 오류 0건, 평문 이름 0건.
+검사: 프리뷰 등록(직접·짝꿍·팀 구성), 3파전 점수·휴식 횟수 0→1→2→3→0·휴식 순서 정하기·드래그,
+      2파전 1~3Q/1~4Q·쉬는 순번·휴식 횟수 없음, 테마 3단계(어두운·중간·밝은)·글씨 크기 기본 크게·전체화면·
+      초기화 확인·매치 프리뷰 정본 복원·확정 주차 정본 우선·사진 저장(PNG)·A4 인쇄·가로 분할 비율, JS 오류 0건, 평문 이름 0건.
 """
 import functools, http.server, io, itertools, json, os, shutil, socketserver, subprocess, sys, threading
 from playwright.sync_api import sync_playwright
@@ -134,16 +134,14 @@ with sync_playwright() as pw:
         page.click('#chgModal .x')
         page.wait_for_timeout(200)
 
-        # ---- 등록 버튼 (경기 결과 상단) ----
-        btn = page.locator('#mpRegBtn')
-        ok('%s: 경기 결과 상단 📝 매치 프리뷰 등록하기 버튼' % tag,
-           btn.is_visible() and '매치 프리뷰 등록하기' in btn.inner_text(),
-           btn.inner_text().replace('\n', ' '))
-        ok('%s: 등록 버튼이 경기 결과 첫 카드보다 위' % tag, page.evaluate("""() => {
-              const b = document.querySelector('#mpRegBtn').getBoundingClientRect();
-              const r = document.querySelector('#resultCard').getBoundingClientRect();
-              return b.top < r.top;
-            }"""))
+        # ---- 등록 진입점은 히어로 📝 매치 프리뷰 1개 (경기 결과 위 점선 버튼 제거) ----
+        ok('%s: 경기 결과 상단 점선 📝 등록 버튼 제거' % tag,
+           page.locator('#mpRegBtn').count() == 0
+           and page.locator('#secResult .mpen').count() == 0
+           and page.locator('.mpenrow').count() == 0,
+           page.locator('#secResult .mpen').count())
+        ok('%s: 매치 프리뷰 진입점은 히어로 버튼 하나' % tag,
+           page.locator('#mpHeroBtn').count() == 1 and page.locator('[data-mpreg]').count() == 0)
 
         # ---- 직접 등록 (3파전 · 4Q · 6/6/6) — 히어로 📝 매치 프리뷰 ----
         page.click('#mpHeroBtn')
@@ -243,8 +241,8 @@ with sync_playwright() as pw:
             page.click('#mpBody [data-rest="0|%s"]' % name0)
             page.wait_for_timeout(80)
             seq.append(page.inner_text('#mpBody [data-rest="0|%s"]' % name0).strip())
-        ok('%s: 휴식 횟수 0 → 1 → 2 → 3 → 1 순환' % tag,
-           seq[:5] == ['0회', '1회', '2회', '3회', '1회'], seq)
+        ok('%s: 휴식 횟수 0 → 1 → 2 → 3 → 0 순환' % tag,
+           seq[:5] == ['0회', '1회', '2회', '3회', '0회'], seq)
         ok('%s: 휴식 순서·횟수 명단 표기(18명)' % tag,
            page.locator('#mpBody [data-rest]').count() == 18,
            page.locator('#mpBody [data-rest]').count())
@@ -313,31 +311,68 @@ with sync_playwright() as pw:
            and page.locator('#mpSet [data-mpctl="photo"]').count() == 1
            and page.locator('#mpSet [data-mpctl="reset"]').count() == 1
            and page.locator('#mpSetEdit').count() == 1)
+        ok('%s: ⚙️ 설정 테마 3단계(어두운·중간·밝은)' % tag,
+           page.eval_on_selector_all('#mpSetTheme [data-mptheme]', 'els => els.map(e => e.dataset.mptheme)')
+           == ['dark', 'mid', 'light'],
+           page.eval_on_selector_all('#mpSetTheme [data-mptheme]', 'els => els.map(e => e.textContent)'))
+        ok('%s: ⚙️ 설정 🧩 매치 프리뷰 초기화(서버 정본 복원) 버튼' % tag,
+           page.locator('#mpSetRestore').count() == 1
+           and '매치 프리뷰 초기화' in txt(page, '#mpSetRestore')
+           and '서버 정본 복원' in txt(page, '#mpSetRestore'), txt(page, '#mpSetRestore'))
         page.screenshot(path='%s/%s_4b_settings.png' % (OUT, tag))
+
+        # 기본 글씨가 ‘크게’인지 먼저 확인(아무 설정도 건드리기 전)
+        big_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprl li .nm')).fontSize)")
+        ok('%s: 🔎 글씨 크기 기본값 크게(fs-l)' % tag,
+           page.evaluate("document.querySelector('#mpScreen').classList.contains('fs-l')")
+           and page.get_attribute('[data-mpfont="large"]', 'aria-pressed') == 'true'
+           and page.get_attribute('[data-mpfont="normal"]', 'aria-pressed') == 'false', big_fs)
+
+        # ---- 🌓 중간 테마 ----
+        page.click('[data-mptheme="mid"]')
+        page.wait_for_timeout(220)
+        mid = page.evaluate('''() => { const s = document.querySelector('#mpScreen');
+              const c = document.querySelector('#mpBody .mpsc');
+              return { cls: s.className, bg: getComputedStyle(s).backgroundColor,
+                       card: getComputedStyle(c).backgroundColor, tx: getComputedStyle(s).color }; }''')
+        ok('%s: 🌓 중간 테마 전환(차분한 슬레이트·순백색 아님)' % tag,
+           'mid' in mid['cls'].split() and 'light' not in mid['cls'].split()
+           and mid['bg'] == 'rgb(220, 227, 236)' and mid['card'] == 'rgb(237, 241, 246)'
+           and mid['tx'] == 'rgb(15, 23, 42)'
+           and page.get_attribute('[data-mptheme="mid"]', 'aria-pressed') == 'true', mid)
+        page.screenshot(path='%s/%s_5a_mid.png' % (OUT, tag))
+
         page.click('[data-mptheme="light"]')
         page.wait_for_timeout(220)
-        ok('%s: 🌓 밝은 테마 전환' % tag,
+        lig = page.evaluate('''() => { const s = document.querySelector('#mpScreen');
+              const c = document.querySelector('#mpBody .mpsc');
+              return { bg: getComputedStyle(s).backgroundColor, card: getComputedStyle(c).backgroundColor,
+                       tx: getComputedStyle(s).color }; }''')
+        ok('%s: 🌓 밝은 테마 — 오프화이트(순백 아님)' % tag,
            page.evaluate("document.querySelector('#mpScreen').classList.contains('light')")
-           and page.get_attribute('[data-mptheme="light"]', 'aria-pressed') == 'true')
+           and lig['bg'] == 'rgb(241, 244, 248)' and lig['card'] == 'rgb(249, 250, 251)'
+           and page.get_attribute('[data-mptheme="light"]', 'aria-pressed') == 'true', lig)
         page.screenshot(path='%s/%s_5_light.png' % (OUT, tag))
         page.click('[data-mptheme="dark"]')
         page.wait_for_timeout(160)
         ok('%s: 🌓 어두운 테마 복귀' % tag,
            not page.evaluate("document.querySelector('#mpScreen').classList.contains('light')")
+           and not page.evaluate("document.querySelector('#mpScreen').classList.contains('mid')")
            and page.get_attribute('[data-mptheme="dark"]', 'aria-pressed') == 'true')
-        base_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprl li .nm')).fontSize)")
-        page.click('[data-mpfont="large"]')
+
+        # ---- 🔎 글씨 크기 — 기본 크게 / 보통 / 작게 ----
+        page.click('[data-mpfont="normal"]')
         page.wait_for_timeout(160)
-        big_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprl li .nm')).fontSize)")
-        ok('%s: 🔎 글씨 크기 조절(보통→크게)' % tag, big_fs > base_fs
-           and page.get_attribute('[data-mpfont="large"]', 'aria-pressed') == 'true',
-           '%s → %s' % (base_fs, big_fs))
+        base_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprl li .nm')).fontSize)")
+        ok('%s: 🔎 글씨 크기 보통 < 기본 크게' % tag, base_fs < big_fs, '%s → %s' % (big_fs, base_fs))
         page.click('[data-mpfont="small"]')
         page.wait_for_timeout(140)
         small_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprl li .nm')).fontSize)")
         ok('%s: 🔎 글씨 크기 작게' % tag, small_fs < base_fs, '%s → %s' % (base_fs, small_fs))
-        page.click('[data-mpfont="normal"]')
+        page.click('[data-mpfont="large"]')
         page.wait_for_timeout(140)
+        ok('%s: 🔎 글씨 크게 복귀' % tag,
+           page.evaluate("document.querySelector('#mpScreen').classList.contains('fs-l')"))
         ok('%s: 🔆 화면꺼짐 방지 토글(진입 시 자동 ON)' % tag,
            page.get_attribute('#mpSetWake', 'aria-pressed') == 'true' and txt(page, '#mpSetWake').strip() == 'ON')
         page.click('#mpSetWake')
@@ -551,12 +586,22 @@ with sync_playwright() as pw:
           return {display: getComputedStyle(b).display, leftRight: L.right, rightLeft: R.left,
                   sameTop: Math.abs(L.top - R.top) < 2, screenScroll: S.scrollHeight,
                   bodyScroll: b.scrollHeight, vh: innerHeight, rightBottom: R.bottom,
+                  lw: L.width, rw: R.width,
                   cols: getComputedStyle(document.querySelector('.mprosters')).gridTemplateColumns.split(' ').length,
                   barH: Math.round(bar.height)};
         }''')
     ok('l: 가로모드 좌우 분할(왼 점수표·순위 / 오른 명단)', geo['display'] == 'grid'
        and geo['sameTop'] and geo['leftRight'] <= geo['rightLeft'] + 1, geo)
     ok('l: 가로모드 명단 3열(3파전)', geo['cols'] == 3, geo['cols'])
+    share = geo['lw'] / (geo['lw'] + geo['rw'])
+    ok('l: 좌 점수표 : 우 명단 = 58~60% : 40~42%', 0.575 <= share <= 0.605,
+       '%.1f%% : %.1f%% (%.1f / %.1f px)' % (share * 100, (1 - share) * 100, geo['lw'], geo['rw']))
+    clipped = page.evaluate('''() => [...document.querySelectorAll('#mpBody .mprt')].map(t => {
+          const box = t.getBoundingClientRect();
+          const last = t.querySelector('.mprl li .rc');
+          return last ? Math.round(last.getBoundingClientRect().right - box.right) : 0; });''')
+    ok('l: 오른쪽 명단 3열 잘림 없이 수납', all(c <= 0 for c in clipped) and page.evaluate(
+        "[...document.querySelectorAll('#mpBody .mprl li .nm')].every(e => e.scrollWidth <= e.clientWidth + 1)"), clipped)
     ok('l: 스크롤 없이 한 화면(100dvh) 수납', geo['screenScroll'] <= geo['vh'] + 1
        and geo['rightBottom'] <= geo['vh'] + 1 and geo['barH'] <= 46,
        'scroll=%s vh=%s rightBottom=%s bar=%s' % (geo['screenScroll'], geo['vh'], geo['rightBottom'], geo['barH']))
@@ -589,6 +634,14 @@ with sync_playwright() as pw:
                   {'team': '블랙', 'rate': 50.0, 'players': cnames[6:12]},
                   {'team': '형광', 'rate': 52.0, 'players': cnames[12:18]}],
         'expected': {'team': '형광', 'rate': 52.0}, 'written': '2026-11-27', 'note': ''}]
+    # 경기 결과가 이미 확정된 주차(2026-11-22)에도 정본 프리뷰를 넣어 우선순위를 검증
+    cnames2 = POOL[20:38]
+    cdata['weeks'][-1]['preview'] = {
+        'type': '3파전',
+        'teams': [{'team': '블랙', 'rate': 41.0, 'players': cnames2[0:6]},
+                  {'team': '레드', 'rate': 46.5, 'players': cnames2[6:12]},
+                  {'team': '형광', 'rate': 55.0, 'players': cnames2[12:18]}],
+        'expected': {'team': '형광', 'rate': 55.0}, 'written': '2026-11-22', 'note': ''}
     io.open(os.path.join(tmp, 'src', 'data.json'), 'w', encoding='utf-8').write(json.dumps(cdata, ensure_ascii=False))
     r = subprocess.run([sys.executable, 'src/build_site.py', '--code', CODE], cwd=tmp, capture_output=True, text=True)
     ok('canon: 정본 프리뷰 포함 임시 빌드', r.returncode == 0, (r.stdout or r.stderr)[-120:])
@@ -607,9 +660,10 @@ with sync_playwright() as pw:
         page.goto(U2, wait_until='load')
         page.evaluate("localStorage.clear()")
         page.reload(wait_until='load')
-        page.wait_for_timeout(300)
-        page.fill('#code', CODE)
-        page.click('#go')
+        page.wait_for_timeout(320)
+        if page.locator('#code').is_visible():
+            page.fill('#code', CODE)
+            page.click('#go')
         page.wait_for_timeout(1000)
         ok('canon: 메인 정본 프리뷰 카드에 🏀·✏️ 버튼', page.locator('#previewSlot .pvacts button').count() == 2
            and '경기 진행하기' in page.inner_text('#previewSlot .pvacts')
@@ -635,6 +689,122 @@ with sync_playwright() as pw:
         page.wait_for_timeout(250)
         ok('canon: 진행 후 메인 카드도 등록 상태', page.locator('#mpCard').count() == 1
            and page.locator('#mpCard [data-mpgo]').count() == 1)
+
+        # ---- 확정된 주차 — 기기 등록분보다 서버 정본 프리뷰 우선 ----
+        page.evaluate("""() => {
+          const c = { date: '2026-11-22', type: '3파전', pv: DATA.weeks[DATA.weeks.length - 1].preview };
+          const p = mpFromCanonical(c);
+          const a = p.teams[0].players, b = p.teams[1].players;
+          p.teams[0].players = b; p.teams[1].players = a;   /* 기기에 다른 구성이 임시 저장된 상황 */
+          localStorage.setItem('stepback-mpgame-v1', JSON.stringify({
+            previews: [p], activeDate: '2026-11-22', theme: 'dark', font: 'large' }));
+        }""")
+        page.reload(wait_until='load')
+        page.wait_for_timeout(320)
+        if page.locator('#code').is_visible():
+            page.fill('#code', CODE)
+            page.click('#go')
+        page.wait_for_timeout(1000)
+        can22 = page.evaluate("""() => DATA.weeks[DATA.weeks.length - 1].preview.teams
+              .map(t => t.team + ':' + t.players.join(','))""")
+        cur22 = page.evaluate("""() => (MP.preview ? MP.preview.teams
+              .map(t => t.name + ':' + t.players.map(x => x.name).join(',')) : null)""")
+        ok('canon: 확정 주차(2026-11-22) 경기 진행 초기값 = 서버 정본', cur22 == can22,
+           '%s / %s' % (str(cur22)[:60], str(can22)[:60]))
+        saved22 = page.evaluate("""() => { const o = JSON.parse(localStorage.getItem('stepback-mpgame-v1') || '{}');
+              const p = (o.previews || []).filter(x => x.date === '2026-11-22')[0];
+              return p ? p.teams.map(t => t.name + ':' + t.players.map(x => x.name).join(',')) : null; }""")
+        ok('canon: 기기에 남은 그 날짜 프리뷰도 정본으로 정리', saved22 == can22, str(saved22)[:60])
+        hidden_badge = page.locator('.mpwbtn').count()
+        page.click('#mpHeroBtn')
+        page.wait_for_timeout(320)
+        row22 = page.evaluate("""() => { const r = document.querySelector('#mpHistList .mphrow[data-hdate="2026-11-22"]');
+              if (!r) return null;
+              return { tag: ((r.querySelector('.tag.site') || {}).textContent || '').trim(),
+                       loc: !!r.querySelector('.tag.loc'),
+                       btn: r.querySelectorAll('.acts button').length,
+                       txt: r.innerText.replace(/\\s+/g, ' ').trim().slice(0, 80) }; }""")
+        ok('canon: 이력 모달 — 확정 주차는 정본 프리뷰(내 기록 아님)',
+           bool(row22) and row22['tag'] == '정본' and not row22['loc'] and row22['btn'] == 0, row22)
+        page.screenshot(path='%s/c_4_hist_canon.png' % OUT)
+        page.click('#mpModal .x')
+        page.wait_for_timeout(200)
+        ok('canon: 주간 결과 🔮 배지 표시', hidden_badge >= 1, hidden_badge)
+        page.click('.mpwbtn')
+        page.wait_for_timeout(320)
+        opened = page.evaluate("""() => { const r = document.querySelector('#mpHistList .mphrow[open]');
+              return r ? { d: r.dataset.hdate, site: !!r.querySelector('.tag.site') } : null; }""")
+        ok('canon: 🔮 배지가 연 행 = 2026-11-22 정본', bool(opened) and opened['d'] == '2026-11-22'
+           and opened['site'], opened)
+        page.screenshot(path='%s/c_5_weekbadge.png' % OUT)
+        page.click('#mpModal .x')
+        page.wait_for_timeout(200)
+
+        # ---- 🧩 매치 프리뷰 초기화 (서버 정본 복원) ----
+        page.evaluate("""() => {
+          const c = mpFindCanonical('2026-11-29');
+          const p = mpFromCanonical(c);
+          const a = p.teams[0].players, b = p.teams[1].players;
+          p.teams[0].players = b; p.teams[1].players = a;
+          localStorage.setItem('stepback-mpgame-v1', JSON.stringify({
+            previews: [p], activeDate: '2026-11-29', theme: 'dark', font: 'large' }));
+        }""")
+        page.reload(wait_until='load')
+        page.wait_for_timeout(320)
+        if page.locator('#code').is_visible():
+            page.fill('#code', CODE)
+            page.click('#go')
+        page.wait_for_timeout(1000)
+        page.click('#mpCard [data-mpgo]')
+        page.wait_for_timeout(420)
+        page.click('#mpSetBtn')
+        page.wait_for_timeout(240)
+        page.click('#mpSetRestore')
+        page.wait_for_timeout(220)
+        ok('restore: 확인 팝업 문구', page.locator('#mpConfirm').is_visible()
+           and txt(page, '#mpCfMsg').strip() == '기기에 임시 저장된 매치 프리뷰를 지우고 서버 정본 기준으로 되돌릴까요?',
+           txt(page, '#mpCfMsg'))
+        page.screenshot(path='%s/c_6_restore_confirm.png' % OUT)
+        page.click('#mpCfOk')
+        page.wait_for_timeout(320)
+        gone = page.evaluate("""() => { const o = JSON.parse(localStorage.getItem('stepback-mpgame-v1') || '{}');
+              return (o.previews || []).filter(x => x.date === '2026-11-29').length; }""")
+        up29 = page.evaluate("""() => DATA.upcomingPreviews[0].teams
+              .map(t => t.team + ':' + t.players.join(','))""")
+        now29 = page.evaluate("""() => (MP.preview ? MP.preview.teams
+              .map(t => t.name + ':' + t.players.map(x => x.name).join(',')) : null)""")
+        ok('restore: 기기 임시 프리뷰 삭제 + 정본 기준 재구성', gone == 0 and now29 == up29,
+           '%s건 · %s' % (gone, str(now29)[:50]))
+        roster29 = page.evaluate("""() => [...document.querySelectorAll('#mpBody .mprl')]
+              .map(u => u.querySelectorAll('li').length)""")
+        ok('restore: 정본 팀·인원으로 즉시 재렌더링(6/6/6)', roster29 == [6, 6, 6], roster29)
+        page.screenshot(path='%s/c_7_restored.png' % OUT)
+
+        # 정본 프리뷰가 없는 날짜 → 빈 프리뷰/기본 화면
+        page.evaluate("""() => {
+          const c = mpFindCanonical('2026-11-29');
+          const p = mpFromCanonical(c); p.date = '2026-12-13';
+          localStorage.setItem('stepback-mpgame-v1', JSON.stringify({
+            previews: [p], activeDate: '2026-12-13', theme: 'dark', font: 'large' }));
+        }""")
+        page.reload(wait_until='load')
+        page.wait_for_timeout(320)
+        if page.locator('#code').is_visible():
+            page.fill('#code', CODE)
+            page.click('#go')
+        page.wait_for_timeout(1000)
+        page.click('#mpCard [data-mpgo]')
+        page.wait_for_timeout(420)
+        page.click('#mpSetBtn')
+        page.wait_for_timeout(240)
+        page.click('#mpSetRestore')
+        page.wait_for_timeout(200)
+        page.click('#mpCfOk')
+        page.wait_for_timeout(320)
+        ok('restore: 정본 프리뷰 없는 날짜 → 빈 프리뷰·기본 화면',
+           page.evaluate('() => MP.preview === null') and page.locator('#mpCard').count() == 0
+           and page.locator('#mpScreen').is_hidden(),
+           'card=%s screen=%s' % (page.locator('#mpCard').count(), page.locator('#mpScreen').is_hidden()))
         ok('canon: JS 오류 0건', not cerrs, ' / '.join(cerrs[:3]))
         ctx.close()
         srv2.shutdown()
