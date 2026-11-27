@@ -3184,6 +3184,9 @@ function closeNav() {
    형태로 추가하면 팝업에 날짜순(최신순)으로 그대로 나타납니다. */
 const CHANGELOG = [
   { date: '2026-11-27', tag: '기능', items: [
+    '<b>경기 진행 점수 계산 개선 (입력=누적 · 보조=쿼터점수)</b> — 큰 점수 칸은 전광판 기준 <b>누적 점수</b>, 칸 아래 보조 줄은 <b>쿼터점수</b>(현재 누적 - 직전 입력 쿼터 누적). 빈 칸은 보조 줄 비움 · 합계·승·무·패·득실·우승은 <b>입력된 마지막 쿼터의 누적 점수</b>로 계산(사진 저장 PNG·A4 인쇄도 동일)'
+  ] },
+  { date: '2026-11-27', tag: '기능', items: [
     '🎨 <b>경기 진행 화면을 리버스와 픽셀 단위까지 동일하게</b> — 상단 바 높이(36px)·제목 글씨·좌우 분할(1.45:1)·3단계 테마 색·글씨 배율을 리버스와 같은 값으로. 점수 칸은 가운데 둥근 캡슐을 없애고 두 칸 사이에 얇은 <b>:</b>만, 매치업 헤더는 팀 색 테두리 알약 배지(<b>● 형광 VS ● 블랙</b>)로',
     '명단 카드는 화면 세로를 넉넉히 채우고(행 44px 기준 자동 배율) 선수 이름·<b>0회</b> 버튼을 큼직하게, 하단 팀 순위는 <b>● 형광 [2위]</b> 아래 <b>0승 0무 0패 0</b> 2줄 컴팩트로 줄여 점수표가 화면을 시원하게 쓰도록',
     '📝 <b>매치 프리뷰 카드도 리버스 양식</b> — 상단 배지(<b>📝 등록 / 🔮 정본 매치 프리뷰</b> · 날짜 · 3파전/2파전) + <b>이 기기에 저장</b>, 요약 1줄, 팀 박스(팀 색 세로선·예상 순위·평균), 선수별 개인 승률 알약, 하단 <b>🏀 경기 진행하기 | ✏️ 매치 프리뷰 수정하기</b> 2분할 버튼',
@@ -4869,15 +4872,17 @@ function mpRestNums(n, idx) {
   for (let k = 0; k < m; k++) out.push(((start + k) % n) + 1);
   return out;
 }
+/* 큰 점수 칸에 적는 값은 '그 쿼터까지의 누적 점수'(전광판 기준)입니다.
+   → 합계(그 경기 최종 점수)는 쿼터 합이 아니라 '입력된 마지막 쿼터의 누적 점수'를 씁니다. */
 function mpGameTotal(p, gi) {
-  let a = 0, b = 0, any = false;
+  let la = null, lb = null;
   p.qOrder.forEach(function (qi) {
     const s = p.scores['g' + gi + 'q' + qi];
     if (!s) return;
-    if (s.a !== '' && s.a != null) { a += Number(s.a) || 0; any = true; }
-    if (s.b !== '' && s.b != null) { b += Number(s.b) || 0; any = true; }
+    if (s.a !== '' && s.a != null) la = Number(s.a) || 0;
+    if (s.b !== '' && s.b != null) lb = Number(s.b) || 0;
   });
-  return { a: a, b: b, any: any };
+  return { a: la == null ? 0 : la, b: lb == null ? 0 : lb, any: la != null || lb != null };
 }
 function mpStandings(p) {
   const rows = p.teams.map(function (t, i) { return { slot: i, name: t.name, w: 0, d: 0, l: 0, pf: 0, pa: 0, gp: 0, diff: 0, pos: 0 }; });
@@ -5561,17 +5566,32 @@ function mpTotHtml(p, gi, st) {
   return '<span class="totv">' + t.a + ' <i>:</i> ' + t.b + '</span>'
     + '<span class="totw ' + cls + '">' + esc(bd) + '</span>';
 }
-/* 점수 칸 — 좌우 [ ] : [ ] 나란히 큰 박스 + 아래 누적 (리버스 양식) */
-function mpCumText(p, gi, qi) {
-  let a = null, b = null;
+/* 점수 칸 — 좌우 [ ] : [ ] 나란히 큰 박스(=누적 점수) + 아래 쿼터점수 (리버스 양식) */
+function mpQVal(p, gi, qi) {
+  const s = p.scores['g' + gi + 'q' + qi] || {};
+  return {
+    a: (s.a === '' || s.a == null) ? null : (Number(s.a) || 0),
+    b: (s.b === '' || s.b == null) ? null : (Number(s.b) || 0)
+  };
+}
+/* 보조 줄 = 그 쿼터의 쿼터점수 = 현재 쿼터 누적 - 직전에 입력된 쿼터 누적.
+   빈 칸은 null(보조 줄 비움), 오입력으로 음수가 나오면 그대로 표시합니다. */
+function mpQScore(p, gi, qi) {
+  const cur = mpQVal(p, gi, qi);
+  if (cur.a == null && cur.b == null) return null;
+  let pa = null, pb = null;
   const pos = p.qOrder.indexOf(qi);
-  for (let i = 0; i <= pos; i++) {
-    const s = p.scores['g' + gi + 'q' + p.qOrder[i]];
-    if (!s) continue;
-    if (s.a !== '' && s.a != null) a = (a == null ? 0 : a) + (Number(s.a) || 0);
-    if (s.b !== '' && s.b != null) b = (b == null ? 0 : b) + (Number(s.b) || 0);
+  for (let i = 0; i < pos; i++) {
+    const v = mpQVal(p, gi, p.qOrder[i]);
+    if (v.a != null) pa = v.a;
+    if (v.b != null) pb = v.b;
   }
-  return (a == null && b == null) ? '' : '누적 ' + (a || 0) + ' : ' + (b || 0);
+  return { a: cur.a == null ? null : cur.a - (pa || 0), b: cur.b == null ? null : cur.b - (pb || 0) };
+}
+function mpCumText(p, gi, qi) {
+  const c = mpQScore(p, gi, qi);
+  if (!c) return '';
+  return '쿼터점수 ' + (c.a == null ? '–' : c.a) + ' : ' + (c.b == null ? '–' : c.b);
 }
 function mpCellHtml(p, gi, qi) {
   const g = p.games[gi], A = p.teams[g.a], B = p.teams[g.b];
@@ -5592,10 +5612,10 @@ function mpCellHtml(p, gi, qi) {
   return '<td class="pgcell" data-cell="' + gi + ':' + qi + '">' + rest
     + '<div class="scin">'
     + '<input class="sci" type="text" inputmode="numeric" maxlength="3" autocomplete="off" data-sc="' + gi + ':' + qi + ':a" value="' + esc(av)
-    + '" aria-label="' + esc(A.name) + ' ' + (qi + 1) + 'Q 점수">'
+    + '" aria-label="' + esc(A.name) + ' ' + (qi + 1) + 'Q 누적 점수">'
     + '<span class="scc">:</span>'
     + '<input class="sci" type="text" inputmode="numeric" maxlength="3" autocomplete="off" data-sc="' + gi + ':' + qi + ':b" value="' + esc(bv)
-    + '" aria-label="' + esc(B.name) + ' ' + (qi + 1) + 'Q 점수">'
+    + '" aria-label="' + esc(B.name) + ' ' + (qi + 1) + 'Q 누적 점수">'
     + '</div>'
     + '<div class="cum" data-cum="' + gi + ':' + qi + '">' + mpCumText(p, gi, qi) + '</div>'
     + '</td>';
@@ -5695,7 +5715,7 @@ function mpGridHtml(p, st) { return p.type === '2' ? mpGrid2(p, st) : mpGrid3(p,
 function mpSetNoteText(p) {
   const n = $('#mpSetNote');
   if (n) {
-    n.innerHTML = '점수 칸을 누르면 숫자를 직접 넣을 수 있고, 승·무·패·득실·우승팀은 자동 계산됩니다. '
+    n.innerHTML = '큰 점수 칸에는 <b>누적 점수</b>를 넣고, 칸 아래에는 그 쿼터의 <b>쿼터점수</b>가 표시됩니다. 승·무·패·득실·우승팀은 <b>입력된 마지막 쿼터의 누적 점수</b>로 자동 계산됩니다. '
       + '매치업 열은 <b>⠿ 드래그</b>나 ◀▶로, 명단 순서는 <b>⠿ 드래그</b>로 바꿉니다. '
       + (p.type === '3'
         ? '<b>0회</b> 버튼을 누르면 휴식 횟수가 0 → 1 → 2 → 3 → 0으로 바뀌고, <b>순서</b> 버튼으로 1번부터 번호를 붙입니다. '
@@ -6109,7 +6129,10 @@ function mpPrintHtml() {
         const rb = mpRestNums((p.order[g.b] || []).length, idx);
         rest = '<div class="ppsmall">휴식 ' + (ra.length ? ra.join('·') : '없음') + ' / ' + (rb.length ? rb.join('·') : '없음') + '</div>';
       }
-      rows += '<td><div class="ppscore">' + (av === '' ? '–' : av) + ' : ' + (bv === '' ? '–' : bv) + '</div>' + rest + '</td>';
+      const qt = mpCumText(p, gi, qi);
+      rows += '<td><div class="ppscore">' + (av === '' ? '–' : av) + ' : ' + (bv === '' ? '–' : bv) + '</div>'
+        + (qt ? '<div class="ppsmall">' + qt + '</div>' : '')
+        + rest + '</td>';
     });
     rows += '</tr>';
   });
@@ -6137,7 +6160,7 @@ function mpPrintHtml() {
   }).join('') + '</div>';
   return '<div class="pp">'
     + '<div class="pph"><b>STEPBACK ' + p.type + '파전 경기 기록지</b><span>' + esc(p.date || mpDateStr()) + ' · ' + p.quarters + '쿼터</span></div>'
-    + '<div class="ppsub">' + esc(teams) + ' · 점수는 쿼터별 입력값, 합계가 그 경기 결과입니다.</div>'
+    + '<div class="ppsub">' + esc(teams) + ' · 큰 점수는 누적 점수, 합계는 마지막 쿼터 누적 점수가 그 경기 결과입니다.</div>'
     + '<table><thead>' + head + '</thead><tbody>' + rows + tot + '</tbody></table>'
     + stand
     + '<div class="pgnote">명단 · ' + (p.type === '3' ? '휴식 순서와 누적 휴식 횟수' : '쉬는 순서') + '</div>'
@@ -6185,7 +6208,7 @@ function mpPhotoDraw(themeKey) {
   const W = 1080, PAD = 44;
   const cols = p.gOrder.length, qs = p.qOrder.length;
   const gridTop = 330;
-  const rowH = 96, headH = 76, totH = 96;
+  const rowH = 112, headH = 76, totH = 96;
   const maxPl = Math.max.apply(null, p.teams.map(function (t) { return t.players.length; }));
   const rosH = 120 + maxPl * 34;
   const H = gridTop + headH + qs * rowH + totH + 40 + rosH + 60;
@@ -6250,16 +6273,19 @@ function mpPhotoDraw(themeKey) {
       const gm = p.games[gi], x = PAD + labelW + i * colW;
       const s = p.scores['g' + gi + 'q' + qi] || {};
       const av = s.a == null || s.a === '' ? '–' : s.a, bv = s.b == null || s.b === '' ? '–' : s.b;
+      const qs2 = mpCumText(p, gi, qi);
       rr(x + 2, y + 4, colW - 4, rowH - 12, 12, C.inbg, C.line);
       if (p.type === '2') {
-        T(av + ' : ' + bv, x + colW / 2, y + 46, 34, C.tx, 900, 'center');
+        T(av + ' : ' + bv, x + colW / 2, y + 44, 34, C.tx, 900, 'center');
         const idx = mpCellIndex(p, gi, qi);
         const ra = mpRestNums((p.order[gm.a] || []).length, idx);
         const rb = mpRestNums((p.order[gm.b] || []).length, idx);
-        T('휴식 ' + (ra.length ? ra.join('·') : '없음') + ' / ' + (rb.length ? rb.join('·') : '없음'), x + colW / 2, y + 72, 17, C.gold, 800, 'center');
+        T('휴식 ' + (ra.length ? ra.join('·') : '없음') + ' / ' + (rb.length ? rb.join('·') : '없음'), x + colW / 2, y + 70, 16, C.gold, 800, 'center');
+        if (qs2) T(qs2, x + colW / 2, y + 94, 16, C.tx3, 800, 'center');
       } else {
-        T(av + ' : ' + bv, x + colW / 2, y + 50, 30, C.tx, 900, 'center');
-        T(p.teams[gm.a].name + ' / ' + p.teams[gm.b].name, x + colW / 2, y + 74, 16, C.tx3, 800, 'center');
+        T(av + ' : ' + bv, x + colW / 2, y + 44, 30, C.tx, 900, 'center');
+        T(p.teams[gm.a].name + ' / ' + p.teams[gm.b].name, x + colW / 2, y + 66, 15, C.tx3, 800, 'center');
+        if (qs2) T(qs2, x + colW / 2, y + 90, 16, C.tx3, 800, 'center');
       }
     });
     y += rowH;
