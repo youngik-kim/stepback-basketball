@@ -942,8 +942,9 @@ with sync_playwright() as p:
         ok(f"{tag}: 프리뷰 예상 1위 → 실제 순위 비교 문장",
            "예상 1위" in tb and "실제" in tb and "→" in tb)
         up = page.inner_text("#previewSlot")
-        ok(f"{tag}: 다음 경기 프리뷰 카드({PV_NEXT['date'][5:]})", "매치 프리뷰 & 승률 예상" in up
-           and PV_NEXT['date'][5:].replace('-', '/') in up and PV_NEXT['teams'][0]['team'] in up,
+        ok(f"{tag}: 다음 경기 프리뷰 카드({PV_NEXT['date'][5:]})", "정본 매치 프리뷰" in up
+           and PV_NEXT['date'] in up and PV_NEXT['teams'][0]['team'] in up
+           and page.locator("#previewSlot .pvcard-mp .mpbtns button").count() == 2,
            up.replace("\n", " | ")[:90])
         ok(f"{tag}: 주간 카드에 프리뷰 배지·내용 보존", page.locator("#weekList .wkcard .pvtag").count() >= 2
            and page.locator("#weekList .wkcard .pvbox").count() == 1)

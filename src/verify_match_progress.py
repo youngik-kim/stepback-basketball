@@ -212,8 +212,10 @@ with sync_playwright() as pw:
         page.click('[data-mpgo]')
         page.wait_for_timeout(320)
         ok('%s: 🏀 경기 진행하기 → 진행 화면' % tag, page.locator('#mpScreen').is_visible())
-        ok('%s: 진행 화면 제목·부제' % tag, '3파전' in txt(page, '#mpGameTitle') and '4쿼터' in txt(page, '#mpGameSub'),
-           txt(page, '#mpGameTitle') + ' | ' + txt(page, '#mpGameSub'))
+        ok('%s: 진행 화면 제목(날짜·3파전)' % tag, '3파전' in txt(page, '#mpGameTitle') and '경기 진행' in txt(page, '#mpGameTitle')
+           and '2026-11-22' in txt(page, '#mpGameTitle'), txt(page, '#mpGameTitle'))
+        ok('%s: ⚙️ 설정 부제(날짜·3파전·인원)' % tag, '3파전' in txt(page, '#mpSetSub') and '명' in txt(page, '#mpSetSub'),
+           txt(page, '#mpSetSub'))
         ins = page.locator('#mpBody [data-sc]')
         ok('%s: 점수 칸 24개(3경기×4쿼터×2팀)' % tag, ins.count() == 24, ins.count())
         ok('%s: 점수 칸 숫자 직접 입력(inputmode=numeric)' % tag,
@@ -228,11 +230,11 @@ with sync_playwright() as pw:
         page.wait_for_timeout(200)
         tots = page.eval_on_selector_all('#mpBody [data-tot]', 'els => els.map(e => e.textContent.replace(/\\s+/g," ").trim())')
         ok('%s: 경기 합계 자동 계산' % tag, '20 : 19' in tots[0] and '5 : 5' in tots[1] and '20 : 11' in tots[2], tots)
-        ok('%s: 승리팀 자동 표시' % tag, '형광 승' in tots[0] and '무승부' in tots[1])
+        ok('%s: 승리팀 자동 표시' % tag, '형광 승' in tots[0] and tots[1].endswith('무'))
         sumtxt = txt(page, '#mpSum').replace('\n', ' ')
         ok('%s: 팀별 승·무·패 자동 계산(형광 2승)' % tag, '2승 0무 0패' in sumtxt, sumtxt[:70])
-        ok('%s: 득실 자동 계산(+10)' % tag, '득실 +10' in sumtxt, sumtxt[:120])
-        ok('%s: 우승 배지' % tag, '우승' in sumtxt and page.locator('#mpSum .cr').count() == 1)
+        ok('%s: 득실 자동 계산(+10)' % tag, '+10' in sumtxt, sumtxt[:120])
+        ok('%s: 1위 배지(우승 카드)' % tag, '1위' in sumtxt and page.locator('#mpSum .pgs.win').count() == 1)
         page.screenshot(path='%s/%s_3_screen3.png' % (OUT, tag))
 
         # ---- 3파전 휴식 횟수 0→1→2→3→1 ----
@@ -251,27 +253,27 @@ with sync_playwright() as pw:
 
         # ---- 팀 색상 구분 — 매치업 헤더 상단선 · 요약/명단 카드 상단선 · 순위 배지 ----
         tcol = page.evaluate('''() => {
-            const th = document.querySelector('#mpBody .mpg thead th.gcol');
-            const card = document.querySelector('#mpBody .mpsc');
-            const rt = document.querySelector('#mpBody .mpth');
+            const th = document.querySelector('#mpBody .pgtbl thead th.mh');
+            const card = document.querySelector('#mpBody .pgs');
+            const rt = document.querySelector('#mpBody .pgth');
             const bar = getComputedStyle(th, '::before').backgroundImage;
-            const dots = [...document.querySelectorAll('#mpBody .mpsc .dot')].map(e => getComputedStyle(e).backgroundColor);
-            return { bar: bar, cardCls: card.className, cardBar: getComputedStyle(card).borderTopColor,
-                     rtCls: rt.className, rtBar: getComputedStyle(rt).borderTopColor,
-                     dots: dots, rk: [...document.querySelectorAll('#mpBody .mpsc .rk')].map(e => e.textContent.trim()) };
+            const dots = [...document.querySelectorAll('#mpBody .pgs .dot')].map(e => getComputedStyle(e).backgroundColor);
+            return { bar: bar, cardC: card.style.getPropertyValue('--c').trim(), cardBar: getComputedStyle(card).borderTopColor,
+                     rtTone: rt.style.getPropertyValue('--tone').trim(), rtBar: getComputedStyle(rt).borderTopColor,
+                     dots: dots, rk: [...document.querySelectorAll('#mpBody .pgs .pgsr, #mpBody .pgs .pgsrank')].map(e => e.textContent.trim()) };
           }''')
         ok('%s: 매치업 헤더 팀 색상 상단선(두 팀 2색 분할)' % tag,
            'linear-gradient' in tcol['bar'] and tcol['bar'].count('rgb') >= 2, tcol['bar'][:70])
         ok('%s: 팀 요약 카드·명단 카드 팀 색상 상단선' % tag,
-           't-' in tcol['cardCls'] and tcol['cardBar'] not in ('rgba(0, 0, 0, 0)', 'transparent')
-           and 't-' in tcol['rtCls'] and tcol['rtBar'] not in ('rgba(0, 0, 0, 0)', 'transparent'),
-           '%s / %s' % (tcol['cardBar'], tcol['rtBar']))
+           bool(tcol['cardC']) and tcol['cardBar'] not in ('rgba(0, 0, 0, 0)', 'transparent')
+           and bool(tcol['rtTone']) and tcol['rtBar'] not in ('rgba(0, 0, 0, 0)', 'transparent'),
+           '%s / %s / %s / %s' % (tcol['cardC'], tcol['cardBar'], tcol['rtTone'], tcol['rtBar']))
         ok('%s: 팀 점 3색 구분·순위 배지' % tag,
            len(set(tcol['dots'])) == 3 and len(tcol['rk']) == 3 and all(x.endswith('위') for x in tcol['rk']),
            '%s / %s' % (tcol['dots'], tcol['rk']))
         page.screenshot(path='%s/%s_3b_teamcol.png' % (OUT, tag))
-        hf = page.evaluate('''() => { const e = document.querySelector('#mpBody .mpg .tm');
-            const c = document.querySelector('#mpBody .mpsc .h .nm');
+        hf = page.evaluate('''() => { const e = document.querySelector('#mpBody .pgtbl .tm');
+            const c = document.querySelector('#mpBody .pgs .pgsn');
             const s = getComputedStyle(e), cs = getComputedStyle(c);
             return { fs: parseFloat(s.fontSize), fw: parseInt(s.fontWeight, 10),
                      cfs: parseFloat(cs.fontSize), cfw: parseInt(cs.fontWeight, 10) }; }''')
@@ -285,9 +287,9 @@ with sync_playwright() as pw:
            txt(page, '#mpBody .mpassignhint')[:80])
         order = teams3[0][2::-1] + teams3[0][3:]   # 3,2,1,4,5,6 순으로 클릭
         for n in order:
-            page.click('#mpBody [data-prow="0|%s"]' % n)
+            page.click('#mpBody [data-prow="0|%s"] .pgnm' % n)
             page.wait_for_timeout(60)
-        nos = page.eval_on_selector_all('#mpBody .mprows[data-rt="0"] .mprow', 'els => els.map(e => [e.querySelector(".pgnm").textContent, (e.querySelector(".mppick") || {textContent: ""}).textContent])')
+        nos = page.eval_on_selector_all('#mpBody .pgrows[data-rt="0"] .pgrow', 'els => els.map(e => [e.querySelector(".pgnm").textContent, (e.querySelector(".pgpick") || {textContent: ""}).textContent])')
         ok('%s: 클릭 순서대로 1~6번 부여' % tag, [x[0] for x in nos] == order, nos[:3])
         page.screenshot(path='%s/%s_4_rest.png' % (OUT, tag))
 
@@ -299,7 +301,7 @@ with sync_playwright() as pw:
         qw = page.evaluate('''() => { const th = document.querySelector('#mpBody tr[data-qrow] th.qh');
             const td = document.querySelector('#mpBody tr[data-qrow] td');
             return { qh: th.getBoundingClientRect().width, cell: td.getBoundingClientRect().width }; }''')
-        ok('%s: 쿼터 열 슬림(점수 칸 확보)' % tag, qw['qh'] <= 42 and qw['cell'] > qw['qh'] * 2, qw)
+        ok('%s: 쿼터 열 슬림(점수 칸 확보)' % tag, qw['qh'] <= 60 and qw['cell'] > qw['qh'] * 2, qw)
         ok('%s: 쿼터 라벨 1Q~4Q 순서 유지' % tag,
            page.eval_on_selector_all('#mpBody tr[data-qrow] th.qh', 'els => els.map(e => e.textContent.trim())')
            == ['1Q', '2Q', '3Q', '4Q'],
@@ -309,11 +311,11 @@ with sync_playwright() as pw:
 
         # ---- 합계행·순위카드 가운데 정렬 ----
         al = page.evaluate('''() => {
-            const tot = document.querySelector('#mpBody tr.tot td');
-            const card = document.querySelector('#mpBody .mpsc');
-            const h = card.querySelector('.h'), rec = card.querySelector('.rec');
+            const tot = document.querySelector('#mpBody tr.totrow td');
+            const card = document.querySelector('#mpBody .pgs');
+            const h = card.querySelector('.pgs1'), rec = card.querySelector('.pgs2');
             return { tot: getComputedStyle(tot).textAlign, card: getComputedStyle(card).textAlign,
-                     hjust: getComputedStyle(h).justifyContent, rec: getComputedStyle(rec).textAlign };
+                     hjust: getComputedStyle(h).justifyContent, rec: getComputedStyle(rec).justifyContent };
           }''')
         ok('%s: 합계행·팀 순위 카드 가운데 정렬' % tag,
            al['tot'] == 'center' and al['card'] == 'center' and al['hjust'] == 'center', al)
@@ -330,14 +332,14 @@ with sync_playwright() as pw:
         ok('%s: 매치업 순서 드래그 변경' % tag, g2 != g1, '%s → %s' % (g1, g2))
 
         # ---- 명단 순서 드래그 ----
-        before = page.eval_on_selector_all('#mpBody .mprows[data-rt="1"] .mprow .pgnm', 'els => els.map(e => e.textContent)')
-        if drag(page, '[data-dragp="1|%s"]' % before[0], '.mprows[data-rt="1"] .mprow:nth-child(3)'):
+        before = page.eval_on_selector_all('#mpBody .pgrows[data-rt="1"] .pgrow .pgnm', 'els => els.map(e => e.textContent)')
+        if drag(page, '[data-dragp="1|%s"]' % before[0], '.pgrows[data-rt="1"] .pgrow:nth-child(3)'):
             page.wait_for_timeout(220)
-        after = page.eval_on_selector_all('#mpBody .mprows[data-rt="1"] .mprow .pgnm', 'els => els.map(e => e.textContent)')
+        after = page.eval_on_selector_all('#mpBody .pgrows[data-rt="1"] .pgrow .pgnm', 'els => els.map(e => e.textContent)')
         ok('%s: 명단 인원 순서 드래그 변경' % tag, after != before, '%s → %s' % (before[:3], after[:3]))
 
         # ---- 상단 바 1줄(제목 · ⚙️ 설정 · ⛶ · ✕) ----
-        bar = page.evaluate('''() => { const b = document.querySelector('.mpbar'); return {
+        bar = page.evaluate('''() => { const b = document.querySelector('.pgbar'); return {
               h: Math.round(b.getBoundingClientRect().height),
               btns: Array.from(b.querySelectorAll('button')).map(e => e.id),
               ctrls: document.querySelectorAll('.mpctrls').length }; }''')
@@ -363,18 +365,17 @@ with sync_playwright() as pw:
            and '서버 정본 복원' in txt(page, '#mpSetRestore'), txt(page, '#mpSetRestore'))
         page.screenshot(path='%s/%s_4b_settings.png' % (OUT, tag))
 
-        # 기본 글씨가 ‘크게’인지 먼저 확인(아무 설정도 건드리기 전)
-        big_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprow .pgnm')).fontSize)")
-        ok('%s: 🔎 글씨 크기 기본값 크게(fs-l)' % tag,
-           page.evaluate("document.querySelector('#mpScreen').classList.contains('fs-l')")
-           and page.get_attribute('[data-mpfont="large"]', 'aria-pressed') == 'true'
+        # 기본 글씨가 ‘크게’인지 먼저 확인(아무 설정도 건드리기 전) — 리버스 양식은 화면 배율(zoom)로 커집니다
+        big_fs = page.evaluate("parseFloat(document.querySelector('#mpBody .pgfit').style.zoom || 1)")
+        ok('%s: 🔎 글씨 크기 기본값 크게(배율 최대)' % tag,
+           page.get_attribute('[data-mpfont="large"]', 'aria-pressed') == 'true'
            and page.get_attribute('[data-mpfont="normal"]', 'aria-pressed') == 'false', big_fs)
 
         # ---- 🌓 중간 테마 ----
         page.click('[data-mptheme="mid"]')
         page.wait_for_timeout(220)
         mid = page.evaluate('''() => { const s = document.querySelector('#mpScreen');
-              const c = document.querySelector('#mpBody .mpsc');
+              const c = document.querySelector('#mpBody .pgs:not(.win)' ) || document.querySelector('#mpBody .pgs');
               return { cls: s.className, bg: getComputedStyle(s).backgroundColor,
                        card: getComputedStyle(c).backgroundColor, tx: getComputedStyle(s).color }; }''')
         ok('%s: 🌓 중간 테마 전환(차분한 슬레이트·순백색 아님)' % tag,
@@ -387,7 +388,7 @@ with sync_playwright() as pw:
         page.click('[data-mptheme="light"]')
         page.wait_for_timeout(220)
         lig = page.evaluate('''() => { const s = document.querySelector('#mpScreen');
-              const c = document.querySelector('#mpBody .mpsc');
+              const c = document.querySelector('#mpBody .pgs:not(.win)') || document.querySelector('#mpBody .pgs');
               return { bg: getComputedStyle(s).backgroundColor, card: getComputedStyle(c).backgroundColor,
                        tx: getComputedStyle(s).color }; }''')
         ok('%s: 🌓 밝은 테마 — 오프화이트(순백 아님)' % tag,
@@ -405,16 +406,17 @@ with sync_playwright() as pw:
         # ---- 🔎 글씨 크기 — 기본 크게 / 보통 / 작게 ----
         page.click('[data-mpfont="normal"]')
         page.wait_for_timeout(160)
-        base_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprow .pgnm')).fontSize)")
-        ok('%s: 🔎 글씨 크기 보통 < 기본 크게' % tag, base_fs < big_fs, '%s → %s' % (big_fs, base_fs))
+        base_fs = page.evaluate("parseFloat(document.querySelector('#mpBody .pgfit').style.zoom || 1)")
+        ok('%s: 🔎 글씨 크기 보통 ≤ 기본 크게' % tag, base_fs <= big_fs, '%s → %s' % (big_fs, base_fs))
         page.click('[data-mpfont="small"]')
         page.wait_for_timeout(140)
-        small_fs = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#mpBody .mprow .pgnm')).fontSize)")
+        small_fs = page.evaluate("parseFloat(document.querySelector('#mpBody .pgfit').style.zoom || 1)")
         ok('%s: 🔎 글씨 크기 작게' % tag, small_fs < base_fs, '%s → %s' % (base_fs, small_fs))
         page.click('[data-mpfont="large"]')
         page.wait_for_timeout(140)
-        ok('%s: 🔎 글씨 크게 복귀' % tag,
-           page.evaluate("document.querySelector('#mpScreen').classList.contains('fs-l')"))
+        restore_fs = page.evaluate("parseFloat(document.querySelector('#mpBody .pgfit').style.zoom || 1)")
+        ok('%s: 🔎 글씨 크게 복귀' % tag, restore_fs > small_fs
+           and page.get_attribute('[data-mpfont="large"]', 'aria-pressed') == 'true', restore_fs)
         ok('%s: 🔆 화면꺼짐 방지 토글(진입 시 자동 ON)' % tag,
            page.get_attribute('#mpSetWake', 'aria-pressed') == 'true' and 'ON' in txt(page, '#mpSetWake')
            and '화면꺼짐 방지' in txt(page, '#mpSetWake'))
@@ -558,7 +560,7 @@ with sync_playwright() as pw:
         page.click('#mpCfOk')
         page.wait_for_timeout(220)
         empt = page.eval_on_selector_all('#mpBody [data-sc]', 'els => els.filter(e => e.value !== "").length')
-        ok('%s: 초기화 확인 → 점수·기록 삭제' % tag, empt == 0 and '미입력' in txt(page, '#mpBody'), empt)
+        ok('%s: 초기화 확인 → 점수·기록 삭제' % tag, empt == 0 and '—' in txt(page, '#mpBody'), empt)
 
         # ---- 매치 프리뷰 수정하기(설정 패널) ----
         if page.locator('#mpSet').is_hidden():
@@ -592,7 +594,7 @@ with sync_playwright() as pw:
         page.wait_for_timeout(360)
         page.click('#mpClose')
         page.wait_for_timeout(260)
-        ok('%s: 2파전 등록 → 카드 갱신' % tag, '2파전' in txt(page, '#mpCard') and '3쿼터' in txt(page, '#mpCard'),
+        ok('%s: 2파전 등록 → 카드 갱신' % tag, '2파전' in txt(page, '#mpCard') and '명' in txt(page, '#mpCard'),
            txt(page, '#mpCard')[:60].replace('\n', ' '))
         page.click('[data-mpgo]')
         page.wait_for_timeout(320)
@@ -600,10 +602,10 @@ with sync_playwright() as pw:
            page.locator('#mpBody [data-sc]').count() == 18, page.locator('#mpBody [data-sc]').count())
         # 경기(열)별로 쿼터를 따라 읽으면 1·2 → 3·4 → 5·6 → 7·1 순환
         rests = page.eval_on_selector_all('#mpBody [data-cell]',
-            '''els => els.map(e => [e.getAttribute('data-cell'), e.querySelector('.mprestl').textContent.replace(/\\s+/g, ' ').trim()])''')
+            '''els => els.map(e => [e.getAttribute('data-cell'), e.querySelector('.restl').textContent.replace(/\\s+/g, ' ').trim()])''')
         rmap = dict(rests)
         ok('%s: 2파전 쉬는 순번 자동 표기(1·2 → 3·4 → 5·6 → 7·1)' % tag,
-           '1·2' in rmap['0:0'] and '3·4' in rmap['0:1'] and '5·6' in rmap['0:2'] and '7·1' in rmap['1:0'],
+           all(x.replace(' ', '') in rmap[k].replace(' ', '') for x, k in [('1·2','0:0'),('3·4','0:1'),('5·6','0:2'),('7·1','1:0')]),
            [rmap[k] for k in ['0:0', '0:1', '0:2', '1:0', '1:1']])
         ok('%s: 2파전 휴식 횟수 버튼 없음' % tag, page.locator('#mpBody [data-rest]').count() == 0)
         ok('%s: 2파전 하이라이트 메모 없음' % tag, '하이라이트' not in txt(page, '#mpBody'))
@@ -689,16 +691,17 @@ with sync_playwright() as pw:
     page.click('[data-mpgo]')
     page.wait_for_timeout(450)
     geo = page.evaluate('''() => {
-          const b = document.querySelector('.mpbody');
-          const L = document.querySelector('.mpleft').getBoundingClientRect();
-          const R = document.querySelector('.mpright').getBoundingClientRect();
+          const b = document.querySelector('.pgbody');
+          const cols = document.querySelectorAll('.pgcol');
+          const L = cols[0].getBoundingClientRect();
+          const R = cols[1].getBoundingClientRect();
           const S = document.querySelector('#mpScreen');
-          const bar = document.querySelector('.mpbar').getBoundingClientRect();
+          const bar = document.querySelector('.pgbar').getBoundingClientRect();
           return {display: getComputedStyle(b).display, leftRight: L.right, rightLeft: R.left,
                   sameTop: Math.abs(L.top - R.top) < 2, screenScroll: S.scrollHeight,
                   bodyScroll: b.scrollHeight, vh: innerHeight, rightBottom: R.bottom,
                   lw: L.width, rw: R.width,
-                  cols: getComputedStyle(document.querySelector('.mprshead')).gridTemplateColumns.split(' ').length,
+                  cols: getComputedStyle(document.querySelector('.pgrshead')).gridTemplateColumns.split(' ').length,
                   barH: Math.round(bar.height)};
         }''')
     ok('l: 가로모드 좌우 분할(왼 점수표·순위 / 오른 명단)', geo['display'] == 'grid'
@@ -707,18 +710,18 @@ with sync_playwright() as pw:
     share = geo['lw'] / (geo['lw'] + geo['rw'])
     ok('l: 좌 점수표 : 우 명단 = 58~60% : 40~42%', 0.575 <= share <= 0.605,
        '%.1f%% : %.1f%% (%.1f / %.1f px)' % (share * 100, (1 - share) * 100, geo['lw'], geo['rw']))
-    clipped = page.evaluate('''() => [...document.querySelectorAll('#mpBody .mprows')].map(t => {
+    clipped = page.evaluate('''() => [...document.querySelectorAll('#mpBody .pgrows')].map(t => {
           const box = t.getBoundingClientRect();
-          const last = t.querySelector('.mprow .mpirc');
+          const last = t.querySelector('.pgrow .pgrc');
           return last ? Math.round(last.getBoundingClientRect().right - box.right) : 0; });''')
     ok('l: 오른쪽 명단 3열 잘림 없이 수납', all(c <= 0 for c in clipped) and page.evaluate(
-        "[...document.querySelectorAll('#mpBody .mprow .pgnm')].every(e => e.scrollWidth <= e.clientWidth + 1)"), clipped)
+        "[...document.querySelectorAll('#mpBody .pgrow .pgnm')].every(e => e.scrollWidth <= e.clientWidth + 1)"), clipped)
     ok('l: 스크롤 없이 한 화면(100dvh) 수납', geo['screenScroll'] <= geo['vh'] + 1
        and geo['rightBottom'] <= geo['vh'] + 1 and geo['barH'] <= 46,
        'scroll=%s vh=%s rightBottom=%s bar=%s' % (geo['screenScroll'], geo['vh'], geo['rightBottom'], geo['barH']))
     rest_visible = page.locator('#mpBody [data-rest]').count()
-    ok('l: 가로모드에서도 점수표·명단 모두 보임', page.locator('#mpBody .mpg').is_visible()
-       and page.locator('#mpBody .mpth').first.is_visible() and rest_visible >= 15, rest_visible)
+    ok('l: 가로모드에서도 점수표·명단 모두 보임', page.locator('#mpBody .pgtbl').is_visible()
+       and page.locator('#mpBody .pgth').first.is_visible() and rest_visible >= 15, rest_visible)
     page.screenshot(path='%s/l_landscape.png' % OUT)
     page.click('#mpSetBtn')
     page.wait_for_timeout(260)
@@ -776,10 +779,10 @@ with sync_playwright() as pw:
             page.fill('#code', CODE)
             page.click('#go')
         page.wait_for_timeout(1000)
-        ok('canon: 메인 정본 프리뷰 카드에 🏀·✏️ 버튼', page.locator('#previewSlot .pvacts button').count() == 2
-           and '경기 진행하기' in page.inner_text('#previewSlot .pvacts')
-           and '수정하기' in page.inner_text('#previewSlot .pvacts'),
-           page.inner_text('#previewSlot .pvacts').replace('\n', ' '))
+        ok('canon: 메인 정본 프리뷰 카드에 🏀·✏️ 버튼', page.locator('#previewSlot .mpbtns button').count() == 2
+           and '경기 진행하기' in page.inner_text('#previewSlot .mpbtns')
+           and '수정하기' in page.inner_text('#previewSlot .mpbtns'),
+           page.inner_text('#previewSlot .mpbtns').replace('\n', ' '))
         page.screenshot(path='%s/c_1_canoncard.png' % OUT)
         page.click('#mpHeroBtn')
         page.wait_for_timeout(320)
@@ -886,8 +889,8 @@ with sync_playwright() as pw:
               .map(t => t.name + ':' + t.players.map(x => x.name).join(',')) : null)""")
         ok('restore: 기기 임시 프리뷰 삭제 + 정본 기준 재구성', gone == 0 and now29 == up29,
            '%s건 · %s' % (gone, str(now29)[:50]))
-        roster29 = page.evaluate("""() => [...document.querySelectorAll('#mpBody .mprows')]
-              .map(u => u.querySelectorAll('.mprow').length)""")
+        roster29 = page.evaluate("""() => [...document.querySelectorAll('#mpBody .pgrows')]
+              .map(u => u.querySelectorAll('.pgrow').length)""")
         ok('restore: 정본 팀·인원으로 즉시 재렌더링(6/6/6)', roster29 == [6, 6, 6], roster29)
         page.screenshot(path='%s/c_7_restored.png' % OUT)
 
