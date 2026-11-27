@@ -74,8 +74,7 @@ EXPECT_Q = [(f"{CELL_P[k] / CELL_P['gp']:.1f}" if CELL_P['gp'] else '–') for k
 PERQ_TOP = sorted(DATA['stats']['event']['rows'],
                   key=lambda r: (-(r['pts'] / r['gp'] if r['gp'] else -1), r['name']))[0]['name']
 CAREER_ROWS = DATA['stats']['career']['rows']
-CAREER_MVPQ = sorted([r for r in CAREER_ROWS if r['mvp'] is not None and r['gp']],
-                     key=lambda r: (-r['mvp'] / r['gp'], r['name']))
+CAREER_MVP_T = sorted([r for r in CAREER_ROWS if r['mvp'] is not None], key=lambda r: (-r['mvp'], r['name']))
 CAREER_P = sorted(CAREER_ROWS, key=lambda r: (-r['pts'], r['name']))[0]
 CAREER_Q = [(f"{CAREER_P[k] / CAREER_P['gp']:.1f}" if CAREER_P['gp'] else '–') for k in PERQ_KEYS]
 BOTH_ROWS = [r for r in CAREER_ROWS if any(e['name'] == r['name'] for e in DATA['stats']['event']['rows'])]
@@ -779,7 +778,7 @@ with sync_playwright() as p:
         ok(f"{tag}: 턴오버 정렬", first == SORT_TOP['career']['to'], first)
         page.screenshot(path=f"{OUT}/{tag}_6d_stats_career.png")
 
-        # 시즌 누적(쿼터당) — MVP 열이 화면 값(MVP÷출전) 그대로 정렬되는지(내림/오름)
+        # 시즌 누적(쿼터당) — MVP는 쿼터로 나누지 않고 '시즌 누적'과 수치·순서까지 완전히 동일(내림/오름)
         def mvp_col():
             return page.evaluate("""() => {
               const heads = [...document.querySelectorAll('#statHead th')].map(t => t.innerText.trim());
@@ -789,16 +788,23 @@ with sync_playwright() as p:
                 return { name: r.querySelector('.who b').innerText.trim(), v: td ? td.innerText.trim() : '' };
               });
             }""")
-        page.click("#tabCareerQ"); page.wait_for_timeout(350)
         page.click("#statHead [data-sort='mvp']"); page.wait_for_timeout(250)
+        col_t = mvp_col()
+        ok(f"{tag}: 시즌 누적 MVP 내림차순 = {CAREER_MVP_T[0]['name']}",
+           col_t and col_t[0]['name'] == CAREER_MVP_T[0]['name']
+           and [float(x['v']) for x in col_t if x['v'] != '–'] == sorted([float(x['v']) for x in col_t if x['v'] != '–'], reverse=True),
+           f"first={col_t[0]['name'] if col_t else ''}")
+        page.click("#tabCareerQ"); page.wait_for_timeout(350)
         col = mvp_col()
+        ok(f"{tag}: 시즌 누적 ↔ 시즌 누적(쿼터당) MVP 수치·순서 100% 일치", col == col_t,
+           f"{[(x['name'], x['v']) for x in col[:4]]} vs {[(x['name'], x['v']) for x in col_t[:4]]}")
         vals = [float(x['v']) for x in col if x['v'] != '–']
         ok(f"{tag}: 쿼터당 MVP 내림차순 — {vals and f'{vals[0]:.2f}'} 첫 행 {col[0]['name'] if col else ''}",
-           vals == sorted(vals, reverse=True) and CAREER_MVPQ and col[0]['name'] == CAREER_MVPQ[0]['name']
-           and abs(vals[0] - CAREER_MVPQ[0]['mvp'] / CAREER_MVPQ[0]['gp']) <= 0.0051,
-           f"{vals[:5]} vs {[round(r['mvp'] / r['gp'], 2) for r in CAREER_MVPQ[:5]]}")
-        ok(f"{tag}: 쿼터당 MVP 값 = MVP÷출전(2자리)",
-           all(abs(float(x['v']) - next(r['mvp'] / r['gp'] for r in CAREER_ROWS if r['name'] == x['name'])) <= 0.0051
+           vals == sorted(vals, reverse=True) and col[0]['name'] == CAREER_MVP_T[0]['name']
+           and abs(vals[0] - CAREER_MVP_T[0]['mvp']) <= 0.0051,
+           f"{vals[:5]} vs {[round(r['mvp'], 2) for r in CAREER_MVP_T[:5]]}")
+        ok(f"{tag}: 쿼터당 MVP 값 = 원본 누적 MVP(2자리, MVP÷출전 아님)",
+           all(abs(float(x['v']) - next(r['mvp'] for r in CAREER_ROWS if r['name'] == x['name'])) <= 0.0051
                for x in col if x['v'] != '–'),
            " / ".join(f"{x['name']} {x['v']}" for x in col[:3]))
         page.screenshot(path=f"{OUT}/{tag}_6d2_mvp_perq.png")
@@ -806,13 +812,13 @@ with sync_playwright() as p:
         col_a = mvp_col()
         vals_a = [float(x['v']) for x in col_a if x['v'] != '–']
         ok(f"{tag}: 쿼터당 MVP 다시 누르면 오름차순",
-           vals_a == sorted(vals_a) and col_a[0]['name'] == CAREER_MVPQ[-1]['name']
+           vals_a == sorted(vals_a) and col_a[0]['name'] == CAREER_MVP_T[-1]['name']
            and page.get_attribute("#statHead th[data-col='mvp']", 'aria-sort') == 'ascending',
-           f"{vals_a[:5]} first={col_a[0]['name']} ({CAREER_MVPQ[-1]['name']})")
+           f"{vals_a[:5]} first={col_a[0]['name']} ({CAREER_MVP_T[-1]['name']})")
         page.click("#sortRow [data-sort='mvp']"); page.wait_for_timeout(250)
         col_d = mvp_col()
         ok(f"{tag}: MVP 정렬 칩으로 다시 내림차순",
-           [float(x['v']) for x in col_d if x['v'] != '–'] == vals and col_d[0]['name'] == CAREER_MVPQ[0]['name']
+           [float(x['v']) for x in col_d if x['v'] != '–'] == vals and col_d[0]['name'] == CAREER_MVP_T[0]['name']
            and page.get_attribute("#statHead th[data-col='mvp']", 'aria-sort') == 'descending',
            f"first={col_d[0]['name']}")
         page.click("#tabCareer"); page.wait_for_timeout(250)
@@ -843,6 +849,9 @@ with sync_playwright() as p:
            and pq.get('파울 /Q') == f"{MODAL_P['pf'] / MODAL_P['gp']:.1f}",
            f"득점={pq.get('득점 /Q')} 리바={pq.get('리바운드 /Q')} 파울={pq.get('파울 /Q')}")
         ok(f"{tag}: 쿼터당 모드 평균(점/Q) 카드 생략", '평균(점/Q)' not in pq)
+        ok(f"{tag}: 카드 시즌 누적(쿼터당) MVP = 시즌 누적 MVP 그대로(/Q 없음)",
+           pq.get('MVP') == f"{MODAL_P['mvp']:.2f}" and 'MVP /Q' not in pq,
+           f"MVP={pq.get('MVP')} keys={[k for k in pq if 'MVP' in k]}")
         shots_pq = page.eval_on_selector_all("#mStatBody .mshotc .pq", "els=>els.map(e=>e.innerText.trim())")
         ok(f"{tag}: 2·3점·자유투 % 유지 + /Q 성공/시도", len(shots_pq) >= 1 and '%' in page.inner_text("#mStatBody .mshots"), f"{shots_pq}")
         page.screenshot(path=f"{OUT}/{tag}_6f_modal_perq.png")

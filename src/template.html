@@ -1912,11 +1912,14 @@ function statVal(p, k) {
   const v = numView(p, k);
   return v == null ? -1 : v;
 }
-/* 보기 모드 반영값 — 쿼터당 모드면 각 항목을 출전수로 나눈 평균 */
+/* 보기 모드 반영값 — 쿼터당 모드면 각 항목을 출전수로 나눈 평균
+   단, MVP는 시즌 누적(쿼터당)에서도 쿼터로 나누지 않습니다(원본 누적 MVP 그대로 = 시즌 누적과 동일).
+   경기별(직전 경기) 쿼터당 보기에서만 그 경기 MVP÷출전을 씁니다. */
 function numView(p, k) {
   const v = p[k];
   if (v == null) return null;
   if (!ST_SRC || !ST_SRC.perq || !p.gp) return v;
+  if (k === 'mvp' && ST_SRC.key !== 'event') return v;
   return v / p.gp;
 }
 const EVENTS = () => (DATA.stats.events && DATA.stats.events.length ? DATA.stats.events : [DATA.stats.event]);const evLabel = e => `${e.date.slice(5).replace('-', '.')} 경기` + (e.tag ? ` · ${e.tag}` : '');
@@ -2009,8 +2012,8 @@ function renderStats() {
       return `<td class="shot${c.k === STAT_SORT ? ' sorted' : ''}"><b class="${isLead ? 'lead' : ''}">${s ? s.p + '%' : '–'}</b><i>${sub}</i></td>`;
     }
     if (c.k === 'mvp') {
-      /* 쿼터당 모드에서는 정렬 기준과 같은 값(포인트÷출전)으로 보여 줍니다 */
-      const mv = (ST_SRC && ST_SRC.perq && p.mvp != null && p.gp) ? p.mvp / p.gp : p.mvp;
+      /* 표시값 = 정렬값(numView). 시즌 누적(쿼터당)에서도 원본 누적 MVP 그대로 */
+      const mv = numView(p, 'mvp');
       return `<td class="num${cls}">${mv == null ? '–' : mv.toFixed(2)}</td>`;
     }
     const v = numView(p, c.k);
@@ -2028,9 +2031,12 @@ function renderStats() {
   }).join('') : `<tr><td class="nores-cell" colspan="${ST_COLS.length + 1}">${Q ? '해당 이름의 스탯이 없습니다.' : '스탯 기록이 없습니다.'}</td></tr>`;
   const sc = $('#statScroll');
   if (sc && sc.scrollLeft > sc.scrollWidth - sc.clientWidth) sc.scrollLeft = 0;
+  const mvpNote = (ST_SRC && ST_SRC.perq)
+    ? (ST_SRC.key === 'event' ? '이 경기 MVP÷출전' : '쿼터로 나누지 않고 <b style="color:var(--tx2)">시즌 누적 MVP 값 그대로</b> — `시즌 누적`과 동일')
+    : '기록지 산식 그대로';
   syncStatScroll();  $('#statHint').innerHTML = (ST_SRC && ST_SRC.perq
-    ? `↔ <b style="color:var(--tx)">쿼터당(/Q)</b> 보기 — 득점·리바·ORB·DRB·어시·스틸·블락·턴오버·파울을 각 선수 <b style="color:var(--tx2)">출전수로 나눈 평균</b>(소수점 1자리)으로 표시합니다 · 2점·3점·자유투는 <b style="color:var(--tx2)">성공률(%)</b> 기준 + 쿼터당 성공/시도 · <b style="color:var(--tx2)">MVP도 MVP÷출전</b>(소수점 2자리)로 보고, 정렬도 그 수치 기준`
-    : `2점·3점·자유투는 <b style="color:var(--tx2)">성공률(%)</b> 기준, 나머지는 개수 기준 정렬 · 헤더나 위 칩을 눌러 바꿀 수 있습니다(다시 누르면 오름차순) · 리바운드 = ORB + DRB · MVP는 기록지 산식 그대로(쿼터당 모드는 MVP÷출전)`);
+    ? `↔ <b style="color:var(--tx)">쿼터당(/Q)</b> 보기 — 득점·리바·ORB·DRB·어시·스틸·블락·턴오버·파울을 각 선수 <b style="color:var(--tx2)">출전수로 나눈 평균</b>(소수점 1자리)으로 표시합니다 · 2점·3점·자유투는 <b style="color:var(--tx2)">성공률(%)</b> 기준 + 쿼터당 성공/시도 · MVP는 ${mvpNote}(소수점 2자리), 정렬도 그 수치 기준`
+    : `2점·3점·자유투는 <b style="color:var(--tx2)">성공률(%)</b> 기준, 나머지는 개수 기준 정렬 · 헤더나 위 칩을 눌러 바꿀 수 있습니다(다시 누르면 오름차순) · 리바운드 = ORB + DRB · MVP는 기록지 산식 그대로(시즌 누적(쿼터당)에서도 같은 값)`);
 }
 
 /* ---------------- roster ---------------- */
@@ -2376,10 +2382,11 @@ function modalBlocks(name) {
   if (MODAL_MODE === 'event') {
     const list = EVENTS();
     const ev = list.find(e => e.date === MODAL_DATE) || list[0];
-    return statBlock(ev.rows, name, `${evLabel(ev)} 스탯`, ev.date, MODAL_PERQ === 'perq');
+    return statBlock(ev.rows, name, `${evLabel(ev)} 스탯`, ev.date, MODAL_PERQ === 'perq', MODAL_PERQ === 'perq');
   }
   const perq = MODAL_MODE === 'careerQ';
-  return statBlock(DATA.stats.career.rows, name, perq ? '시즌 누적(쿼터당) 스탯' : '시즌 누적 스탯', DATA.stats.career.date, perq);
+  /* 시즌 누적(쿼터당) 카드는 MVP를 쿼터로 나누지 않습니다(시즌 누적 MVP와 동일 값) */
+  return statBlock(DATA.stats.career.rows, name, perq ? '시즌 누적(쿼터당) 스탯' : '시즌 누적 스탯', DATA.stats.career.date, perq, false);
 }
 function renderModalStat() {
   if (!MODAL_NAME) return;
@@ -2395,7 +2402,8 @@ function setModalMode(mode) {
   $$('.mtoggle [data-mdmode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mdmode === MODAL_MODE)));
   renderModalStat();
 }
-function statBlock(rows, name, label, date, perq) {
+function statBlock(rows, name, label, date, perq, mvpPerq) {
+  if (mvpPerq === undefined) mvpPerq = perq;
   const p = rows.find(r => r.name === name);
   if (!p) return `<div class="msec">${label} <span class="as">${date}</span></div><div class="mempty">이 기록지에 스탯이 없습니다(출전 명단 미포함).</div>`;
   const n = (v, d) => (v == null ? '–' : (Number.isInteger(v) ? String(v) : v.toFixed(d || 1)));
@@ -2412,9 +2420,9 @@ function statBlock(rows, name, label, date, perq) {
   const cells = `<div class="msc"><div class="v">${val(p.pts)}</div><div class="k">득점${perq ? ' /Q' : ''}</div></div>`
     + (perq ? '' : `<div class="msc"><div class="v">${p.ppg == null ? '–' : p.ppg.toFixed(1)}</div><div class="k">평균(점/Q)</div></div>`)
     + NAMES.map(([k, v]) => `<div class="msc"><div class="v">${val(v)}</div><div class="k">${k}${perq ? ' /Q' : ''}</div></div>`).join('')
-    + `<div class="msc"><div class="v">${p.mvp == null ? '–' : (perq && gp ? (p.mvp / gp).toFixed(2) : p.mvp.toFixed(2))}</div><div class="k">MVP${perq ? ' /Q' : ''}</div></div>`
+    + `<div class="msc"><div class="v">${p.mvp == null ? '–' : (mvpPerq && gp ? (p.mvp / gp).toFixed(2) : p.mvp.toFixed(2))}</div><div class="k">MVP${mvpPerq ? ' /Q' : ''}</div></div>`
     + `<div class="msc"><div class="v">${n(p.gp)}</div><div class="k">출전</div></div>`;
-  return `<div class="msec">${label} <span class="as">${date}</span>${perq ? `<span class="pqnote">÷ 출전 ${gp}경기</span>` : ''}</div>
+  return `<div class="msec">${label} <span class="as">${date}</span>${perq ? `<span class="pqnote">÷ 출전 ${gp}경기${mvpPerq ? '' : ' · MVP 제외'}</span>` : ''}</div>
     <div class="mshots">${shot('2점', p.fg2)}${shot('3점', p.fg3)}${shot('자유투', p.ft)}</div>
     <div class="mstats">${cells}</div>`;
 
@@ -2543,7 +2551,7 @@ const CHANGELOG = [
     '팀 구성 기준 보완 — 3파전 최소 <b>15명</b>(3팀×5명)·2파전 최소 <b>10명</b>(2팀×5명), 팀 표시 순서 <b>레드 · 블랙 · 형광</b>(2파전 레드 · 블랙), 시트 안 <b>+ 가상 선수 추가</b>로 바로 반영',
     '<b>게스트 구분 정리</b> — 기존 구분을 없애고 해당 인원을 <b>게스트</b>로 표기, 백넘버가 있는 게스트는 로스터에 그대로 유지',
     '상단 요약 카드 4칸을 <b>승률 / 경기 / 정회원 / 게스트</b>로 변경 — 정회원을 누르면 로스터로 이동',
-    '개인 스탯 <b>시즌 누적(쿼터당)</b>의 MVP 열이 화면 값 그대로 정렬되도록 수정 — 헤더·칩을 다시 누르면 오름차순',
+    '개인 스탯 <b>시즌 누적(쿼터당)</b>의 <b>MVP</b> 열은 쿼터로 나누지 않고 <b>시즌 누적 MVP 값 그대로</b> 표시·정렬 — 두 모드의 MVP 수치·순위가 동일합니다(나머지 항목은 쿼터당 평균 유지)',
     '<b>📊 매치 프리뷰 &amp; 승률 예상</b> — 경기 전 예상을 경기 결과에 보여 주고, 결과가 반영된 뒤에도 주간 결과에서 예상↔실제를 비교',
   ] },
   { date: '2026-11-26', tag: '기능', items: [
