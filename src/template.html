@@ -952,14 +952,15 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   --pg-tx:#eef3fa;--pg-tx2:#a7b5c7;--pg-tx3:#71819a;--pg-acc:#ffb347;--pg-hi:#38e08b;--pg-red:#ff6b6b;--pg-in:#0c121a;
   --pgrh:26px;--pgnr:15px}
 #mpScreen[hidden]{display:none}
-/* 중간 테마 — 어두운/밝은 사이의 차분한 소프트 슬레이트 톤(눈부심 없음) */
-#mpScreen.pg-mid{--pg-bg:#dce3ec;--pg-card:#edf1f6;--pg-card2:#e2e9f2;--pg-line:rgba(15,23,42,.18);--pg-line2:rgba(15,23,42,.32);
-  --pg-tx:#0f172a;--pg-tx2:#33415a;--pg-tx3:#5b6b80;--pg-acc:#9a4a00;--pg-hi:#0b7a45;--pg-red:#b41f1f;--pg-in:#ffffff;
-  --pg-row:rgba(255,255,255,.72)}
-/* 밝은 테마 — 순백색 대신 살짝 낮춘 오프화이트(눈이 편안한 톤) */
-#mpScreen.pg-light{--pg-bg:#f1f4f8;--pg-card:#f9fafb;--pg-card2:#eaf0f7;--pg-line:rgba(15,23,42,.14);--pg-line2:rgba(15,23,42,.26);
-  --pg-tx:#0f1a26;--pg-tx2:#3f4f60;--pg-tx3:#6b7a8b;--pg-acc:#b8520a;--pg-hi:#0d7a45;--pg-red:#c4242c;--pg-in:#f8fafc;
-  --pg-row:rgba(255,255,255,.85)}
+/* 중간 테마(2026-11-28 교정) — 어두운 테마와 밝기 차이를 크게 벌리지 않은 차분한 슬레이트 그레이.
+   어두운 화면에 익숙한 눈으로 바로 넘어와도 눈부시지 않고, 경기장 조명 아래에서도 대비가 충분합니다. */
+#mpScreen.pg-mid{--pg-bg:#28303d;--pg-card:#323c4c;--pg-card2:#3a4557;--pg-line:rgba(255,255,255,.13);--pg-line2:rgba(255,255,255,.26);
+  --pg-tx:#ecf2fa;--pg-tx2:#bcc8d9;--pg-tx3:#8d9aad;--pg-acc:#ffb347;--pg-hi:#4ee39a;--pg-red:#ff7b7b;--pg-in:#232b37;
+  --pg-row:rgba(255,255,255,.055)}
+/* 밝은 테마(2026-11-28 교정) — 쨍한 순백색 대신 따뜻하고 은은한 웜 오프화이트(아이보리) 톤 + 진한 차콜 글씨 */
+#mpScreen.pg-light{--pg-bg:#e7e3da;--pg-card:#f3f0e8;--pg-card2:#ebe6da;--pg-line:rgba(60,50,32,.18);--pg-line2:rgba(60,50,32,.3);
+  --pg-tx:#272219;--pg-tx2:#4d4437;--pg-tx3:#6f6656;--pg-acc:#a25b12;--pg-hi:#127747;--pg-red:#b3352c;--pg-in:#faf7f0;
+  --pg-row:rgba(255,255,255,.62)}
 /* 상단 바 — 제목 + ⚙️ 설정 + ⛶ 전체화면 + ✕ 닫기 (1줄) */
 .pgbar{flex:0 0 auto;position:relative;z-index:6;background:var(--pg-bg);border-bottom:1px solid var(--pg-line);padding:4px 6px}
 .pgbarInner{display:flex;align-items:center;gap:5px;min-width:0}
@@ -970,7 +971,7 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   background:var(--pg-card);color:var(--pg-tx2);font-size:10.5px;font-weight:900;font-family:inherit;cursor:pointer;white-space:nowrap}
 .pgbtn:active{transform:translateY(1px)}
 .pgbtn.gon{color:var(--pg-acc);border-color:rgba(255,179,71,.6);background:rgba(255,179,71,.14)}
-#mpScreen.pg-light .pgbtn.gon,#mpScreen.pg-mid .pgbtn.gon{color:#8a3c00;border-color:rgba(138,60,0,.45);background:rgba(255,179,71,.22)}
+#mpScreen.pg-light .pgbtn.gon{color:#8a3c00;border-color:rgba(138,60,0,.45);background:rgba(255,179,71,.24)}
 .pgx{flex:0 0 auto;width:27px;height:27px;border-radius:50%;border:1px solid var(--pg-line2);background:transparent;
   color:var(--pg-tx2);font-size:12px;cursor:pointer;padding:0;font-family:inherit;line-height:1}
 @media (max-width:380px){.pgbtn .lbl{display:none}}
@@ -1072,8 +1073,7 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .pgsd.up{color:var(--pg-hi)} .pgsd.dn{color:var(--pg-red)}
 /* 팀 색상 가독성 — 점·컬러 상단선·배지 (어두운/중간/밝은 테마 공통, 형광·블랙·레드도 선명하게) */
 #mpScreen{--c-형광:#c8ff3d;--c-블랙:#6f7f96;--c-레드:#ff6b6b}
-#mpScreen.pg-mid{--c-형광:#588800;--c-블랙:#334155;--c-레드:#b41f1f}
-#mpScreen.pg-light{--c-형광:#4b7400;--c-블랙:#1f2937;--c-레드:#c4242c}
+#mpScreen.pg-light{--c-형광:#5b7a00;--c-블랙:#2b2620;--c-레드:#b3352c}
 #mpScreen .dot{border-radius:50%;width:6px;height:6px}
 #mpScreen .pgtbl .mpair .dot{width:8px;height:8px}
 #mpScreen.pg-h .pgtbl .mpair .dot{width:9px;height:9px}
@@ -1083,9 +1083,12 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 #mpScreen .dot-형광{background:#c8ff3d;box-shadow:0 0 0 1px rgba(70,105,0,.55),0 0 7px rgba(200,255,61,.5)}
 #mpScreen .dot-블랙{background:#63738c;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
 #mpScreen .dot-레드{background:#ff6b6b;box-shadow:0 0 0 1px rgba(160,20,20,.5),0 0 7px rgba(255,107,107,.45)}
-#mpScreen.pg-mid .dot-형광,#mpScreen.pg-light .dot-형광{background:#c8ff3d;box-shadow:0 0 0 1.5px rgba(60,92,0,.85)}
-#mpScreen.pg-mid .dot-블랙,#mpScreen.pg-light .dot-블랙{background:#334155;box-shadow:0 0 0 1px rgba(15,23,42,.45)}
-#mpScreen.pg-mid .dot-레드,#mpScreen.pg-light .dot-레드{background:#ff6b6b;box-shadow:0 0 0 1.5px rgba(160,20,20,.55)}
+#mpScreen.pg-mid .dot-형광{background:#c8ff3d;box-shadow:0 0 0 1.5px rgba(30,45,0,.9),0 0 7px rgba(200,255,61,.45)}
+#mpScreen.pg-mid .dot-블랙{background:#7d8faa;box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
+#mpScreen.pg-mid .dot-레드{background:#ff7575;box-shadow:0 0 0 1.5px rgba(120,10,10,.7),0 0 7px rgba(255,117,117,.4)}
+#mpScreen.pg-light .dot-형광{background:#c8ff3d;box-shadow:0 0 0 1.5px rgba(60,92,0,.85)}
+#mpScreen.pg-light .dot-블랙{background:#2b2620;box-shadow:0 0 0 1px rgba(39,34,25,.45)}
+#mpScreen.pg-light .dot-레드{background:#e2514a;box-shadow:0 0 0 1.5px rgba(160,20,20,.5)}
 /* 팀 이름 배지 — 색 테두리를 두른 작은 칩 */
 #mpScreen .tm{display:inline-flex;align-items:center;gap:3px;padding:0 4px;border-radius:6px;
   background:var(--pg-card);box-shadow:inset 0 0 0 1px var(--c,var(--pg-line2));white-space:nowrap}
@@ -1122,7 +1125,7 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .pgasg{margin-left:auto;flex:0 0 auto;height:17px;padding:0 4px;border-radius:5px;border:1px solid var(--pg-line2);
   background:transparent;color:var(--pg-tx2);font-size:8px;font-weight:900;font-family:inherit;cursor:pointer;white-space:nowrap}
 .pgasg.on{background:var(--pg-acc);color:#20140a;border-color:transparent}
-#mpScreen.pg-light .pgasg.on,#mpScreen.pg-mid .pgasg.on{color:#fff;background:var(--pg-acc)}
+#mpScreen.pg-light .pgasg.on{color:#fff;background:var(--pg-acc)}
 .pgrsnum{display:flex;flex-direction:column;gap:3px}
 .pgrsnum span{height:var(--pgrh);display:flex;align-items:center;justify-content:center;
   font-size:9.5px;font-weight:900;color:var(--pg-tx3);font-variant-numeric:tabular-nums}
@@ -1141,16 +1144,72 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .pgrc.n1{color:#9fe6ff;border-color:rgba(74,210,255,.55);background:rgba(74,210,255,.12)}
 .pgrc.n2{color:var(--pg-acc);border-color:rgba(255,179,71,.6);background:rgba(255,179,71,.14)}
 .pgrc.n3{color:var(--pg-red);border-color:rgba(255,107,107,.6);background:rgba(255,107,107,.14)}
-#mpScreen.pg-light .pgrc.n1,#mpScreen.pg-mid .pgrc.n1{color:#0a6e96;border-color:rgba(10,110,150,.45);background:rgba(74,210,255,.16)}
-#mpScreen.pg-light .pgrc.n2,#mpScreen.pg-mid .pgrc.n2{color:#9a4a00;border-color:rgba(154,74,0,.45);background:rgba(255,179,71,.2)}
-#mpScreen.pg-light .pgrc.n3,#mpScreen.pg-mid .pgrc.n3{color:#a01414;border-color:rgba(160,20,20,.45);background:rgba(255,107,107,.18)}
+#mpScreen.pg-mid .pgrc.n1{color:#9fe6ff;border-color:rgba(74,210,255,.55);background:rgba(74,210,255,.14)}
+#mpScreen.pg-mid .pgrc.n2{color:#ffb347;border-color:rgba(255,179,71,.6);background:rgba(255,179,71,.16)}
+#mpScreen.pg-mid .pgrc.n3{color:#ff8f8f;border-color:rgba(255,123,123,.6);background:rgba(255,123,123,.16)}
+#mpScreen.pg-light .pgrc.n1{color:#0a6e96;border-color:rgba(10,110,150,.45);background:rgba(74,210,255,.18)}
+#mpScreen.pg-light .pgrc.n2{color:#8f4c00;border-color:rgba(143,76,0,.45);background:rgba(255,179,71,.22)}
+#mpScreen.pg-light .pgrc.n3{color:#a3241c;border-color:rgba(163,36,28,.45);background:rgba(255,107,107,.18)}
 .pgpick{flex:0 0 auto;width:14px;height:14px;border-radius:50%;border:1px dashed var(--pg-line2);
   display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:var(--pg-tx3)}
 .pgpick.on{background:var(--pg-acc);color:#20140a;border-style:solid;border-color:transparent}
-#mpScreen.pg-light .pgpick.on,#mpScreen.pg-mid .pgpick.on{color:#fff;background:var(--pg-acc)}
+#mpScreen.pg-light .pgpick.on{color:#fff;background:var(--pg-acc)}
 .mpassignhint{border:1px dashed rgba(255,179,71,.6);background:rgba(255,179,71,.10);color:var(--pg-acc);
   border-radius:7px;padding:3px 5px;font-size:8px;font-weight:900;line-height:1.35;word-break:keep-all}
-.mpdropt{outline:2px dashed rgba(255,179,71,.75);outline-offset:-2px}
+/* ── 드래그 손맛 (2026-11-28 4번) — 집어 올림(고스트·확대·그림자) · 원래 자리 점선 · 놓을 칸 강조 · 부드러운 착지 ── */
+#mpScreen .pgrow,#mpScreen .pgtbl th.mh{transition:transform .15s ease,box-shadow .15s ease,background .15s ease,opacity .15s ease}
+.mpdropt{outline:2px solid var(--pg-acc);outline-offset:-2px;background:rgba(255,179,71,.14);border-radius:8px}
+#mpScreen .pgtbl th.mh.mpdropt{background:rgba(255,179,71,.16)}
+/* 집어 올린 원래 자리 — 졸인 점선 빈칸 */
+.mpdragon{opacity:.3;outline:2px dashed var(--pg-acc);outline-offset:-3px;background:transparent!important}
+.mpdragon *{visibility:hidden}
+/* 손가락을 따라오는 고스트 — 살짝 확대 + 진한 그림자 + 강조 테두리 */
+.mpghost{position:fixed;z-index:9990;pointer-events:none;margin:0;left:0;top:0;
+  transform:translate(-50%,-50%) scale(1.05);transform-origin:center;
+  border-radius:9px;background:var(--pg-card2);border:2px solid var(--pg-acc);
+  box-shadow:0 16px 34px rgba(0,0,0,.5),0 0 0 3px rgba(255,179,71,.22);opacity:.97;overflow:hidden}
+.mpghost.pgrow{display:flex;align-items:center;gap:.2em;padding:0 .34em;background:var(--pg-row,rgba(255,255,255,.06))}
+.mpghost.mpghost-h{display:flex;align-items:center;justify-content:center;padding:.2em}
+.mpghost.mpghost-h .mpair{display:flex;align-items:center;justify-content:center;gap:.3em;flex-wrap:nowrap;
+  font-size:var(--pg-fs-mpair,13px);font-weight:900;color:var(--pg-tx)}
+.mpghost.mpghost-h .tm{display:inline-flex;align-items:center;gap:.25em;padding:0 .3em;border-radius:.34em;
+  background:var(--pg-card);box-shadow:inset 0 0 0 1px var(--c,var(--pg-line2));white-space:nowrap}
+.mpghost.mpghost-h .dot{display:inline-block;border-radius:50%;width:.5em;height:.5em}
+.mpghost .mpswap{display:none}
+/* 착지 — 150ms 로 부드럽게 제자리 */
+.mpland{animation:mpLand .15s ease-out}
+@keyframes mpLand{0%{transform:scale(1.045)}100%{transform:scale(1)}}
+/* ── 3번 출석 표시 3안 — 줄 전체를 짧게 탭하면 기본 → 출석 → 불참 → 기본 ── */
+#mpScreen .pgrow .attb{display:none;flex:0 0 auto;font-weight:900;line-height:1.2;white-space:nowrap}
+#mpScreen .pgrow .attb::before{display:inline-block;border-radius:4px;padding:0 .34em;font-size:.72em;line-height:1.35}
+/* 1안 (기본) — 이름 왼쪽 초록 ✓ / 빨간 ✕ + 흐림 */
+#mpScreen[data-attstyle="1"] .pgrow[data-att="in"] .pgnm::before{content:'✓';color:var(--pg-hi);font-weight:900;margin-right:.22em}
+#mpScreen[data-attstyle="1"] .pgrow[data-att="out"] .pgnm::before{content:'✕';color:var(--pg-red);font-weight:900;margin-right:.22em}
+#mpScreen[data-attstyle="1"] .pgrow[data-att="out"]{opacity:.48}
+/* 2안 — 작은 한글 배지 + 은은한 배경 틴트 */
+#mpScreen[data-attstyle="2"] .pgrow[data-att="in"] .attb,#mpScreen[data-attstyle="2"] .pgrow[data-att="out"] .attb{display:inline-flex}
+#mpScreen[data-attstyle="2"] .pgrow[data-att="in"] .attb::before{content:'출석';color:var(--pg-hi);background:rgba(78,227,154,.16);box-shadow:inset 0 0 0 1px rgba(78,227,154,.42)}
+#mpScreen[data-attstyle="2"] .pgrow[data-att="out"] .attb::before{content:'불참';color:var(--pg-red);background:rgba(255,123,123,.14);box-shadow:inset 0 0 0 1px rgba(255,123,123,.4)}
+#mpScreen[data-attstyle="2"] .pgrow[data-att="in"]{background:rgba(78,227,154,.1);border-color:rgba(78,227,154,.34)}
+#mpScreen[data-attstyle="2"] .pgrow[data-att="out"]{opacity:.55;background:rgba(255,123,123,.06)}
+#mpScreen.pg-light[data-attstyle="2"] .pgrow[data-att="in"] .attb::before{background:rgba(18,119,71,.12);color:#0c6a3d;box-shadow:inset 0 0 0 1px rgba(18,119,71,.4)}
+#mpScreen.pg-light[data-attstyle="2"] .pgrow[data-att="out"] .attb::before{background:rgba(179,53,44,.1);color:#9a2f27;box-shadow:inset 0 0 0 1px rgba(179,53,44,.38)}
+/* 3안 — 테두리 하이라이트 / 이름 취소선 + 반투명 */
+#mpScreen[data-attstyle="3"] .pgrow[data-att="in"]{border-color:var(--pg-hi);box-shadow:inset 0 0 0 1px var(--pg-hi)}
+#mpScreen[data-attstyle="3"] .pgrow[data-att="out"]{opacity:.5}
+#mpScreen[data-attstyle="3"] .pgrow[data-att="out"] .pgnm{text-decoration:line-through;text-decoration-thickness:1.5px}
+/* ── 2번 ⇄ 매치업 좌우 바꾸기 · 6번 쿼터 ↻ 로테이션 ── */
+#mpScreen .pgtbl .mpswap,#mpScreen .pggh2 .mpswap{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+  width:1.6em;height:1.6em;min-width:20px;min-height:20px;padding:0;border-radius:50%;
+  border:1px solid var(--pg-line2);background:var(--pg-card);color:var(--pg-acc);
+  font-family:inherit;font-size:.86em;font-weight:900;line-height:1;cursor:pointer;touch-action:manipulation}
+#mpScreen .pgtbl .mpswap:active,#mpScreen .pggh2 .mpswap:active{transform:scale(.92)}
+#mpScreen.pg-light .pgtbl .mpswap,#mpScreen.pg-light .pggh2 .mpswap{border-color:rgba(162,91,18,.45);background:rgba(255,179,71,.2)}
+#mpScreen .pgtbl .qh .qrot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  width:100%;height:100%;min-height:18px;padding:0;border:0;background:transparent;cursor:pointer;
+  font-family:inherit;font-size:inherit;font-weight:900;color:var(--pg-tx);line-height:1;touch-action:manipulation}
+#mpScreen .pgtbl .qh .qrot .qr{color:var(--pg-acc);font-size:1.05em;line-height:1}
+#mpScreen .pgtbl .qh .qrot:active{transform:scale(.94)}
 /* ---------- 📱 화면 꽉 채우기 (배율 zoom 폐기 · flex/grid 로 100% 채움) ----------
    #mpScreen 을 세로 flex 로 두고 본문(.pgbody)이 상단 바 아래 남는 높이 전부를 차지합니다.
    그 안에서 점수표 행과 명단 행이 1fr 로 늘어나 위아래 빈 공간 없이 꽉 찹니다(가운데 쏠림 없음).
@@ -1330,8 +1389,8 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mpset .seg button:active{transform:translateY(1px)}
 .mpset .seg button[aria-pressed="true"]{background:var(--pg-acc);color:#20140a;border-color:transparent}
 .mpset .seg button.danger{background:rgba(255,92,92,.14);border-color:rgba(255,92,92,.5);color:#ff9a9a}
-#mpScreen.pg-light .mpset .seg button[aria-pressed="true"],#mpScreen.pg-mid .mpset .seg button[aria-pressed="true"]{color:#fff;background:var(--pg-acc)}
-#mpScreen.pg-light .mpset .seg button.danger,#mpScreen.pg-mid .mpset .seg button.danger{color:#b41f1f;background:rgba(200,40,40,.1);border-color:rgba(180,31,31,.45)}
+#mpScreen.pg-light .mpset .seg button[aria-pressed="true"]{color:#fff;background:var(--pg-acc)}
+#mpScreen.pg-light .mpset .seg button.danger{color:#a3241c;background:rgba(200,40,40,.12);border-color:rgba(163,36,28,.45)}
 .mpset .mpsnote{margin:8px 0 0;font-size:10px;line-height:1.5;color:var(--pg-tx3);font-weight:700;word-break:keep-all}
 .mpset .mpsnote b{color:var(--pg-tx2);font-weight:900}
 #mpScreen.pg-h .mpset{align-items:center;padding:8px}
@@ -1357,8 +1416,8 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   padding:9px 14px;border-radius:999px;background:rgba(10,16,24,.94);color:#eaf1ff;border:1px solid var(--pg-line2);
   font-size:11.5px;font-weight:800;box-shadow:0 10px 26px rgba(0,0,0,.4)}
 .mptoast[hidden]{display:none}
-#mpScreen.pg-mid .mptoast{background:rgba(237,241,246,.97);color:#0f172a;box-shadow:0 10px 26px rgba(15,23,42,.2)}
-#mpScreen.pg-light .mptoast{background:rgba(249,250,251,.97);color:#0f172a;box-shadow:0 10px 26px rgba(16,32,64,.16)}
+#mpScreen.pg-mid .mptoast{background:rgba(20,25,33,.95);color:#eef3fa;box-shadow:0 10px 26px rgba(0,0,0,.42)}
+#mpScreen.pg-light .mptoast{background:rgba(250,247,240,.98);color:#272219;box-shadow:0 10px 26px rgba(74,62,40,.18)}
 /* 📱 세로 모드 안내 토스트 — 3.5초 뒤 자동으로 사라지고, 가로로 돌리면 즉시 숨김. 화면 높이를 차지하지 않습니다 */
 .mps .mprot{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:275;
   max-width:90vw;padding:9px 15px;border-radius:14px;
@@ -1366,8 +1425,8 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   font-size:12px;font-weight:800;line-height:1.45;text-align:center;word-break:keep-all;
   box-shadow:0 10px 26px rgba(0,0,0,.45);pointer-events:none;animation:mprotIn .18s ease-out}
 .mps .mprot[hidden]{display:none}
-#mpScreen.pg-mid .mprot{background:rgba(237,241,246,.97);border-color:rgba(154,74,0,.5);color:#3d2400;box-shadow:0 10px 26px rgba(15,23,42,.2)}
-#mpScreen.pg-light .mprot{background:rgba(249,250,251,.97);border-color:rgba(184,82,10,.5);color:#3d2400;box-shadow:0 10px 26px rgba(16,32,64,.16)}
+#mpScreen.pg-mid .mprot{background:rgba(20,25,33,.96);border-color:rgba(255,179,71,.6);color:#ffe9c9;box-shadow:0 10px 26px rgba(0,0,0,.45)}
+#mpScreen.pg-light .mprot{background:rgba(250,247,240,.98);border-color:rgba(162,91,18,.55);color:#3d2400;box-shadow:0 10px 26px rgba(74,62,40,.18)}
 @keyframes mprotIn{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 /* 화면 잠금 · 인쇄 페이지 */
 body.mp-open{overflow:hidden}
@@ -1989,6 +2048,12 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
           <button type="button" data-mpfont="small" title="이름·점수를 여유 있게 작게 — 한 화면에 가장 많이 보입니다">작게</button>
           <button type="button" data-mpfont="normal" title="태블릿에 보기 좋은 표준 크기(기본값)">보통</button>
           <button type="button" data-mpfont="large" title="점수·이름을 큼직하게 — 잘리지 않는 최대 크기">크게</button>
+        </div></div>
+      <div class="row"><span class="k">출석 표시</span>
+        <div class="seg" id="mpSetAtt">
+          <button type="button" data-mpatt="1" title="이름 왼쪽에 초록 ✓ / 불참은 ✕ + 흐림">1안 ✓</button>
+          <button type="button" data-mpatt="2" title="작은 배지(출석·불참) + 은은한 배경 틴트">2안 배지</button>
+          <button type="button" data-mpatt="3" title="테두리 하이라이트 / 이름 취소선 + 반투명">3안 테두리</button>
         </div></div>
       <div class="row"><span class="k">화면</span>
         <div class="seg" id="mpSetScreen">
@@ -3414,6 +3479,14 @@ function closeNav() {
    새 기록은 맨 위에 { date:'YYYY-MM-DD', tag:'기록', items:['46회차(11/29) 경기 결과·승률·개인 스탯 반영'] }
    형태로 추가하면 팝업에 날짜순(최신순)으로 그대로 나타납니다. */
 const CHANGELOG = [
+  { date: '2026-11-28', tag: '기능', items: [
+    '<b>매치업 ⇄ 좌우 바꾸기</b> — 매치업 머리글의 ◀▶ 줄을 없애고 팀명 배지 사이 <b>⇄</b> 버튼으로. 누르면 <b>세 경기의 좌우 팀과 점수(1Q~4Q·합계·승리팀)</b>가 한번에 뒤집히고 3파전 꼬리물기(<b>A:B → B:C → C:A</b>)가 유지됩니다. 세로 공간이 생겨 <b>팀명 글씨가 더 커졌습니다</b>',
+    '<b>인원 출석 3단계</b> — 하단 명단에서 선수 이름을 <b>짧게 탭</b>하면 <b>기본 → 출석 → 불참</b> 순환(<b>⠿ 끌기·0회 버튼</b>과 충돌 없음). <b>⚙️ 설정 → 출석 표시</b>로 3가지 모양 중 선택, 기기에 기억됩니다 (<b>1안</b> 초록 ✓ / 빨간 ✕+흐림 · <b>2안</b> 출석·불참 배지+배경 틴트 · <b>3안</b> 테두리 하이라이트 / 취소선)',
+    '<b>드래그 손맛 강화</b> — 집으면 살짝 확대(<b>scale 1.05</b>)된 고스트가 손가락을 따라오고 진한 그림자·강조 테두리·<b>짧은 진동(15ms)</b>, 원래 자리는 <b>점선 빈칸</b>, 놓을 칸은 <b>주황 테두리 강조</b>, 놓을 때 <b>150ms 착지</b> 전환',
+    '<b>태블릿 숫자 키패드</b> — 점수 칸을 <b>type=tel · inputmode=numeric · pattern=[0-9]*</b> 로 바꿔 안드로이드 태블릿에서도 숫자 키패드가 바로 뜨고, <b>3자리</b>까지만 입력됩니다',
+    '<b>쿼터 ↻ 로테이션</b> — 3파전 기본 대진을 <b>A:B → B:C → C:A</b>(형광:블랙 → 블랙:레드 → 레드:형광)로 정렬하고, 왼쪽 위 <b>쿼터 ↻</b>를 누를 때마다 1·2·3경기가 한 칸씩 순환합니다(입력한 점수도 해당 매치업을 따라 이동)',
+    '<b>테마 톤 교정</b> — <b>중간</b>은 어두운 테마와 밝기 차이를 줄인 <b>차분한 슬레이트 그레이(#28303d · 카드 #323c4c)</b>, <b>밝은</b>은 쨍한 흰색 대신 <b>따뜻한 웜 오프화이트(#e7e3da · 카드 #f3f0e8)</b> + 진한 차콜 글씨. 📸 사진 저장 PNG도 같은 톤',
+  ] },
   { date: '2026-11-28', tag: '기능', items: [
     '📱 <b>경기 진행 화면 꽉 채우기</b> — 태블릿 가로·세로와 폰 세로까지 점수표·명단이 화면 끝까지 늘어나 빈 공간 없이 꽉 찹니다(배율 zoom 제거 · 리버스와 동일 방식). <b>⚙️ 설정 → 글씨 크기(작게·보통·크게)</b>는 이름·점수만 단계별로 바꾸고 <b>잘리지 않는 최대 크기</b>에서 멈춥니다',
     '선수 이름·팀 머리글 <b>가운데 정렬</b>, 매치업 헤더(<b>● 형광 | ● 블랙</b>) <b>한 줄 고정</b>',
@@ -4980,7 +5053,8 @@ const MP_TN = { 3: ['형광', '블랙', '레드'], 2: ['블랙', '레드'] };
 const MP_LIM = { 3: { min: 1, max: 6 }, 2: { min: 5, max: 8 } };
 const MP_QLABEL = { small: '작게', normal: '보통', large: '크게' };
 
-let MP = { preview: null, previews: [], theme: 'dark', font: 'normal' };
+let MP = { preview: null, previews: [], theme: 'dark', font: 'normal', att: '1' };
+const MP_ATT_LABEL = { 1: '1안 ✓', 2: '2안 배지', 3: '3안 테두리' };
 let MPED = null, MPED_SLOT = 0;
 let MPQ = '', MPPOS = '', MP_PICK = -1, MPDG = null, MPWL = null, MPFS = false, MPDG_AT = 0;
 let MP_NOTE = '';
@@ -4992,6 +5066,7 @@ function mpLoad() {
   if (o && typeof o === 'object') {
     MP.theme = (o.theme === 'light' || o.theme === 'mid') ? o.theme : 'dark';
     MP.font = MP_QLABEL[o.font] ? o.font : 'normal';
+    MP.att = MP_ATT_LABEL[o.att] ? String(o.att) : '1';
     const list = Array.isArray(o.previews) ? o.previews : (o.preview ? [o.preview] : []);
     MP.previews = list.filter(function (p) { return p && p.teams && p.teams.length; });
     MP.previews.forEach(function (p) { if (!p.date) p.date = mpNextSunday(); mpNormalize(p); });
@@ -5004,7 +5079,7 @@ function mpSave() {
   try {
     localStorage.setItem(MP_KEY, JSON.stringify({
       previews: MP.previews, activeDate: MP.preview ? MP.preview.date : null,
-      theme: MP.theme, font: MP.font
+      theme: MP.theme, font: MP.font, att: MP.att
     }));
   } catch (e) { }
 }
@@ -5024,8 +5099,9 @@ function mpNextSunday() {
 }
 function mpClone(o) { return JSON.parse(JSON.stringify(o)); }
 function mpGameList(type) {
+  /* 3파전 꼬리물기(2연속·1휴식) — A:B → B:C → C:A (형광:블랙 → 블랙:레드 → 레드:형광) */
   return type === '3'
-    ? [{ a: 0, b: 1 }, { a: 1, b: 2 }, { a: 0, b: 2 }]
+    ? [{ a: 0, b: 1 }, { a: 1, b: 2 }, { a: 2, b: 0 }]
     : [{ a: 0, b: 1 }, { a: 0, b: 1 }, { a: 0, b: 1 }];
 }
 function mpNew(type, quarters) {
@@ -5048,6 +5124,7 @@ function mpNormalize(p) {
   if (!p.gOrder || p.gOrder.length !== 3) p.gOrder = [0, 1, 2];
   if (!p.qOrder || p.qOrder.length !== p.quarters) p.qOrder = [0, 1, 2, 3].slice(0, p.quarters);
   p.scores = p.scores || {}; p.rest = p.rest || {}; p.restNo = p.restNo || {}; p.order = p.order || {};
+  p.att = p.att || {};
   p.teams.forEach(function (t, i) {
     const names = t.players.map(function (x) { return x.name; });
     const cur = Array.isArray(p.order[i]) ? p.order[i].filter(function (n) { return names.indexOf(n) >= 0; }) : [];
@@ -5057,6 +5134,27 @@ function mpNormalize(p) {
     Object.keys(no).forEach(function (n) { if (names.indexOf(n) < 0) delete no[n]; });
     const rc = p.rest[i] || (p.rest[i] = {});
     Object.keys(rc).forEach(function (n) { if (names.indexOf(n) < 0) delete rc[n]; });
+  });
+  /* 3파전 기본 대진(꼬리물기) 정리 + 명단에서 빠진 선수의 출석 표시 제거 */
+  mpMigrateGames(p);
+  p.teams.forEach(function (t, i) {
+    const at = p.att[i] || (p.att[i] = {});
+    const names = t.players.map(function (x) { return x.name; });
+    Object.keys(at).forEach(function (n) { if (names.indexOf(n) < 0) delete at[n]; });
+  });
+}
+/* 예전에 저장된 3파전(3경기 = A:C)은 꼬리물기 기본 순서(C:A)로 옮깁니다 —
+   그 경기의 점수 a/b 도 함께 뒤집어 어느 팀이 몇 점인지는 그대로 둡니다. */
+function mpMigrateGames(p) {
+  if (p.type !== '3' || !p.games || p.games.length !== 3) return;
+  const g = p.games;
+  if (!(g[0].a === 0 && g[0].b === 1 && g[1].a === 1 && g[1].b === 2 && g[2].a === 0 && g[2].b === 2)) return;
+  p.games[2] = { a: 2, b: 0 };
+  Object.keys(p.scores || {}).forEach(function (k) {
+    if (k.indexOf('g2q') !== 0) return;
+    const s = p.scores[k];
+    if (!s) return;
+    const t = s.a; s.a = s.b; s.b = t;
   });
 }
 
@@ -5679,7 +5777,11 @@ function mpApplyTheme() {
     s.classList.toggle('pg-mid', MP.theme === 'mid');
     s.classList.toggle('pg-light', MP.theme === 'light');
     s.classList.toggle('pg-m2', !!(MP.preview && MP.preview.type === '2'));
+    s.setAttribute('data-attstyle', MP.att || '1');
   }
+  $$('#mpSetAtt [data-mpatt]').forEach(function (b) {
+    b.setAttribute('aria-pressed', b.getAttribute('data-mpatt') === String(MP.att) ? 'true' : 'false');
+  });
   $$('#mpSetTheme [data-mptheme]').forEach(function (b) {
     b.setAttribute('aria-pressed', b.getAttribute('data-mptheme') === MP.theme ? 'true' : 'false');
   });
@@ -5885,10 +5987,10 @@ function mpCellHtml(p, gi, qi) {
   }
   return '<td class="pgcell" data-cell="' + gi + ':' + qi + '">' + rest
     + '<div class="scin">'
-    + '<input class="sci" type="text" inputmode="numeric" maxlength="3" autocomplete="off" data-sc="' + gi + ':' + qi + ':a" value="' + esc(av)
+    + '<input class="sci" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" enterkeyhint="done" data-sc="' + gi + ':' + qi + ':a" value="' + esc(av)
     + '" aria-label="' + esc(A.name) + ' ' + (qi + 1) + 'Q 누적 점수">'
     + '<span class="scc">:</span>'
-    + '<input class="sci" type="text" inputmode="numeric" maxlength="3" autocomplete="off" data-sc="' + gi + ':' + qi + ':b" value="' + esc(bv)
+    + '<input class="sci" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" enterkeyhint="done" data-sc="' + gi + ':' + qi + ':b" value="' + esc(bv)
     + '" aria-label="' + esc(B.name) + ' ' + (qi + 1) + 'Q 누적 점수">'
     + '</div>'
     + '<div class="cum" data-cum="' + gi + ':' + qi + '">' + mpCumText(p, gi, qi) + '</div>'
@@ -5906,8 +6008,11 @@ function mpRosterCol(p, slot) {
     const rc = p.type === '3' ? ((p.rest[slot] || {})[n] || 0) : 0;
     const pick = on ? (p.type === '3' ? ((p.restNo[slot] || {})[n] || 0) : i + 1) : 0;
     const k = pl.kind === 'guest' ? '<span class="k">G</span>' : pl.kind === 'fake' ? '<span class="k">가상</span>' : '';
-    return '<div class="pgrow" data-prow="' + slot + '|' + esc(n) + '">'
+    const atv = (p.att[slot] || {})[n] || '';
+    return '<div class="pgrow" data-prow="' + slot + '|' + esc(n) + '"' + (atv ? ' data-att="' + atv + '"' : '')
+      + ' title="' + esc(n) + (atv === 'in' ? ' · 출석' : atv === 'out' ? ' · 불참' : '') + ' — 짧게 탭: 출석 → 불참 → 기본">'
       + '<span class="pgdrag" data-dragp="' + slot + '|' + esc(n) + '" role="button" aria-label="명단 순서 드래그">⠿</span>'
+      + '<span class="attb" aria-hidden="true"></span>'
       + '<span class="pgnm">' + esc(n) + '</span>' + k
       + (p.type === '3'
         ? '<button type="button" class="pgrc' + (rc ? ' n' + rc : '') + '" data-rest="' + slot + '|' + esc(n) + '" aria-label="' + esc(n) + ' 휴식 횟수 ' + rc + '회" title="휴식 횟수 (누르면 0→1→2→3→0)">' + rc + '회</button>'
@@ -5946,14 +6051,14 @@ function mpTmChip(name) {
 /* 3파전 — 쿼터(행) × 매치업(열) */
 function mpGrid3(p, st) {
   const cols = p.gOrder;
-  let head = '<tr><th class="qh corner">쿼터</th>';
+  let head = '<tr><th class="qh corner"><button type="button" class="qrot" data-qrot="1" aria-label="1·2·3경기 로테이션 순환" title="누르면 1·2·3경기 순서가 한 칸씩 돌아갑니다 (A:B → B:C → C:A 꼬리물기 유지)">쿼터<span class="qr">↻</span></button></th>';
   cols.forEach(function (gi) {
     const g = p.games[gi];
     head += '<th class="mh" data-gcol="' + gi + '" data-dragg="' + gi + '"'
       + ' style="--ca:var(--c-' + esc(p.teams[g.a].name) + ');--cb:var(--c-' + esc(p.teams[g.b].name) + ')">'
-      + '<div class="mpair">' + mpTmChip(p.teams[g.a].name) + ' <i>VS</i> ' + mpTmChip(p.teams[g.b].name) + '</div>'
-      + '<div class="mbtns"><button type="button" data-gmove="' + gi + ':-1" aria-label="매치업 앞으로">◀</button>'
-      + '<button type="button" data-gmove="' + gi + ':1" aria-label="매치업 뒤로">▶</button></div></th>';
+      + '<div class="mpair">' + mpTmChip(p.teams[g.a].name)
+      + '<button type="button" class="mpswap" data-gswap="' + gi + '" aria-label="' + esc(p.teams[g.a].name) + ' · ' + esc(p.teams[g.b].name) + ' 좌우 순서 바꾸기" title="좌우 순서 바꾸기 (3경기 꼬리물기 유지)">⇄</button>'
+      + mpTmChip(p.teams[g.b].name) + '</div></th>';
   });
   head += '</tr>';
   let rows = '';
@@ -5969,7 +6074,8 @@ function mpGrid3(p, st) {
 }
 /* 2파전 — 경기(행) × 쿼터(열) 한 표 (리버스 양식), 쿼터 칸에 쉬는 순번 자동 표기 */
 function mpGrid2(p, st) {
-  const A = p.teams[0].name, B = p.teams[1].name, Q = p.qOrder;
+  const g0 = p.games[0] || { a: 0, b: 1 };
+  const A = p.teams[g0.a].name, B = p.teams[g0.b].name, Q = p.qOrder;
   let head = '<tr><th class="qh gh">경기</th>';
   Q.forEach(function (qi) { head += '<th class="qh2"><span class="ql">' + (qi + 1) + 'Q</span></th>'; });
   head += '<th class="qh2"><span class="ql">합계</span></th></tr>';
@@ -5981,8 +6087,9 @@ function mpGrid2(p, st) {
     Q.forEach(function (qi) { rows += mpCellHtml(p, gi, qi); });
     rows += '<td class="pgtot" data-tot="' + gi + '">' + mpTotHtml(p, gi, st) + '</td></tr>';
   });
-  return '<div class="pgtblwrap"><div class="pggh2">' + mpTmChip(A) + ' <span>vs</span> ' + mpTmChip(B)
-    + ' <span>· ' + Q.length + '쿼터</span></div>'
+  return '<div class="pgtblwrap"><div class="pggh2">' + mpTmChip(A)
+    + '<button type="button" class="mpswap" data-gswap="0" aria-label="' + esc(A) + ' · ' + esc(B) + ' 좌우 순서 바꾸기" title="좌우 순서 바꾸기">⇄</button>'
+    + mpTmChip(B) + ' <span>· ' + Q.length + '쿼터</span></div>'
     + '<table class="pgtbl g2"><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>';
 }
 function mpGridHtml(p, st) { return p.type === '2' ? mpGrid2(p, st) : mpGrid3(p, st); }
@@ -5990,9 +6097,10 @@ function mpSetNoteText(p) {
   const n = $('#mpSetNote');
   if (n) {
     n.innerHTML = '큰 점수 칸에는 <b>누적 점수</b>를 넣고, 칸 아래에는 그 쿼터의 <b>쿼터점수</b>가 표시됩니다. 승·무·패·득실·우승팀은 <b>입력된 마지막 쿼터의 누적 점수</b>로 자동 계산됩니다. '
-      + '매치업 열은 <b>⠿ 드래그</b>나 ◀▶로, 명단 순서는 <b>⠿ 드래그</b>로 바꿉니다. '
+      + '매치업 머리글의 <b>⇄</b>는 세 경기의 좌우 팀을 한번에 바꾸고(점수도 함께), <b>⠿ 드래그</b>로 경기 열 순서를 바꿉니다. '
+      + '명단은 <b>이름을 짧게 탭</b>하면 <b>출석 → 불참 → 기본</b>으로 바뀌고, <b>⠿ 드래그</b>로 순서를 바꿉니다. '
       + (p.type === '3'
-        ? '<b>0회</b> 버튼을 누르면 휴식 횟수가 0 → 1 → 2 → 3 → 0으로 바뀌고, <b>순서</b> 버튼으로 1번부터 번호를 붙입니다. '
+        ? '왼쪽 위 <b>쿼터 ↻</b>를 누르면 <b>1·2·3경기 로테이션</b>이 한 칸씩 돌아가고(점수도 해당 매치업으로 이동), <b>0회</b> 버튼을 누르면 휴식 횟수가 0 → 1 → 2 → 3 → 0으로 바뀌며, <b>순서</b> 버튼으로 1번부터 번호를 붙입니다. '
         : '2파전은 쿼터 칸 위에 그 쿼터에 <b>쉬는 번호</b>가 자동으로 표기됩니다. ')
       + '인원을 추가·삭제·수정하려면 <b>매치 프리뷰 수정</b>을 이용해 주세요.';
   }
@@ -6181,7 +6289,7 @@ function mpTabFit(pg, body, p) {
     name: nameCap,
     score: scoreCap,
     q: Math.min(nameCap * 0.60, ch ? ch * 0.24 : 999, 34),
-    mpair: Math.min(nameCap * 0.55, 32),
+    mpair: Math.min(nameCap * 0.82, 34),
     team: Math.min(nameCap * 0.62, thFit, 40),
     meta: Math.min(nameCap * 0.42, 24),
     sum: Math.min(nameCap * 0.52, 30),
@@ -6324,6 +6432,70 @@ function mpNudgeQuarter(qi, dir) {
   const p = MP.preview, i = p.qOrder.indexOf(qi);
   if (mpMoveOrder(p.qOrder, i, i + dir)) { mpSave(); mpRender(); }
 }
+/* ⇄ 매치업 좌우 바꾸기 — 세 경기를 한번에 뒤집습니다.
+   한 경기만 뒤집으면 3파전 꼬리물기(A:B → B:C → C:A)가 깨지므로,
+   모든 경기의 a/b 와 그 경기 점수 a/b 를 함께 바꿔 꼬리물기를 항상 유지합니다(다시 누르면 원래대로). */
+function mpSwapAll() {
+  const p = MP.preview;
+  if (!p) return;
+  p.games.forEach(function (g) { const t = g.a; g.a = g.b; g.b = t; });
+  Object.keys(p.scores || {}).forEach(function (k) {
+    const s = p.scores[k];
+    if (!s) return;
+    const t = s.a; s.a = s.b; s.b = t;
+  });
+  mpSave();
+  mpRender();
+  const one = p.games[p.gOrder[0]];
+  const txt = p.type === '2'
+    ? p.teams[one.a].name + ' : ' + p.teams[one.b].name
+    : p.gOrder.map(function (gi) {
+      const g = p.games[gi];
+      return p.teams[g.a].name + ':' + p.teams[g.b].name;
+    }).join(' → ');
+  mpToast('⇄ 좌우 순서를 바꿨습니다 · ' + txt);
+}
+/* 쿼터 ↻ — 3파전 1·2·3경기 로테이션을 한 칸씩 순환합니다.
+   점수는 경기(대진)에 붙어 있으므로 gOrder 만 돌리면 점수도 해당 매치업을 따라 이동합니다. */
+function mpRotateGames() {
+  const p = MP.preview;
+  if (!p || p.type !== '3' || !p.gOrder || p.gOrder.length !== 3) return;
+  p.gOrder.push(p.gOrder.shift());
+  mpSave();
+  mpRender();
+  const txt = p.gOrder.map(function (gi) {
+    const g = p.games[gi];
+    return p.teams[g.a].name + ':' + p.teams[g.b].name;
+  }).join(' → ');
+  mpToast('↻ 로테이션 · ' + txt);
+}
+/* 3단계 출석 토글 — 기본(없음) → 출석 → 불참 → 기본 */
+function mpCycleAtt(slot, name) {
+  const p = MP.preview;
+  if (!p) return;
+  const m = p.att[slot] || (p.att[slot] = {});
+  const cur = m[name] || '';
+  const next = cur === '' ? 'in' : (cur === 'in' ? 'out' : '');
+  if (next) m[name] = next; else delete m[name];
+  mpSave();
+  const row = $('#mpBody [data-prow="' + slot + '|' + name + '"]');
+  if (row) {
+    if (next) row.setAttribute('data-att', next); else row.removeAttribute('data-att');
+    row.title = name + (next === 'in' ? ' · 출석' : next === 'out' ? ' · 불참' : '') + ' — 짧게 탭: 출석 → 불참 → 기본';
+  }
+  try { if (navigator.vibrate) navigator.vibrate(next === 'out' ? 22 : next === 'in' ? 14 : 8); } catch (e) { }
+}
+function mpAttCount(p) {
+  let inN = 0, outN = 0;
+  p.teams.forEach(function (t, i) {
+    const m = p.att[i] || {};
+    t.players.forEach(function (x) {
+      if (m[x.name] === 'in') inN++;
+      else if (m[x.name] === 'out') outN++;
+    });
+  });
+  return { inN: inN, outN: outN, any: inN + outN > 0 };
+}
 function mpCycleRest(slot, name) {
   const p = MP.preview;
   const m = p.rest[slot] || (p.rest[slot] = {});
@@ -6384,7 +6556,7 @@ function mpResetPreviewTo(date, type, quarters) {
 function mpResetAll() {
   const p = MP.preview;
   if (!p) return;
-  p.scores = {}; p.rest = {}; p.restNo = {};
+  p.scores = {}; p.rest = {}; p.restNo = {}; p.att = {};
   p.teams.forEach(function (t, i) { p.order[i] = t.players.map(function (x) { return x.name; }); });
   MP_PICK = -1;
   mpSave();
@@ -6483,6 +6655,14 @@ function mpInit() {
       mpToast('글씨 크기: ' + MP_QLABEL[MP.font]);
       return;
     }
+    const atb = e.target.closest('[data-mpatt]');
+    if (atb) {
+      const v = atb.getAttribute('data-mpatt');
+      MP.att = MP_ATT_LABEL[v] ? v : '1';
+      mpSave(); mpApplyTheme();
+      mpToast('출석 표시: ' + MP_ATT_LABEL[MP.att]);
+      return;
+    }
     const qb = e.target.closest('[data-mpq2]');
     if (qb && MP.preview) {
       const q = Number(qb.getAttribute('data-mpq2'));
@@ -6512,6 +6692,8 @@ function mpInit() {
     }
     const gm = e.target.closest('[data-gmove]');
     if (gm) { const v = gm.getAttribute('data-gmove').split(':'); mpNudgeGame(Number(v[0]), Number(v[1])); return; }
+    if (e.target.closest('[data-gswap]')) { mpSwapAll(); return; }
+    if (e.target.closest('[data-qrot]')) { mpRotateGames(); return; }
     const qm = e.target.closest('[data-qmove]');
     if (qm) { const v = qm.getAttribute('data-qmove').split(':'); mpNudgeQuarter(Number(v[0]), Number(v[1])); return; }
     const rc = e.target.closest('[data-rest]');
@@ -6573,14 +6755,66 @@ function mpDragDown(e) {
       if (li.getAttribute('data-prow') === v[0] + '|' + v[1]) from = i;
     });
   }
-  MPDG = { kind: kind, axis: axis, slot: slot, from: from, target: from, moved: false, x: e.clientX, y: e.clientY, rects: rects };
+  MPDG = { kind: kind, axis: axis, slot: slot, from: from, target: from, moved: false, x: e.clientX, y: e.clientY, rects: rects,
+    el: kind === 'p' ? (h.closest('.pgrow') || h) : h,
+    tap: (kind === 'p' && !h.hasAttribute('data-dragp') && !h.hasAttribute('data-dragg') && !h.hasAttribute('data-dragq')),
+    name: kind === 'p' ? String((h.getAttribute('data-dragp') || h.getAttribute('data-prow') || '')).split('|')[1] : '',
+    t0: Date.now(), ghost: null };
   try { h.setPointerCapture && h.setPointerCapture(e.pointerId); } catch (err) { }
   e.preventDefault();
+}
+/* 집어 올림 — 손가락을 따라오는 고스트(살짝 확대·진한 그림자·강조 테두리) + 원래 자리는 점선 빈칸 + 햅틱 */
+function mpGhostMake(el, e) {
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  let gh;
+  if (el.tagName === 'TH') {
+    gh = document.createElement('div');
+    gh.className = 'mpghost mpghost-h';
+    const pair = el.querySelector('.mpair');
+    gh.innerHTML = '<div class="mpair">' + (pair ? pair.innerHTML : el.textContent) + '</div>';
+  } else {
+    gh = el.cloneNode(true);
+    /* 집어 올린 자리의 점선·반투명 표시는 복사본에 남기지 않습니다(고스트는 선명하게) */
+    gh.classList.remove('mpdragon', 'mpdropt');
+    gh.classList.add('mpghost');
+    gh.removeAttribute('data-prow');
+    $$('[data-dragp],[data-rest],[data-prd]', gh).forEach(function (x) {
+      x.removeAttribute('data-dragp'); x.removeAttribute('data-rest'); x.removeAttribute('data-prd');
+    });
+  }
+  gh.style.width = Math.round(r.width) + 'px';
+  gh.style.height = Math.round(r.height) + 'px';
+  gh.style.left = e.clientX + 'px';
+  gh.style.top = e.clientY + 'px';
+  const host = $('#mpScreen');
+  if (host) host.appendChild(gh);
+  return gh;
+}
+function mpDragLift(d, e) {
+  if (!d || !d.el) return;
+  d.el.classList.add('mpdragon');
+  d.ghost = mpGhostMake(d.el, e);
+  try { if (navigator.vibrate) navigator.vibrate(15); } catch (err) { }
+}
+function mpDragClear(d) {
+  if (!d) return;
+  d.rects.forEach(function (it) { it.el.classList.remove('mpdropt'); });
+  if (d.el) d.el.classList.remove('mpdragon');
+  if (d.ghost && d.ghost.parentNode) d.ghost.parentNode.removeChild(d.ghost);
+  d.ghost = null;
+}
+function mpLand(sel, idx) {
+  const els = $$(sel), el = els[idx];
+  if (!el) return;
+  el.classList.add('mpland');
+  setTimeout(function () { el.classList.remove('mpland'); }, 200);
 }
 function mpDragMove(e) {
   if (!MPDG) return;
   if (!MPDG.moved && Math.abs(e.clientY - MPDG.y) + Math.abs(e.clientX - MPDG.x) < 7) return;
-  MPDG.moved = true;
+  if (!MPDG.moved) { MPDG.moved = true; mpDragLift(MPDG, e); }
+  if (MPDG.ghost) { MPDG.ghost.style.left = e.clientX + 'px'; MPDG.ghost.style.top = e.clientY + 'px'; }
   let target = MPDG.target;
   MPDG.rects.forEach(function (it) {
     const r = it.r;
@@ -6598,14 +6832,24 @@ function mpDragUp() {
   if (!MPDG) return;
   const d = MPDG;
   MPDG = null;
-  d.rects.forEach(function (it) { it.el.classList.remove('mpdropt'); });
-  if (!d.moved || d.target === d.from) return;
+  /* 짧게 탭(끝기 없음) = 명단 이름 영역이면 출석 3단계 토글 — 쉬는 순서 지정 중에는 번호 지정이 우선 */
+  if (!d.moved) {
+    mpDragClear(d);
+    if (d.tap && d.name && MP_PICK < 0 && Date.now() - d.t0 < 600) {
+      MPDG_AT = Date.now();
+      mpCycleAtt(d.slot, d.name);
+      try { if (navigator.vibrate) navigator.vibrate(12); } catch (err) { }
+    }
+    return;
+  }
+  mpDragClear(d);
+  if (d.target === d.from) return;
   MPDG_AT = Date.now();   /* 드래그 뒤 따라오는 click 으로 휴식 순서가 찍히지 않게 */
   const p = MP.preview;
-  if (d.kind === 'g') { if (mpMoveOrder(p.gOrder, d.from, d.target)) { mpSave(); mpRender(); } }
-  else if (d.kind === 'q') { if (mpMoveOrder(p.qOrder, d.from, d.target)) { mpSave(); mpRender(); } }
+  if (d.kind === 'g') { if (mpMoveOrder(p.gOrder, d.from, d.target)) { mpSave(); mpRender(); mpLand('#mpBody thead th[data-gcol]', d.target); } }
+  else if (d.kind === 'q') { if (mpMoveOrder(p.qOrder, d.from, d.target)) { mpSave(); mpRender(); mpLand('#mpBody tr[data-qrow]', d.target); } }
   else if (d.kind === 'p') {
-    if (mpMoveOrder(p.order[d.slot], d.from, d.target)) { mpSave(); mpRender(); }
+    if (mpMoveOrder(p.order[d.slot], d.from, d.target)) { mpSave(); mpRender(); mpLand('#mpBody [data-rt="' + d.slot + '"] .pgrow', d.target); }
   }
 }
 
@@ -6698,17 +6942,17 @@ function mpPhotoDraw(themeKey) {
   const st = mpStandings(p);
   const ink = themeKey === 'ink';
   const th = ink ? 'ink' : (MP.theme === 'mid' ? 'mid' : (MP.theme === 'light' ? 'light' : 'dark'));
-  const lite = th !== 'dark';
+  const lite = th === 'light';
   const C = ink
     ? { bg: '#ffffff', card: '#ffffff', line: '#000000', tx: '#000000', tx2: '#000000', tx3: '#000000', acc: '#000000', gold: '#000000', goldBg: '#ffffff', inbg: '#ffffff', win: '#000000' }
     : th === 'mid'
-    ? { bg: '#dce3ec', card: '#edf1f6', line: '#bcc8d8', tx: '#0f172a', tx2: '#334155', tx3: '#59687f', acc: '#0d9488', gold: '#8a6a00', goldBg: '#f2c14e', inbg: '#f7fafe', win: '#0d9488' }
+    ? { bg: '#28303d', card: '#323c4c', line: '#4a5668', tx: '#ecf2fa', tx2: '#bcc8d9', tx3: '#8d9aad', acc: '#ffb347', gold: '#ffd166', goldBg: '#ffd166', inbg: '#232b37', win: '#4ee39a' }
     : th === 'light'
-    ? { bg: '#f1f4f8', card: '#f9fafb', line: '#cbd5e1', tx: '#111c30', tx2: '#3f4f6a', tx3: '#6b7c95', acc: '#0a9c86', gold: '#8a6a00', goldBg: '#f5cb5c', inbg: '#ffffff', win: '#0a9c86' }
+    ? { bg: '#e7e3da', card: '#f3f0e8', line: '#cdc5b4', tx: '#272219', tx2: '#4d4437', tx3: '#6f6656', acc: '#a25b12', gold: '#8a6a00', goldBg: '#f0d79a', inbg: '#faf7f0', win: '#127747' }
     : { bg: '#080e1a', card: '#111b2e', line: '#2a3a55', tx: '#eef4ff', tx2: '#a5b6d1', tx3: '#6d7f9c', acc: '#33e0c4', gold: '#ffd166', goldBg: '#ffd166', inbg: '#0a1120', win: '#38e08b' };
   const TEAMCOL = ink
     ? { '형광': '#000000', '블랙': '#000000', '레드': '#000000' }
-    : { '형광': lite ? '#7d9c00' : '#c8ff3d', '블랙': lite ? '#33415c' : '#8fa1c0', '레드': lite ? '#c53030' : '#ff6b6b' };
+    : { '형광': lite ? '#5b7a00' : '#c8ff3d', '블랙': lite ? '#33415c' : '#a8b8cf', '레드': lite ? '#b3352c' : '#ff7575' };
   const W = 1080, PAD = 44;
   const cols = p.gOrder.length, qs = p.qOrder.length;
   const gridTop = 330;

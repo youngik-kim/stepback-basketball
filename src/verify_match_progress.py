@@ -72,7 +72,7 @@ def txt(page, sel):
         return ''
 
 
-def drag(page, from_sel, to_sel, steps=10):
+def drag(page, from_sel, to_sel, steps=10, fx=0.5):
     try:
         page.locator(from_sel).first.scroll_into_view_if_needed()
     except Exception:
@@ -81,9 +81,9 @@ def drag(page, from_sel, to_sel, steps=10):
     b = page.locator(to_sel).first.bounding_box()
     if not a or not b:
         return False
-    page.mouse.move(a['x'] + a['width'] / 2, a['y'] + a['height'] / 2)
+    page.mouse.move(a['x'] + a['width'] * fx, a['y'] + a['height'] / 2)
     page.mouse.down()
-    page.mouse.move(a['x'] + a['width'] / 2, a['y'] + a['height'] / 2 + 8, steps=3)
+    page.mouse.move(a['x'] + a['width'] * fx, a['y'] + a['height'] / 2 + 8, steps=3)
     page.mouse.move(b['x'] + b['width'] / 2, b['y'] + b['height'] / 2, steps=steps)
     page.mouse.up()
     return True
@@ -128,8 +128,8 @@ with sync_playwright() as pw:
         page.click('#chgBtn')
         page.wait_for_timeout(260)
         first = txt(page, '#chgList .cl.top')
-        ok('%s: 주요 변경점 최상단 2026-11-28 · 기능 · 꽉 채우기' % tag,
-           '2026-11-28' in first and '기능' in first and '꽉 채우기' in first,
+        ok('%s: 주요 변경점 최상단 2026-11-28 · 매치업 ⇄ · 쿼터 ↻ · 출석' % tag,
+           '2026-11-28' in first and '기능' in first and '⇄' in first and '쿼터 ↻' in first and '출석' in first,
            first[:80].replace('\n', ' '))
         page.click('#chgModal .x')
         page.wait_for_timeout(200)
@@ -232,12 +232,13 @@ with sync_playwright() as pw:
         ok('%s: 경기 합계 자동 계산(마지막 입력 쿼터 누적)' % tag,
            '8 : 10' in tots[0] and '5 : 5' in tots[1] and '20 : 11' in tots[2], tots)
         ok('%s: 승리팀 표기(● 팀명 승 · 무승부는 무)' % tag,
-           '블랙 승' in tots[0] and tots[1].endswith('무') and '형광 승' in tots[2], tots)
+           '블랙 승' in tots[0] and tots[1].endswith('무') and '레드 승' in tots[2], tots)
         ok('%s: 승리팀 팀 색 점(●) 표시' % tag,
            page.locator('#mpBody [data-tot] .totw .dot').count() == 2,
            page.locator('#mpBody [data-tot] .totw .dot').count())
         sumtxt = txt(page, '#mpSum').replace('\n', ' ')
-        ok('%s: 팀별 승·무·패 자동 계산' % tag, '1승 1무 0패' in sumtxt and '1승 0무 1패' in sumtxt, sumtxt[:90])
+        ok('%s: 팀별 승·무·패 자동 계산' % tag,
+           '1승 1무 0패' in sumtxt and '0승 0무 2패' in sumtxt, sumtxt[:90])
         ok('%s: 득실은 참고 표기 (득실 +N)' % tag, '(득실 +' in sumtxt and '(득실 -' in sumtxt, sumtxt[:140])
         ok('%s: 순위는 승패(승률) 기준 — 동률이면 공동 순위' % tag,
            '공동 1위' in sumtxt and '#mpSum .pgs.win'.replace('#mpSum ', '')
@@ -327,13 +328,21 @@ with sync_playwright() as pw:
         ok('%s: 합계행·팀 순위 카드 가운데 정렬' % tag,
            al['tot'] == 'center' and al['card'] == 'center' and al['hjust'] == 'center', al)
 
-        # ---- 매치업(경기) 순서 클릭·드래그 ----
+        # ---- 매치업(경기) 순서 — ⇄ 좌우 바꾸기 · 드래그 ----
         g0 = page.eval_on_selector_all('#mpBody thead th[data-gcol]', 'els => els.map(e => e.getAttribute("data-gcol"))')
-        page.click('#mpBody [data-gmove="%s:1"]' % g0[0])
-        page.wait_for_timeout(160)
+        pair0 = page.evaluate('''() => [...document.querySelectorAll('#mpBody thead th.mh')].map(th =>
+            [...th.querySelectorAll('.mpair .tm')].map(t => t.textContent.trim()))''')
+        page.click('#mpBody [data-gswap="%s"]' % g0[0])
+        page.wait_for_timeout(280)
+        pair1 = page.evaluate('''() => [...document.querySelectorAll('#mpBody thead th.mh')].map(th =>
+            [...th.querySelectorAll('.mpair .tm')].map(t => t.textContent.trim()))''')
+        ok('%s: 매치업 ⇄ 좌우 바꾸기(3경기 모두 반전·꼬리물기 유지)' % tag,
+           pair1 == [[b, a] for a, b in pair0]
+           and page.locator('#mpBody [data-gmove]').count() == 0, '%s → %s' % (pair0, pair1))
+        page.click('#mpBody [data-gswap="%s"]' % g0[0])
+        page.wait_for_timeout(260)
         g1 = page.eval_on_selector_all('#mpBody thead th[data-gcol]', 'els => els.map(e => e.getAttribute("data-gcol"))')
-        ok('%s: 매치업 순서 클릭(▶) 변경' % tag, g1[0] == g0[1] and g1[1] == g0[0], '%s → %s' % (g0, g1))
-        if drag(page, '[data-dragg="%s"]' % g1[2], 'thead th[data-gcol="%s"]' % g1[0]):
+        if drag(page, '[data-dragg="%s"]' % g1[2], 'thead th[data-gcol="%s"]' % g1[0], fx=0.28):
             page.wait_for_timeout(220)
         g2 = page.eval_on_selector_all('#mpBody thead th[data-gcol]', 'els => els.map(e => e.getAttribute("data-gcol"))')
         ok('%s: 매치업 순서 드래그 변경' % tag, g2 != g1, '%s → %s' % (g1, g2))
@@ -390,10 +399,10 @@ with sync_playwright() as pw:
               const c = document.querySelector('#mpBody .pgs:not(.win)' ) || document.querySelector('#mpBody .pgs');
               return { cls: s.className, bg: getComputedStyle(s).backgroundColor,
                        card: getComputedStyle(c).backgroundColor, tx: getComputedStyle(s).color }; }''')
-        ok('%s: 🌓 중간 테마 전환(차분한 슬레이트·순백색 아님)' % tag,
+        ok('%s: 🌓 중간 테마 전환(차분한 슬레이트 그레이·어두운 톤)' % tag,
            'mid' in mid['cls'].split() and 'light' not in mid['cls'].split()
-           and mid['bg'] == 'rgb(220, 227, 236)' and mid['card'] == 'rgb(237, 241, 246)'
-           and mid['tx'] == 'rgb(15, 23, 42)'
+           and mid['bg'] == 'rgb(40, 48, 61)' and mid['card'] == 'rgb(50, 60, 76)'
+           and mid['tx'] == 'rgb(236, 242, 250)'
            and page.get_attribute('[data-mptheme="mid"]', 'aria-pressed') == 'true', mid)
         page.screenshot(path='%s/%s_5a_mid.png' % (OUT, tag))
 
@@ -403,9 +412,9 @@ with sync_playwright() as pw:
               const c = document.querySelector('#mpBody .pgs:not(.win)') || document.querySelector('#mpBody .pgs');
               return { bg: getComputedStyle(s).backgroundColor, card: getComputedStyle(c).backgroundColor,
                        tx: getComputedStyle(s).color }; }''')
-        ok('%s: 🌓 밝은 테마 — 오프화이트(순백 아님)' % tag,
+        ok('%s: 🌓 밝은 테마 — 따뜻한 웜 오프화이트(순백 아님)' % tag,
            page.evaluate("document.querySelector('#mpScreen').classList.contains('light')")
-           and lig['bg'] == 'rgb(241, 244, 248)' and lig['card'] == 'rgb(249, 250, 251)'
+           and lig['bg'] == 'rgb(231, 227, 218)' and lig['card'] == 'rgb(243, 240, 232)'
            and page.get_attribute('[data-mptheme="light"]', 'aria-pressed') == 'true', lig)
         page.screenshot(path='%s/%s_5_light.png' % (OUT, tag))
         page.click('[data-mptheme="dark"]')
