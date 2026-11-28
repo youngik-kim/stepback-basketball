@@ -154,6 +154,14 @@ with sync_playwright() as pw:
         ok('%s: 기본 3파전·1~4Q' % tag,
            page.get_attribute('#mpType [data-mptype="3"]', 'aria-pressed') == 'true'
            and page.get_attribute('#mpQtr [data-mpq="4"]', 'aria-pressed') == 'true')
+        # 정본 매치 프리뷰(2026-11-29)가 있으면 편집기가 그 정본으로 시드됩니다 — 직접 등록 흐름은 빈 상태에서 검증
+        seeded = page.locator('#mpTeams .lst .who').count()
+        ok('%s: 편집기 정본 시드 안내(정본 있을 때)' % tag,
+           seeded == 0 or '정본' in txt(page, '#mpMsg'), '%d명 · %s' % (seeded, txt(page, '#mpMsg')[:40]))
+        page.evaluate("""() => { MPED.teams.forEach((t, i) => { t.players = []; MPED.order[i] = []; });
+              MPED.date = '2026-11-22'; const d = document.querySelector('#mpDate'); if (d) d.value = '2026-11-22';
+              mpRenderEditor(); }""")
+        page.wait_for_timeout(120)
         teams3 = [POOL[0:6], POOL[6:12], POOL[12:18]]
         for ti, group in enumerate(teams3):
             page.locator('#mpTeams > .mpteam').nth(ti).click()
@@ -189,9 +197,9 @@ with sync_playwright() as pw:
         ok('%s: 모달에 매치 프리뷰 이력 표시' % tag,
            page.locator('#mpHist').is_visible() and page.locator('#mpHistList .mphrow').count() >= 1,
            page.locator('#mpHistList .mphrow').count())
-        page.click('#mpHistList .mphrow summary')
+        page.click('#mpHistList .mphrow[data-hdate="2026-11-22"] summary')
         page.wait_for_timeout(180)
-        htxt = page.inner_text('#mpHistList .mphrow')
+        htxt = page.inner_text('#mpHistList .mphrow[data-hdate="2026-11-22"]')
         ok('%s: 이력에 예상 순위·평균 승률' % tag, '예상 1위' in htxt and '%' in htxt, htxt[:90].replace('\n', ' | '))
         ok('%s: 이력에 실제 결과 비교' % tag, '실제 1위' in htxt and ('✓' in htxt or '✗' in htxt), htxt[:140].replace('\n', ' | '))
         page.screenshot(path='%s/%s_2b_hist.png' % (OUT, tag))

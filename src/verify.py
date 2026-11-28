@@ -1145,16 +1145,17 @@ with sync_playwright() as p:
           const a = document.querySelector('#pairBtn').getBoundingClientRect();
           const b = document.querySelector('#teamBtn').getBoundingClientRect();
           const c = document.querySelector('#mpHeroBtn').getBoundingClientRect();
+          const d = document.querySelector('#tbBtn').getBoundingClientRect();
           const s = document.querySelector('#heroStats').getBoundingClientRect();
-          const tx = [...document.querySelectorAll('#pairBtn .pbtxt, #teamBtn .pbtxt, #mpHeroBtn .pbtxt')];
-          return {h: a.height, w: [a.width, b.width, c.width], sw: s.width, gap: a.top - s.bottom,
+          const tx = [...document.querySelectorAll('#pairBtn .pbtxt, #teamBtn .pbtxt, #mpHeroBtn .pbtxt, #tbBtn .pbtxt')];
+          return {h: a.height, w: [a.width, b.width, c.width, d.width], sw: s.width, gap: a.top - s.bottom,
                   oneLine: tx.every(t => t.scrollWidth <= t.clientWidth + 1),
-                  sameRow: Math.abs(a.top - b.top) < 1 && Math.abs(b.top - c.top) < 1,
-                  left: a.left, right: c.right};
+                  sameRow: Math.abs(a.top - b.top) < 1 && Math.abs(b.top - c.top) < 1 && Math.abs(c.top - d.top) < 1,
+                  left: a.left, right: d.right};
         }""")
-        ok(f"{tag}: 히어로 3버튼 한 줄 1:1:1·잘림 없음",
+        ok(f"{tag}: 히어로 4버튼 한 줄 1:1:1:1·잘림 없음",
            38 <= geo["h"] <= 46 and max(geo["w"]) - min(geo["w"]) <= 1.5
-           and abs(sum(geo["w"]) + 10 - geo["sw"]) <= 3 and 0 <= geo["gap"] <= 14
+           and abs(sum(geo["w"]) + 15 - geo["sw"]) <= 3 and 0 <= geo["gap"] <= 14
            and geo["oneLine"] and geo["sameRow"] and geo["left"] >= 0 and geo["right"] <= vw_, str(geo))
         page.screenshot(path=f"{OUT}/{tag}_pair_btn.png")
 

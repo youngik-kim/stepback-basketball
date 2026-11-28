@@ -860,6 +860,9 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .pvcard-mp .chip.mpn{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;font-weight:700;padding:4px 8px;
   border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--tx2);cursor:default}
 .pvcard-mp .chip.mpn .mprt{font-style:normal;font-size:9.5px;font-weight:900;color:var(--amber);margin-left:2px}
+/* 가상 선수 배지 — 정본 프리뷰의 가정 승률 인원 */
+.pvcard-mp .chip.mpn .mpfk,.pvteam .tp .fk{font-style:normal;font-size:9px;font-weight:900;color:#04120f;
+  background:rgba(91,156,255,.72);border-radius:5px;padding:1px 4px;margin-left:2px;vertical-align:1px}
 .pvcard-mp .mpbtns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
 /* 두 버튼 모두 글자·이모지를 한 줄에 두고 세로 정중앙 정렬(이모지 폰트 높이 차로 위로 뜨던 문제 수정) */
 .pvcard-mp .mpgo,.pvcard-mp .mpedit{display:flex;align-items:center;justify-content:center;gap:4px;line-height:1;
@@ -2508,13 +2511,13 @@ function computeAsOf(date) {
 /* ---------------- 매치 프리뷰 & 승률 예상 ----------------
    data.json 의 weeks[].preview (경기 전 예상) · upcomingPreviews (아직 결과가 없는 다음 경기).
    결과가 반영된 뒤에도 같은 카드에서 예상↔실제를 나란히 비교합니다. */
-function pvTeamHtml(t) {
+function pvTeamHtml(t, pv) {
   const rate = Math.max(0, Math.min(100, Number(t.rate) || 0));
   return `<div class="pvteam">
     <div class="pvtop"><span class="tn"><i class="dot ${dotCls(t.team)}"></i>${esc(t.team)}</span>
       <span class="tr">${pct(rate)}%</span></div>
     <div class="tb"><i style="width:${rate}%"></i></div>
-    ${t.players && t.players.length ? `<div class="tp">${t.players.map(esc).join(' · ')}</div>` : ''}
+    ${t.players && t.players.length ? `<div class="tp">${t.players.map(n => esc(n) + (mpCanonFakeRate(pv, n) != null ? '<i class="fk">가상</i>' : '')).join(' · ')}</div>` : ''}
   </div>`;
 }
 /* 실제 결과와 비교 — 예상 순위 vs 실제 순위 · 예상 승률 vs 실제 전적·승률 */
@@ -2561,7 +2564,7 @@ function pvBoxHtml(pv, opts) {
     <summary>📊 매치 프리뷰 &amp; 승률 예상${opts.tag ? ` <span class="pvtag">${esc(opts.tag)}</span>` : ''}<span class="pvd">${esc(when)}</span><span class="chev">▼</span></summary>
     <div class="pvbody">
       ${comp ? '' : `<div class="pvexp">예상 1위 <b>${esc(pv.expected ? pv.expected.team : pv.teams[0].team)} ${pct(pv.expected ? pv.expected.rate : pv.teams[0].rate)}%</b> · ${esc(pv.type || '')}</div>`}
-      ${pv.teams.map(pvTeamHtml).join('')}
+      ${pv.teams.map(t => pvTeamHtml(t, pv)).join('')}
       ${comp}
       ${pv.note ? `<div class="pvnote">${esc(pv.note)}</div>` : ''}
       ${acts}
@@ -5325,7 +5328,10 @@ function mpFromCanonical(c) {
   p.teams = MP_TN[type].map(function (n, i) {
     const t = src[i] || {};
     const nm = t.team || n;
-    return { name: nm, players: (t.players || []).map(function (x) { return { name: x, kind: mpKindOf(x) }; }) };
+    return { name: nm, players: (t.players || []).map(function (x) {
+      const f = mpCanonFakeRate(c.pv, x);
+      return { name: x, kind: f != null ? 'fake' : mpKindOf(x), fakeRate: f };
+    }) };
   });
   p.tOrder = p.teams.map(function (_, i) { return i; });
   mpNormalize(p);
@@ -5438,6 +5444,8 @@ function mpHistRow(e) {
       + '<td class="num ' + (hit === null ? '' : (hit ? 'hit' : 'miss')) + '">' + (a ? a.rank + '위' + (hit ? ' ✓' : ' ✗') : '–') + '</td></tr>';
   }).join('');
   const sum = '예상 1위 <b>' + esc(top ? top.name : '–') + '</b>' + (top && top.rate != null ? ' ' + pct(top.rate) + '%' : '');
+  /* 정본은 type 이 '3파전', 기기 저장은 '3' — 이력 태그가 '3파전파전'이 되지 않게 맞춥니다 */
+  const tLabel = String(e.type || '3').indexOf('2') === 0 ? '2파전' : '3파전';
   const actLine = (function () {
     if (!act) return '';
     const rows2 = Object.keys(act).map(function (k) { return act[k]; });
@@ -5458,7 +5466,7 @@ function mpHistRow(e) {
     : '<div class="note">홈페이지 정본 매치 프리뷰 — 경기 결과 카드에서 예상↔실제를 함께 봅니다.</div>';
   return '<details class="mphrow' + (MP.preview && MP.preview.date === e.date ? ' cur' : '') + '" data-hdate="' + e.date + '">'
     + '<summary><span class="d">' + short(e.date) + '</span>'
-    + '<span class="tag">' + e.type + '파전</span>'
+    + '<span class="tag">' + tLabel + '</span>'
     + '<span class="tag ' + (e.local ? 'loc' : 'site') + '">' + (e.local ? '내 기록' : '정본') + '</span>'
     + '<span class="e">' + (top ? '예상 1위 ' + esc(top.name) + (top.rate != null ? ' ' + pct(top.rate) + '%' : '') : '') + '</span>'
     + '<span class="chev">▼</span></summary>'
@@ -5499,6 +5507,14 @@ function mpPaintHome() {
 /* 매치 프리뷰 카드 — 리버스(reverse-basketball-site) 매치 프리뷰 카드와 동일한 구성
    배지(등록/정본) · 요약 1줄 · 팀 박스(팀 색 세로선 + 예상 순위·평균) · 선수별 개인 승률 알약 · 하단 2분할 버튼 */
 const MP_CARD_TONE = { '형광': '#7ea61a', '블랙': '#4a5468', '레드': '#b0413f', '화이트': '#c3ccdb' };
+/* 정본 프리뷰의 가상 선수 — data.json preview.fakes {이름: 가정 승률} */
+function mpCanonFakeRate(pv, name) {
+  const f = pv && pv.fakes;
+  if (!f) return null;
+  const v = f[name];
+  if (v == null || v === '' || isNaN(Number(v))) return null;
+  return Number(v);
+}
 function mpPvCardHtml(o) {
   o = o || {};
   const canon = !!o.canon, pv = o.canon || null, p = o.local || null;
@@ -5510,11 +5526,18 @@ function mpPvCardHtml(o) {
   if (canon) {
     teams = (pv.teams || []).map(function (t) {
       const names = (t.players || []).slice();
-      const rs = names.map(function (n) { const r = mpRateOf(n); return r ? r.rate : null; })
+      const rs = names.map(function (n) {
+        const f = mpCanonFakeRate(pv, n);
+        if (f != null) return f;
+        const r = mpRateOf(n); return r ? r.rate : null;
+      })
         .filter(function (v) { return v != null; });
       const rate = t.rate == null
         ? (rs.length ? rs.reduce(function (a, b) { return a + b; }, 0) / rs.length : null) : Number(t.rate);
-      return { name: t.team, players: names.map(function (n) { return { name: n, kind: mpKindOf(n) }; }), rate: rate };
+      return { name: t.team, players: names.map(function (n) {
+        const f = mpCanonFakeRate(pv, n);
+        return { name: n, kind: f != null ? 'fake' : mpKindOf(n), fakeRate: f };
+      }), rate: rate };
     });
   } else {
     const rates = mpTeamRates(p);
@@ -5535,8 +5558,11 @@ function mpPvCardHtml(o) {
   const rows = ranked.map(function (t) {
     const pls = t.players.length
       ? t.players.map(function (pl) {
-        const r = mpRateOf(pl.name);
-        return '<span class="chip mpn">' + esc(pl.name) + '<i class="mprt">'
+        const fr = pl.fakeRate != null ? pl.fakeRate : (canon ? mpCanonFakeRate(pv, pl.name) : null);
+        const r = fr != null ? { rate: fr } : mpRateOf(pl.name);
+        return '<span class="chip mpn">' + esc(pl.name)
+          + (pl.kind === 'fake' ? '<i class="mpfk">가상</i>' : '')
+          + '<i class="mprt">'
           + (r == null ? '무출전' : pct(r.rate) + '%') + '</i></span>';
       }).join('')
       : '<span class="chip mpn">명단 없음</span>';

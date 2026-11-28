@@ -406,6 +406,7 @@ print("총득점 검산 경고(시트 산식 차이):", warn if warn else "없�
 #   - **작성**: YYYY-MM-DD
 #   - **예상 1위**: 팀 승률%
 #   - **팀별 예상**  ->  `- 팀명 승률% — 선수, 선수, …`
+#   - **가상**: 안재윤 50.0%, 김준성 50.0%   (선택 · 가상 선수의 가정 승률)
 #   - **메모**: 한 줄
 def parse_previews(text):
     out = {}
@@ -418,6 +419,7 @@ def parse_previews(text):
             continue
         date, wtype = dm.group(1), dm.group(2)
         written, expected, note, teams = None, None, "", []
+        fakes = {}
         mode = None
         for ln in body.splitlines():
             s = ln.strip()
@@ -433,6 +435,13 @@ def parse_previews(text):
                 mode = None
             elif "**팀별 예상**" in s:
                 mode = "teams"
+            elif "**가상**" in s:
+                seg = re.split(r"[:：]", s, 1)[1] if re.search(r"[:：]", s) else ""
+                for tok in re.split(r"[,·]", seg):
+                    mf = re.match(r"^\s*([^\s]+)\s+([\d.]+)\s*%?\s*$", tok.strip())
+                    if mf:
+                        fakes[mf.group(1)] = float(mf.group(2))
+                mode = None
             elif "**메모**" in s:
                 note = clean(re.split(r"[:：]", s, 1)[1]) if re.search(r"[:：]", s) else ""
                 mode = None
@@ -447,7 +456,7 @@ def parse_previews(text):
         if not expected:
             expected = dict(team=teams[0]["team"], rate=teams[0]["rate"])
         out[date] = dict(date=date, type=wtype, written=written, expected=expected,
-                         teams=teams, note=note)
+                         teams=teams, note=note, fakes=fakes)
     return out
 
 previews = parse_previews(prev_txt)
