@@ -128,8 +128,9 @@ with sync_playwright() as pw:
         page.click('#chgBtn')
         page.wait_for_timeout(260)
         first = txt(page, '#chgList .cl.top')
-        ok('%s: 주요 변경점 최상단 2026-11-28 · 매치업 ⇄ · 쿼터 ↻ · 출석' % tag,
-           '2026-11-28' in first and '기능' in first and '⇄' in first and '쿼터 ↻' in first and '출석' in first,
+        ok('%s: 주요 변경점 최상단 2026-11-28 · 출전/휴식 알약 · 게스트(첫출전)' % tag,
+           '2026-11-28' in first and '기능' in first and '출전' in first and '휴식' in first
+           and '게스트(첫출전)' in first,
            first[:80].replace('\n', ' '))
         page.click('#chgModal .x')
         page.wait_for_timeout(200)
@@ -253,19 +254,76 @@ with sync_playwright() as pw:
            and page.locator('#mpSum .pgs.win').count() == 2, sumtxt[:120])
         page.screenshot(path='%s/%s_3_screen3.png' % (OUT, tag))
 
-        # ---- 3파전 휴식 횟수 0→1→2→3→1 ----
-        rc = page.locator('#mpBody [data-rest]').first
-        name0 = rc.get_attribute('data-rest').split('|')[1]
-        seq = [rc.inner_text().strip()]
+        # ---- 출전 N / 휴식 M 2줄 알약 (N = 그 팀이 점수를 넣은 쿼터 수) ----
+        # 입력: 0경기 1Q·2Q(형광=game0 a), 1경기 1Q(블랙·레드), 2경기 1Q(레드·형광) → 형광 3 · 블랙 3 · 레드 2
+        pill = page.locator('#mpBody [data-rest]').first
+        name0 = pill.get_attribute('data-rest').split('|')[1]
+        n0 = page.get_attribute('#mpBody [data-rest="0|%s"]' % name0, 'data-n')
+        m0 = page.get_attribute('#mpBody [data-rest="0|%s"]' % name0, 'data-m')
+        ok('%s: 알약 — 출전 N 자동 계산(형광 3쿼터)' % tag, n0 == '3' and m0 == '0', '%s / %s' % (n0, m0))
+        two_line = page.inner_text('#mpBody [data-rest="0|%s"]' % name0).split('\n')
+        ok('%s: 알약 2줄(위 출전 · 아래 휴식)' % tag,
+           len(two_line) >= 2 and '출전' in two_line[0] and '휴식' in two_line[1], two_line)
+        teamN = page.evaluate("""() => [...document.querySelectorAll('#mpBody .pgrows')].map(t => {
+              const b = t.querySelector('.pgpill'); return b ? [b.dataset.n, b.dataset.m] : null; })""")
+        ok('%s: 팀별 N — 형광 3 · 블랙 3 · 레드 2, 처음엔 휴식 0' % tag,
+           all(b and b[1] == '0' for b in teamN) and [b[0] for b in teamN] == ['3', '3', '2'], teamN)
+        seq = [m0]
         for _ in range(4):
             page.click('#mpBody [data-rest="0|%s"]' % name0)
-            page.wait_for_timeout(80)
-            seq.append(page.inner_text('#mpBody [data-rest="0|%s"]' % name0).strip())
-        ok('%s: 휴식 횟수 0 → 1 → 2 → 3 → 0 순환' % tag,
-           seq[:5] == ['0회', '1회', '2회', '3회', '0회'], seq)
-        ok('%s: 휴식 순서·횟수 명단 표기(18명)' % tag,
+            page.wait_for_timeout(90)
+            seq.append(page.get_attribute('#mpBody [data-rest="0|%s"]' % name0, 'data-m'))
+        ok('%s: 휴식 탭 순환 0 → 1 → 2 → 3 → 0 (N 에서 0 으로)' % tag,
+           seq[:5] == ['0', '1', '2', '3', '0'], seq)
+        played = page.get_attribute('#mpBody [data-rest="0|%s"]' % name0, 'data-n')
+        shown = page.evaluate("""(n) => { const b = document.querySelector('#mpBody [data-rest="0|' + n + '"]');
+              const t = b.innerText.split('\\n'); return [t[0].replace(/[^0-9]/g,''), t[1].replace(/[^0-9]/g,''), b.dataset.n, b.dataset.m]; }""", name0)
+        ok('%s: 출전 + 휴식 = N (항상 일치)' % tag,
+           int(shown[0]) + int(shown[1]) == int(shown[2]), shown)
+        box = page.locator('#mpBody [data-rest="0|%s"]' % name0).bounding_box()
+        page.mouse.move(box['x'] + box['width'] / 2, box['y'] + box['height'] / 2)
+        page.mouse.down(); page.wait_for_timeout(700); page.mouse.up()
+        page.wait_for_timeout(300)
+        m_long = page.get_attribute('#mpBody [data-rest="0|%s"]' % name0, 'data-m')
+        ok('%s: 알약 길게 누르면 휴식 -1 (0 에서는 N 으로)' % tag, m_long == '3', m_long)
+        ok('%s: 알약 · 게스트 배지 포함 명단 표기(18명)' % tag,
            page.locator('#mpBody [data-rest]').count() == 18,
            page.locator('#mpBody [data-rest]').count())
+
+        # ---- 출석 토글해도 이름 크기·위치 불변 (고정 슬롯) ----
+        def nmbox():
+            return page.evaluate("""() => { const n = document.querySelector('#mpBody .pgrow .pgnm');
+                  const r = n.getBoundingClientRect();
+                  return [getComputedStyle(n).fontSize, +r.width.toFixed(2), +r.left.toFixed(2), +r.top.toFixed(2)]; }""")
+        nb0 = nmbox()
+        page.locator('#mpBody .pgrow').first.click(position={'x': 55, 'y': 18}); page.wait_for_timeout(300)
+        nb1 = nmbox()
+        page.locator('#mpBody .pgrow').first.click(position={'x': 55, 'y': 18}); page.wait_for_timeout(300)
+        nb2 = nmbox()
+        ok('%s: 출석 → 불참 토글에도 이름 크기·좌우 위치 그대로' % tag,
+           nb0 == nb1 == nb2, '%s / %s / %s' % (nb0, nb1, nb2))
+        attm = page.get_attribute('#mpBody .pgrow', 'data-att')
+        ok('%s: 불참이면 알약이 – 로 계산 제외' % tag,
+           attm == 'out' and page.inner_text('#mpBody .pgrow .pgpill').count('–') == 2,
+           '%s / %s' % (attm, page.inner_text('#mpBody .pgrow .pgpill').replace('\n', ' ')))
+        page.screenshot(path='%s/%s_3c_pill.png' % (OUT, tag))
+        page.locator('#mpBody .pgrow').first.click(position={'x': 55, 'y': 18}); page.wait_for_timeout(250)
+
+        # ---- 게스트(첫출전) 배지 — 이름 아래 분리, 이름 폭 미차감 ----
+        gb = page.evaluate("""() => [...document.querySelectorAll('#mpBody .pgrow')].map(r => {
+              const k = r.querySelector('.pgnk'); if (!k) return null;
+              const n = r.querySelector('.pgnm').getBoundingClientRect();
+              const b = k.getBoundingClientRect();
+              const rr = r.getBoundingClientRect();
+              return [k.textContent.trim(), +(b.top - rr.top).toFixed(1), +rr.height.toFixed(1),
+                      +b.right.toFixed(1), +rr.right.toFixed(1)]; }).filter(x => x)""")
+        ok('%s: 게스트 배지가 이름 아래쪽(행 하단)에 분리 표시' % tag,
+           bool(gb) and all(x[0] in ('게스트', '게스트(첫출전)') for x in gb) and all(x[1] >= x[2] * 0.55 for x in gb),
+           gb)
+        ok('%s: 배지가 칸 밖으로 넘치지 않음' % tag, all(x[3] <= x[4] + 1 for x in gb), gb)
+        same = page.evaluate("""() => { const fs = [...document.querySelectorAll('#mpBody .pgnm')].map(n => getComputedStyle(n).fontSize);
+              return [...new Set(fs)]; }""")
+        ok('%s: 배지 붙은 선수도 이름 크기 동일' % tag, len(same) == 1, same)
 
         # ---- 팀 색상 구분 — 매치업 헤더 상단선 · 요약/명단 카드 상단선 · 순위 배지 ----
         tcol = page.evaluate('''() => {
@@ -645,7 +703,18 @@ with sync_playwright() as pw:
         ok('%s: 2파전 쉬는 순번 자동 표기(1·2 → 3·4 → 5·6 → 7·1)' % tag,
            all(x.replace(' ', '') in rmap[k].replace(' ', '') for x, k in [('1·2','0:0'),('3·4','0:1'),('5·6','0:2'),('7·1','1:0')]),
            [rmap[k] for k in ['0:0', '0:1', '0:2', '1:0', '1:1']])
-        ok('%s: 2파전 휴식 횟수 버튼 없음' % tag, page.locator('#mpBody [data-rest]').count() == 0)
+        pills2 = page.evaluate("""() => [...document.querySelectorAll('#mpBody .pgpill')].map(b => [b.dataset.n, b.dataset.m])""")
+        ok('%s: 2파전 — 알약 14개, 점수 전에는 출전 0 / 휴식 0' % tag,
+           len(pills2) == 14 and all(n == '0' and m == '0' for n, m in pills2), pills2[:4])
+        for k in ['0:0:a', '0:0:b', '0:1:a', '0:1:b', '0:2:a', '0:2:b']:
+            page.fill('#mpBody [data-sc="%s"]' % k, '10')
+        page.wait_for_timeout(300)
+        pills2 = page.evaluate("""() => [...document.querySelectorAll('#mpBody .pgrows')].map(t =>
+              [...t.querySelectorAll('.pgpill')].map(b => [b.dataset.n, b.dataset.m]))""")
+        ok('%s: 2파전 — 점수 넣으면 N 자동 · 쉬는 순번대로 휴식 자동(7명 중 6명 휴식 1)' % tag,
+           all(all(n == '3' for n, _ in T) for T in pills2[:2])
+           and all(sum(1 for _, m in T if m == '1') == 6 for T in pills2[:2])
+           and all(int(n) - int(m) >= 0 for T in pills2[:2] for n, m in T), pills2[:2])
         ok('%s: 2파전 하이라이트 메모 없음' % tag, '하이라이트' not in txt(page, '#mpBody'))
         ok('%s: 2파전 휴식 순서 정하기 제공' % tag, page.locator('#mpBody [data-prd]').count() == 2)
         page.screenshot(path='%s/%s_10_screen2.png' % (OUT, tag))
@@ -751,7 +820,7 @@ with sync_playwright() as pw:
        '%.1f%% : %.1f%% (%.1f / %.1f px)' % (share * 100, (1 - share) * 100, geo['lw'], geo['rw']))
     clipped = page.evaluate('''() => [...document.querySelectorAll('#mpBody .pgrows')].map(t => {
           const box = t.getBoundingClientRect();
-          const last = t.querySelector('.pgrow .pgrc');
+          const last = t.querySelector('.pgrow .pgpill');
           return last ? Math.round(last.getBoundingClientRect().right - box.right) : 0; });''')
     ok('l: 오른쪽 명단 3열 잘림 없이 수납', all(c <= 0 for c in clipped) and page.evaluate(
         "[...document.querySelectorAll('#mpBody .pgrow .pgnm')].every(e => e.scrollWidth <= e.clientWidth + 1)"), clipped)
@@ -786,7 +855,8 @@ with sync_playwright() as pw:
         'teams': [{'team': '레드', 'rate': 48.0, 'players': cnames[0:6]},
                   {'team': '블랙', 'rate': 50.0, 'players': cnames[6:12]},
                   {'team': '형광', 'rate': 52.0, 'players': cnames[12:18]}],
-        'expected': {'team': '형광', 'rate': 52.0}, 'written': '2026-11-27', 'note': ''}]
+        'expected': {'team': '형광', 'rate': 52.0}, 'written': '2026-11-27', 'note': '',
+        'fakes': {cnames[0]: 50.0, cnames[1]: 50.0}}]
     # 경기 결과가 이미 확정된 주차(2026-11-22)에도 정본 프리뷰를 넣어 우선순위를 검증
     cnames2 = POOL[20:38]
     cdata['weeks'][-1]['preview'] = {
@@ -837,6 +907,28 @@ with sync_playwright() as pw:
            and page.locator('#mpBody [data-sc]').count() == 24
            and page.locator('#mpBody [data-rest]').count() == 18,
            page.locator('#mpBody [data-sc]').count())
+        cb = page.evaluate("""() => [...document.querySelectorAll('#mpBody .pgrow')].map(r => {
+              const k = r.querySelector('.pgnk'); return [r.querySelector('.pgnm').textContent, k ? k.textContent.trim() : ''];
+            })""")
+        first_badges = [n for n, t in cb if t == '게스트(첫출전)']
+        ok('canon: 11/29 첫 출전 게스트 2명이 게스트(첫출전) 배지', len(first_badges) == 2
+           and all(t in ('', '게스트', '게스트(첫출전)') for _, t in cb), cb)
+        ok('canon: 정본 명단 알약 N 자동(점수 전 0)', page.locator('#mpBody .pgpill[data-n="0"]').count() == 18)
+        # 5명 팀 — 알약은 `출전 N` 1줄만, 누르면 휴식이 늘지 않음
+        page.evaluate("""() => { const p = MP.preview;
+              p.teams[0].players = p.teams[0].players.slice(0, 5);
+              p.order[0] = p.order[0].slice(0, 5); mpNormalize(p); mpRender(); mpApplyFit(); }""")
+        page.wait_for_timeout(500)
+        one = page.evaluate("""() => { const b = document.querySelector('#mpBody .pgrows .pgpill');
+              return [b.className, b.innerText.replace(/\\n/g, ' '), b.dataset.n, b.dataset.m]; }""")
+        ok('canon: 5명 이하 팀 — 알약이 `출전 N` 1줄만(휴식 줄 없음)',
+           'one' in one[0] and '출전' in one[1] and '휴식' not in one[1], one)
+        page.locator('#mpBody .pgrows .pgpill').first.click()
+        page.wait_for_timeout(250)
+        one2 = page.evaluate("""() => { const b = document.querySelector('#mpBody .pgrows .pgpill');
+              return [b.dataset.n, b.dataset.m, b.innerText.replace(/\\n/g, ' ')]; }""")
+        ok('canon: 5명 이하 팀 — 알약을 눌러도 휴식이 늘지 않음', one2[1] == '0' and '휴식' not in one2[2], one2)
+        page.screenshot(path='%s/c_3b_one_line.png' % OUT)
         page.screenshot(path='%s/c_3_canonscreen.png' % OUT)
         page.click('#mpClose')
         page.wait_for_timeout(250)

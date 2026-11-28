@@ -882,7 +882,7 @@ with sync_playwright() as p:
 
         # 11) 로스터
         page.locator("#secRoster").scroll_into_view_if_needed()
-        ok(f"{tag}: 로스터 21명", page.locator("#rosterGrid .rcell").count() == 21, f"{page.locator('#rosterGrid .rcell').count()}")
+        ok(f"{tag}: 로스터 {len(DATA['roster'])}명", page.locator("#rosterGrid .rcell").count() == len(DATA['roster']), f"{page.locator('#rosterGrid .rcell').count()}")
         rsum = page.inner_text("#rosterSum")
         ok(f"{tag}: 로스터 정회원 {REG_N} · 게스트 {len(ROSTER_G)}",
            f"정회원 {REG_N}명" in rsum and f"게스트 {len(ROSTER_G)}명" in rsum and "준회원" not in rsum, rsum.replace("\n", " "))
@@ -895,9 +895,9 @@ with sync_playwright() as p:
         ok(f"{tag}: 로스터 게스트 카드 배지", page.locator("#rosterGrid .rcell.gst").count() == len(ROSTER_G),
            f"{page.locator('#rosterGrid .rcell.gst').count()}")
         gnum = page.evaluate("""() => [...document.querySelectorAll('#rosterGrid .rcell.gst')].map(e => [e.dataset.person, e.querySelector('.no').innerText.trim(), e.querySelector('.rrole').innerText.trim()])""")
-        gexp = {r['name']: str(r['no']) for r in DATA['roster'] if r.get('role') == '게스트'}
-        ok(f"{tag}: 로스터 게스트 4명 백넘버 표기(#1·#5·#34·#96)",
-           {x[0]: x[1] for x in gnum} == gexp and all(x[2] == "게스트" for x in gnum),
+        gexp = {r['name']: (str(r['no']) if r.get('no') else '없음') for r in DATA['roster'] if r.get('role') == '게스트'}
+        ok(f"{tag}: 로스터 게스트 {len(ROSTER_G)}명 백넘버 표기(있는 번호 · 번호없음)",
+           {x[0]: x[1] for x in gnum} == gexp and all(x[2] in ("게스트", "게스트(첫출전)") for x in gnum),
            str(gnum))
         if ROSTER_G:
             page.locator("#rosterGrid .rcell.gst").first.click()
@@ -1121,7 +1121,7 @@ with sync_playwright() as p:
     ctx.close()
 
     # ---- 🤝 짝꿍 승률 계산기 (새 컨텍스트 — 개인정보 localStorage 영향 없음) ----
-    N_PICK = len(DATA['members']) + len(DATA['outsiders']) + len([g for g in DATA['guests'] if not g.get('absent')])
+    N_PICK = len(DATA['members']) + len(DATA['outsiders']) + len([g for g in DATA['guests'] if not g.get('absent') or g.get('first')])
     for tag, vw_, vh_ in [("m", 390, 844), ("d", 1280, 800)]:
         ctx = browser.new_context(viewport={"width": vw_, "height": vh_},
                                   device_scale_factor=2 if tag == "m" else 1)
@@ -1167,7 +1167,7 @@ with sync_playwright() as p:
         PMOD = page.inner_text("#pairModal")
         ok(f"{tag}: 짝꿍 — 팀 수(2·3파전) 구분 UI 없음(단일 계산)",
            "2파전" not in PMOD and "3파전" not in PMOD and "모든 회차 통합" in PMOD)
-        ok(f"{tag}: 짝꿍 — 선택 칩 {N_PICK}명(회원 {N_MEMBERS + N_OUTSIDERS} + 게스트 {len(DATA['guests']) - len(GUEST_ABSENT)})",
+        ok(f"{tag}: 짝꿍 — 선택 칩 {N_PICK}명(회원 {N_MEMBERS + N_OUTSIDERS} + 게스트 {len(DATA['guests']) - len(GUEST_ABSENT) + len([g for g in DATA['guests'] if g.get('absent') and g.get('first')])})",
            page.locator("#pChips .pchip").count() == N_PICK, str(page.locator("#pChips .pchip").count()))
         ok(f"{tag}: 짝꿍 — 시작 상태 안내·선택 0/7", page.inner_text("#pCount").strip() == "0"
            and "예상 승률이 바로 계산됩니다" in page.inner_text("#pResult"))

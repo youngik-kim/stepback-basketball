@@ -270,8 +270,8 @@ body.locked .wrap{display:none}
   background:rgba(255,255,255,.04);color:var(--tx3);font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
 .pfilter button[aria-pressed="true"]{color:var(--acc);border-color:rgba(51,224,196,.55);background:rgba(51,224,196,.14)}
 .pchips{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
-.pchip{display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0;height:34px;
-  padding:0 6px;border-radius:9px;border:1px solid var(--line2);background:rgba(255,255,255,.045);
+.pchip{display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0;height:auto;min-height:34px;
+  flex-wrap:wrap;padding:3px 6px;border-radius:9px;border:1px solid var(--line2);background:rgba(255,255,255,.045);
   color:var(--tx2);font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
 .pchip .pn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;letter-spacing:-.02em}
 .pchip .pb{flex:0 0 auto;font-size:8px;font-weight:900;padding:1px 3px;border-radius:4px;color:#9cc4ff;
@@ -897,12 +897,14 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mpteam .cnt.over{color:var(--red)}
 .mpteam .cnt.ok{color:var(--acc)}
 .mpteam .lst{display:flex;flex-direction:column;gap:3px;min-height:26px}
-.mpteam .who{display:flex;align-items:center;gap:3px;min-width:0;border-radius:6px;padding:2px 3px;
+.mpteam .who{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n rm" "k rm";
+  align-items:center;gap:0 3px;min-width:0;border-radius:6px;padding:2px 3px;
   background:rgba(255,255,255,.05);font-size:10.5px;font-weight:800}
-.mpteam .who .n{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.02em}
-.mpteam .who .rm{flex:0 0 auto;width:15px;height:15px;border:0;border-radius:4px;background:rgba(255,255,255,.10);
+.mpteam .who .n{grid-area:n;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.02em}
+.mpteam .who .rm{grid-area:rm;justify-self:end;flex:0 0 auto;width:15px;height:15px;border:0;border-radius:4px;background:rgba(255,255,255,.10);
   color:var(--tx2);font-size:9px;font-weight:900;cursor:pointer;padding:0;line-height:1}
-.mpteam .who .k{font-size:8px;font-weight:900;color:var(--amber);flex:0 0 auto}
+.mpteam .who .k{grid-area:k;font-size:8px;font-weight:900;color:var(--amber);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mpteam .who .k.fk{font-size:7.5px;letter-spacing:-.02em}
 .mpteam .emp{font-size:9.5px;color:var(--tx3);font-weight:800;padding:3px 2px}
 .mpteam .rmv{display:block;width:100%;height:24px;margin-top:4px;border-radius:6px;border:0;cursor:pointer;
   background:rgba(255,255,255,.06);color:var(--tx3);font-family:inherit;font-size:9.5px;font-weight:900}
@@ -989,14 +991,16 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 #mpScreen.pg-h{--pgrh:44px}
 #mpScreen.pg-h .sci{height:36px;font-size:17px}
 #mpScreen.pg-h .pgnm{font-size:12.5px}
-#mpScreen.pg-h .pgrc{min-width:28px;height:19px;font-size:9.5px}
+#mpScreen.pg-h .pgpill{min-width:2.95em;font-size:11px}
+#mpScreen.pg-h .pgpill.one{width:2.4em;min-width:2.4em}
 #mpScreen.pg-h .pgth{height:26px}
 #mpScreen.pg-h .pgnrh{height:26px}
 #mpScreen.pg-h .pgs{padding:4px 6px;font-size:10px}
 #mpScreen.pg-v{--pgrh:44px}
 #mpScreen.pg-v .sci{height:40px;font-size:18px}
 #mpScreen.pg-v .pgnm{font-size:13px}
-#mpScreen.pg-v .pgrc{min-width:26px;height:21px;font-size:10px;padding:0 2px}
+#mpScreen.pg-v .pgpill{min-width:2.95em;font-size:11.5px}
+#mpScreen.pg-v .pgpill.one{width:2.4em;min-width:2.4em}
 #mpScreen.pg-v .pgth{height:28px}
 #mpScreen.pg-v .pgnrh{height:28px}
 #mpScreen.pg-v .pgtbl .qh{width:46px}
@@ -1133,26 +1137,39 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .pgrsnum span{height:var(--pgrh);display:flex;align-items:center;justify-content:center;
   font-size:9.5px;font-weight:900;color:var(--pg-tx3);font-variant-numeric:tabular-nums}
 .pgrows{display:flex;flex-direction:column;gap:3px;align-content:start}
-.pgrow{display:flex;align-items:center;gap:2px;height:var(--pgrh);min-width:0;padding:0 3px;
+.pgrow{display:flex;align-items:center;gap:1px;height:var(--pgrh);min-width:0;padding:0 2px;position:relative;
   background:var(--pg-row,rgba(255,255,255,.04));border:1px solid var(--pg-line);border-radius:6px;overflow:hidden;
   user-select:none;-webkit-user-select:none}
 .pgrow.dragging{opacity:.75;border-color:var(--pg-acc);box-shadow:0 4px 12px rgba(0,0,0,.35)}
-.pgdrag{flex:0 0 auto;color:var(--pg-tx3);font-size:10px;cursor:grab;touch-action:none;padding:0;line-height:1}
-.pgnm{flex:1 1 auto;min-width:0;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgdrag{flex:0 0 auto;color:var(--pg-tx3);font-size:9px;cursor:grab;touch-action:none;padding:0;line-height:1;letter-spacing:-1px}
+/* 이름 칸 — 이름 아래 2px 에 `게스트(첫출전)` 배지. 이름 폭은 칸 전체를 씁니다 */
+.pgnmw{flex:1 1 auto;min-width:0;align-self:stretch;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+.pgnm{flex:0 0 auto;align-self:stretch;min-width:0;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
 .pgnm .crown{margin-right:0;font-size:8.5px}
-#mpScreen .pgrow .k{flex:0 0 auto;font-size:7px;font-weight:900;color:var(--pg-acc);
-  background:rgba(255,179,71,.14);border:1px solid rgba(255,179,71,.35);border-radius:3px;padding:0 2px}
-.pgrc{flex:0 0 auto;min-width:24px;height:16px;padding:0 3px;border-radius:5px;border:1px solid var(--pg-line2);
-  background:transparent;color:var(--pg-tx2);font-size:8.5px;font-weight:900;font-family:inherit;cursor:pointer;font-variant-numeric:tabular-nums}
-.pgrc.n1{color:#9fe6ff;border-color:rgba(74,210,255,.55);background:rgba(74,210,255,.12)}
-.pgrc.n2{color:var(--pg-acc);border-color:rgba(255,179,71,.6);background:rgba(255,179,71,.14)}
-.pgrc.n3{color:var(--pg-red);border-color:rgba(255,107,107,.6);background:rgba(255,107,107,.14)}
-#mpScreen.pg-mid .pgrc.n1{color:#9fe6ff;border-color:rgba(74,210,255,.55);background:rgba(74,210,255,.14)}
-#mpScreen.pg-mid .pgrc.n2{color:#ffb347;border-color:rgba(255,179,71,.6);background:rgba(255,179,71,.16)}
-#mpScreen.pg-mid .pgrc.n3{color:#ff8f8f;border-color:rgba(255,123,123,.6);background:rgba(255,123,123,.16)}
-#mpScreen.pg-light .pgrc.n1{color:#0a6e96;border-color:rgba(10,110,150,.45);background:rgba(74,210,255,.18)}
-#mpScreen.pg-light .pgrc.n2{color:#8f4c00;border-color:rgba(143,76,0,.45);background:rgba(255,179,71,.22)}
-#mpScreen.pg-light .pgrc.n3{color:#a3241c;border-color:rgba(163,36,28,.45);background:rgba(255,107,107,.18)}
+#mpScreen .pgnk{margin-top:2px;max-width:100%;text-align:center;pointer-events:none;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1}
+#mpScreen .pgnk i{display:inline-block;font-style:normal;font-size:var(--pg-fs-meta,8px);font-weight:900;line-height:1.15;
+  color:var(--pg-acc);background:rgba(255,179,71,.14);border:1px solid rgba(255,179,71,.35);
+  border-radius:3px;padding:0 .26em;letter-spacing:-.02em}
+#mpScreen.pg-light .pgnk i{color:#8f4c00;background:rgba(255,179,71,.24);border-color:rgba(162,91,18,.45)}
+/* 출전/휴식 2줄 알약 — 위 `출전 N` / 아래 `휴식 M`. 폭을 고정해 숫자가 늘어도 이름 칸이 흔들리지 않습니다. */
+.pgpill{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:2.95em;min-width:2.95em;padding:.1em .02em;border-radius:5px;border:1px solid var(--pg-line2);
+  background:transparent;color:var(--pg-tx2);font-size:calc(var(--pg-fs-meta,9px)*1.06);font-weight:900;
+  font-family:inherit;line-height:1.18;cursor:pointer;font-variant-numeric:tabular-nums;
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pgpill .ppl{display:block;white-space:nowrap;letter-spacing:-.02em}
+.pgpill .ppl b{margin-left:.16em;color:var(--pg-tx3);font-weight:900}
+.pgpill .pp2,.pgpill .pp2 b{color:var(--pg-tx3)}
+.pgpill.has{border-color:rgba(255,179,71,.55);background:rgba(255,179,71,.12)}
+.pgpill.has .ppl b{color:var(--pg-tx2)}
+.pgpill.has .pp2 b{color:var(--pg-acc)}
+.pgpill.off{opacity:.42;border-style:dashed}
+.pgpill:active{transform:scale(.96)}
+/* 5명 이하 팀 — `출전 N` 1줄만 (휴식 없음) */
+.pgpill.one{width:2.45em;min-width:2.45em;padding:.1em .02em}
+#mpScreen.pg-light .pgpill.has{background:rgba(255,179,71,.22);border-color:rgba(162,91,18,.45)}
+#mpScreen.pg-light .pgpill.has .pp2 b{color:#8f4c00}
 .pgpick{flex:0 0 auto;width:14px;height:14px;border-radius:50%;border:1px dashed var(--pg-line2);
   display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:var(--pg-tx3)}
 .pgpick.on{background:var(--pg-acc);color:#20140a;border-style:solid;border-color:transparent}
@@ -1182,21 +1199,26 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 /* 착지 — 150ms 로 부드럽게 제자리 */
 .mpland{animation:mpLand .15s ease-out}
 @keyframes mpLand{0%{transform:scale(1.045)}100%{transform:scale(1)}}
-/* ── 3번 출석 표시 3안 — 줄 전체를 짧게 탭하면 기본 → 출석 → 불참 → 기본 ── */
-#mpScreen .pgrow .attb{display:none;flex:0 0 auto;font-weight:900;line-height:1.2;white-space:nowrap}
-#mpScreen .pgrow .attb::before{display:inline-block;border-radius:4px;padding:0 .34em;font-size:.72em;line-height:1.35}
-/* 1안 (기본) — 이름 왼쪽 초록 ✓ / 빨간 ✕ + 흐림 */
-#mpScreen[data-attstyle="1"] .pgrow[data-att="in"] .pgnm::before{content:'✓';color:var(--pg-hi);font-weight:900;margin-right:.22em}
-#mpScreen[data-attstyle="1"] .pgrow[data-att="out"] .pgnm::before{content:'✕';color:var(--pg-red);font-weight:900;margin-right:.22em}
-#mpScreen[data-attstyle="1"] .pgrow[data-att="out"]{opacity:.48}
+/* ── 3번 출석 표시 3안 — 줄 전체를 짧게 탭하면 기본 → 출석 → 불참 → 기본 ──
+   자리는 안 쪽 고정 폭 슬롯(.attb)입니다 — 표시가 바뀌어도 이름 칸 폭·글자 크기가 1px 도 변하지 않습니다. */
+#mpScreen{--att-w:.95em}
+#mpScreen[data-attstyle="2"]{--att-w:2.05em}
+#mpScreen[data-attstyle="3"]{--att-w:0em}
+#mpScreen .pgrow .attb{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;
+  width:var(--att-w);min-width:var(--att-w);font-size:var(--pg-fs-meta,9px);font-weight:900;line-height:1;white-space:nowrap}
+#mpScreen .pgrow .attb::before{display:none;border-radius:4px;padding:0 .3em;font-size:.86em;line-height:1.35}
 /* 2안 — 작은 한글 배지 + 은은한 배경 틴트 */
-#mpScreen[data-attstyle="2"] .pgrow[data-att="in"] .attb,#mpScreen[data-attstyle="2"] .pgrow[data-att="out"] .attb{display:inline-flex}
+#mpScreen[data-attstyle="2"] .pgrow .attb::before{display:inline-block}
 #mpScreen[data-attstyle="2"] .pgrow[data-att="in"] .attb::before{content:'출석';color:var(--pg-hi);background:rgba(78,227,154,.16);box-shadow:inset 0 0 0 1px rgba(78,227,154,.42)}
 #mpScreen[data-attstyle="2"] .pgrow[data-att="out"] .attb::before{content:'불참';color:var(--pg-red);background:rgba(255,123,123,.14);box-shadow:inset 0 0 0 1px rgba(255,123,123,.4)}
 #mpScreen[data-attstyle="2"] .pgrow[data-att="in"]{background:rgba(78,227,154,.1);border-color:rgba(78,227,154,.34)}
 #mpScreen[data-attstyle="2"] .pgrow[data-att="out"]{opacity:.55;background:rgba(255,123,123,.06)}
 #mpScreen.pg-light[data-attstyle="2"] .pgrow[data-att="in"] .attb::before{background:rgba(18,119,71,.12);color:#0c6a3d;box-shadow:inset 0 0 0 1px rgba(18,119,71,.4)}
 #mpScreen.pg-light[data-attstyle="2"] .pgrow[data-att="out"] .attb::before{background:rgba(179,53,44,.1);color:#9a2f27;box-shadow:inset 0 0 0 1px rgba(179,53,44,.38)}
+/* 1안 (기본) — 이름 칸 밖 고정 슬롯에 초록 ✓ / 빨간 ✕ + 흐림 */
+#mpScreen[data-attstyle="1"] .pgrow[data-att="in"] .attb::before{content:'✓';display:inline-block;font-size:1.05em;color:var(--pg-hi);font-weight:900;background:none;box-shadow:none;padding:0}
+#mpScreen[data-attstyle="1"] .pgrow[data-att="out"] .attb::before{content:'✕';display:inline-block;font-size:1.05em;color:var(--pg-red);font-weight:900;background:none;box-shadow:none;padding:0}
+#mpScreen[data-attstyle="1"] .pgrow[data-att="out"]{opacity:.48}
 /* 3안 — 테두리 하이라이트 / 이름 취소선 + 반투명 */
 #mpScreen[data-attstyle="3"] .pgrow[data-att="in"]{border-color:var(--pg-hi);box-shadow:inset 0 0 0 1px var(--pg-hi)}
 #mpScreen[data-attstyle="3"] .pgrow[data-att="out"]{opacity:.5}
@@ -1278,11 +1300,12 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 #mpScreen.pg-full .pgtn{font-size:var(--pg-fs-meta)}
 #mpScreen.pg-full .pgasg{position:absolute;right:.28em;top:50%;transform:translateY(-50%);margin:0;
   height:auto;min-height:1.6em;padding:.08em .34em;font-size:calc(var(--pg-fs-meta)*.9);line-height:1.3}
-/* 선수 이름 — 가운데 정렬(⠿ 핸들은 왼쪽, n회 배지는 오른쪽) */
-#mpScreen.pg-full .pgnm{flex:1 1 auto;font-size:var(--pg-fs-name);text-align:center;letter-spacing:-.02em}
+/* 선수 이름 — 가운데 정렬(⠿·출석은 왼쪽, 출전/휴식 알약은 오른쪽). 이름 아래 2px 에 배지 */
+#mpScreen.pg-full .pgnm{flex:0 0 auto;align-self:stretch;font-size:var(--pg-fs-name);text-align:center;letter-spacing:-.02em}
 #mpScreen.pg-full .pgnm .crown{font-size:.72em;margin-right:.1em;vertical-align:.04em}
-#mpScreen.pg-full .pgdrag{font-size:calc(var(--pg-fs-meta)*.95);letter-spacing:-1px;padding:0 .1em}
-#mpScreen.pg-full .pgrc{min-width:2.3em;height:1.75em;padding:0 .2em;font-size:var(--pg-fs-meta)}
+#mpScreen.pg-full .pgdrag{font-size:calc(var(--pg-fs-meta)*.9);letter-spacing:-1px;padding:0}
+#mpScreen.pg-full .pgpill{min-width:2.95em;font-size:calc(var(--pg-fs-meta)*1.06)}
+#mpScreen.pg-full .pgpill.one{width:2.4em;min-width:2.4em}
 #mpScreen.pg-full .pgpick{width:1.7em;height:1.7em;font-size:var(--pg-fs-meta)}
 /* 폰(좁은 화면) — 같은 꽉 채우기 배치를 조금 더 촘촘하게(간격·여백만 축소) */
 #mpScreen.pg-full:not(.pg-tab) .pgbody{gap:4px;padding:4px}
@@ -1297,7 +1320,7 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   #mpScreen.pg-full .pgtbl .mpair{flex-direction:row;gap:.26em}
   #mpScreen.pg-full .pgtbl .mpair i{font-size:0;width:1px;opacity:.45;line-height:1}
 }
-/* 명단 순서 드래그 — 이름 칸 어디를 잡아도 끌 수 있게(0회 버튼만 제외) 터치 스크롤 간섭을 막습니다 */
+/* 명단 순서 드래그 — 이름 칸 어디를 잡아도 끌 수 있게(출전/휴식 알약만 제외) 터치 스크롤 간섭을 막습니다 */
 #mpScreen .pgrow{touch-action:none}
 /* 합계 행 승리팀 표기 — 팀 색 점 + 팀명 */
 #mpScreen .totw{display:inline-flex;align-items:center;justify-content:center;gap:.22em;white-space:nowrap}
@@ -1990,7 +2013,7 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     <div class="tsec">
       <div class="tsecT">4 · 선수 명단 <span class="mpcapa" id="mpPoolNote" style="margin-left:auto"></span></div>
       <label class="psearch" for="mpQ"><span aria-hidden="true">🔍</span>
-        <input id="mpQ" type="search" placeholder="이름 검색 (정회원·게스트·가상)" autocomplete="off" enterkeyhint="search" aria-label="선수 이름 검색">
+        <input id="mpQ" type="search" placeholder="이름 검색 (정회원 · 게스트 · 게스트(첫출전))" autocomplete="off" enterkeyhint="search" aria-label="선수 이름 검색">
       </label>
       <div class="pfilter" id="mpPosFilter" role="group" aria-label="포지션 필터">
         <button type="button" data-mppos="" aria-pressed="true">전체</button>
@@ -2218,7 +2241,7 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
     <label class="ptoggle" id="pGuestWrap"><input type="checkbox" id="pGuest" checked> 게스트 포함</label>
     <div class="pchipbox"><div class="pchips" id="pChips"></div></div>
     <div class="pfake" id="pFakeWrap">
-      <div class="pfHead"><span>가상 선수</span><button type="button" class="padd" id="pAddFake">+ 가상 선수 추가</button></div>
+      <div class="pfHead"><span>게스트(첫출전)</span><button type="button" class="padd" id="pAddFake">+ 게스트(첫출전) 추가</button></div>
       <div class="pfList" id="pFakeChips"></div>
       <form class="pfform" id="pFakeForm" hidden novalidate>
         <div class="pfRow"><label for="pfName">이름</label><input id="pfName" type="text" maxlength="8" autocomplete="off" placeholder="예: 용병A"></div>
@@ -2295,10 +2318,10 @@ mark{background:rgba(51,224,196,.26);color:#fff;border-radius:3px;padding:0 1px}
         <button type="button" data-tposf="PF" aria-pressed="false">PF</button>
         <button type="button" data-tposf="C" aria-pressed="false">C</button>
       </div>
-      <label class="ptoggle"><input type="checkbox" id="tGuest" checked> 게스트 포함 <span style="color:var(--tx3);font-weight:700">· 가상 선수는 항상 표시</span></label>
+      <label class="ptoggle"><input type="checkbox" id="tGuest" checked> 게스트 포함 <span style="color:var(--tx3);font-weight:700">· 게스트(첫출전)는 항상 표시</span></label>
       <div class="tchipbox"><div class="pchips" id="tChips"></div></div>
       <div class="pfake" id="tFakeWrap">
-        <div class="pfHead"><span>가상 선수</span><button type="button" class="padd" id="tAddFake">+ 가상 선수 추가</button></div>
+        <div class="pfHead"><span>게스트(첫출전)</span><button type="button" class="padd" id="tAddFake">+ 게스트(첫출전) 추가</button></div>
         <div class="pfList" id="tFakeChips"></div>
         <form class="pfform" id="tFakeForm" hidden novalidate>
           <div class="pfRow"><label for="tfName">이름</label><input id="tfName" type="text" maxlength="8" autocomplete="off" placeholder="예: 용병A"></div>
@@ -2517,7 +2540,7 @@ function pvTeamHtml(t, pv) {
     <div class="pvtop"><span class="tn"><i class="dot ${dotCls(t.team)}"></i>${esc(t.team)}</span>
       <span class="tr">${pct(rate)}%</span></div>
     <div class="tb"><i style="width:${rate}%"></i></div>
-    ${t.players && t.players.length ? `<div class="tp">${t.players.map(n => esc(n) + (mpCanonFakeRate(pv, n) != null ? '<i class="fk">가상</i>' : '')).join(' · ')}</div>` : ''}
+    ${t.players && t.players.length ? `<div class="tp">${t.players.map(n => esc(n) + (mpIsFirstGuest(n) ? `<i class="fk">게스트(첫출전)</i>` : '')).join(' · ')}</div>` : ''}
   </div>`;
 }
 /* 실제 결과와 비교 — 예상 순위 vs 실제 순위 · 예상 승률 vs 실제 전적·승률 */
@@ -2798,7 +2821,7 @@ function renderRank() {
     + absentG.map((g, i) => `<button class="grow absent" data-person="${esc(g.name)}">
       <span class="rk" style="font-size:11.5px">${gs.length + i + 1}</span>
       <span><span class="nn">${hl(g.name, Q)}</span>
-        <span class="d">출전 기록 없음 · 로스터 게스트</span></span>
+        <span class="d">출전 기록 없음 · ${g.first ? '게스트(첫출전)' : '로스터 게스트'}</span></span>
       <span class="rec">–</span>
       <span class="rt" style="font-size:12px">–</span></button>`).join('')
     : `<div class="nores">${Q ? '해당 이름의 게스트가 없습니다.' : '게스트 기록이 없습니다.'}</div>`;
@@ -3001,9 +3024,10 @@ function renderRoster() {
   if (Q) list = list.filter(r => r.name.includes(Q));
   $('#rosterGrid').innerHTML = list.length ? list.map(r => {
     const pf = effProfile(r.name), no = profNumberText(pf), gst = r.role === '게스트';
-    return `<button class="rcell ${gst ? 'gst' : ''}" data-person="${esc(r.name)}"${gst ? ` aria-label="${esc(r.name)} 게스트 개인 카드 보기"` : ''}>
+    const first = gst && (r.first || mpIsFirstGuest(r.name));
+    return `<button class="rcell ${gst ? 'gst' : ''}" data-person="${esc(r.name)}"${gst ? ` aria-label="${esc(r.name)} ${first ? '게스트(첫출전)' : '게스트'} 개인 카드 보기"` : ''}>
       <span class="no${pf.number === null ? ' none' : ''}">${pf.number === null ? '없음' : (pf.number === undefined || pf.number === '' ? '–' : esc(pf.number))}</span>
-      <span class="nmn"><b>${hl(r.name, Q)}</b><span>${pf.number === null ? '번호없음 · ' : ''}${(pf.height ? pf.height + 'cm' : '–')} · ${esc(pf.position || '–')}${gst ? ' <i class="rrole">게스트</i>' : ''}</span></span>
+      <span class="nmn"><b>${hl(r.name, Q)}</b><span>${pf.number === null ? '번호없음 · ' : ''}${(pf.height ? pf.height + 'cm' : '–')} · ${esc(pf.position || '–')}${gst ? ` <i class="rrole">${first ? '게스트(첫출전)' : '게스트'}</i>` : ''}</span></span>
     </button>`;
   }).join('')
     : `<div class="nores" style="grid-column:1/-1">${Q ? '해당 이름이 없습니다.' : POS_FILTER === 'GST' ? '게스트가 없습니다.' : '해당 포지션이 없습니다.'}</div>`;
@@ -3483,6 +3507,14 @@ function closeNav() {
    형태로 추가하면 팝업에 날짜순(최신순)으로 그대로 나타납니다. */
 const CHANGELOG = [
   { date: '2026-11-28', tag: '기능', items: [
+    '<b>출전 N / 휴식 M 2줄 알약</b> — 경기 진행 명단 오른쪽의 <b>0회 버튼</b>을 <b>위 `출전 N` · 아래 `휴식 M`</b> 2줄 알약으로 바꿨습니다. `N` 은 그 팀이 점수를 넣은 쿼터 수로 자동 계산되고, 알약을 누를 때마다 <b>휴식 +1</b>(`N` 에서 한 번 더 누르면 `0`)·<b>길게 누르면 -1</b> → <b>출전 + 휴식 = N</b> 이 항상 맞습니다. 불참(✕)은 <b>–</b> 로 계산에서 빠집니다',
+    '<b>이름 크기·위치 100% 고정</b> — 왼쪽 <b>⠿ 핸들·출석(✓·✕·출석/불참)</b> 자리와 오른쪽 <b>출전/휴식 알약</b> 자리를 고정 폭 슬롯으로 비워 두어, 출석을 토글하거나 숫자가 바뀌어도 <b>이름 글씨 크기·좌우 위치가 1px 도 변하지 않습니다</b>',
+    '<b>`게스트(첫출전)` 배지 분리</b> — 이름 옆 인라인 배지를 <b>이름 바로 아래 2px</b> 로 붙여, 배지가 붙는 선수도 다른 선수와 똑같은 크기로 보입니다. 왼쪽 출석 자리와 오른쪽 알약 폭을 줄여 <b>이름 글씨를 더 크게</b>',
+    '<b>5명 이하 팀은 알약 1줄</b> — 쉬는 사람이 없어 `출전 N` 만 표시하고, 눌러도 휴식이 늘지 않습니다(6명 이상은 출전/휴식 2줄)',
+    '<b>`가상` → `게스트(첫출전)` 표기 통일</b> — 매치 프리뷰 카드·팀 구성·경기 진행 명단·안내 문구 모두. 기록이 있는 기존 게스트는 <b>`게스트`</b> 그대로입니다',
+    '로스터에 <b>첫 출전 게스트 2명</b>(C · 194cm · 193cm) 등록 — 11/29 매치 프리뷰에 함께 들어갑니다',
+  ] },
+  { date: '2026-11-28', tag: '기능', items: [
     '<b>매치업 ⇄ 좌우 바꾸기</b> — 매치업 머리글의 ◀▶ 줄을 없애고 팀명 배지 사이 <b>⇄</b> 버튼으로. 누르면 <b>세 경기의 좌우 팀과 점수(1Q~4Q·합계·승리팀)</b>가 한번에 뒤집히고 3파전 꼬리물기(<b>A:B → B:C → C:A</b>)가 유지됩니다. 세로 공간이 생겨 <b>팀명 글씨가 더 커졌습니다</b>',
     '<b>인원 출석 3단계</b> — 하단 명단에서 선수 이름을 <b>짧게 탭</b>하면 <b>기본 → 출석 → 불참</b> 순환(<b>⠿ 끌기·0회 버튼</b>과 충돌 없음). <b>⚙️ 설정 → 출석 표시</b>로 3가지 모양 중 선택, 기기에 기억됩니다 (<b>1안</b> 초록 ✓ / 빨간 ✕+흐림 · <b>2안</b> 출석·불참 배지+배경 틴트 · <b>3안</b> 테두리 하이라이트 / 취소선)',
     '<b>드래그 손맛 강화</b> — 집으면 살짝 확대(<b>scale 1.05</b>)된 고스트가 손가락을 따라오고 진한 그림자·강조 테두리·<b>짧은 진동(15ms)</b>, 원래 자리는 <b>점선 빈칸</b>, 놓을 칸은 <b>주황 테두리 강조</b>, 놓을 때 <b>150ms 착지</b> 전환',
@@ -3522,8 +3554,8 @@ const CHANGELOG = [
     '경기 결과가 정본에 <b>확정된 날짜</b>는 기기 등록분 대신 <b>정본 매치 프리뷰</b>를 우선 표시(이력 모달·주간 결과 🔮 배지·경기 진행 초기값)',
   ] },
   { date: '2026-11-27', tag: '기능', items: [
-    '<b>⚖️ 팀 구성 추천하기 추가</b> — 3파전·2파전과 참석 인원(정회원·게스트·가상)을 고르면 팀별 평균(현재 승률 / 5주 개인 스탯)·포지션·짝꿍 상성까지 맞춰 가장 대등한 조합과 구성 이유를 보여 줍니다',
-    '팀 구성 기준 보완 — 3파전 최소 <b>15명</b>(3팀×5명)·2파전 최소 <b>10명</b>(2팀×5명), 팀 표시 순서 <b>레드 · 블랙 · 형광</b>(2파전 레드 · 블랙), 시트 안 <b>+ 가상 선수 추가</b>로 바로 반영',
+    '<b>⚖️ 팀 구성 추천하기 추가</b> — 3파전·2파전과 참석 인원(정회원·게스트·게스트(첫출전))을 고르면 팀별 평균(현재 승률 / 5주 개인 스탯)·포지션·짝꿍 상성까지 맞춰 가장 대등한 조합과 구성 이유를 보여 줍니다',
+    '팀 구성 기준 보완 — 3파전 최소 <b>15명</b>(3팀×5명)·2파전 최소 <b>10명</b>(2팀×5명), 팀 표시 순서 <b>레드 · 블랙 · 형광</b>(2파전 레드 · 블랙), 시트 안 <b>+ 게스트(첫출전) 추가</b>로 바로 반영',
     '<b>게스트 구분 정리</b> — 기존 구분을 없애고 해당 인원을 <b>게스트</b>로 표기, 백넘버가 있는 게스트는 로스터에 그대로 유지',
     '상단 요약 카드 4칸을 <b>승률 / 경기 / 정회원 / 게스트</b>로 변경 — 정회원을 누르면 로스터로 이동',
     '개인 스탯 <b>시즌 누적(쿼터당)</b>의 <b>MVP</b> 열은 쿼터로 나누지 않고 <b>시즌 누적 MVP 값 그대로</b> 표시·정렬 — 두 모드의 MVP 수치·순위가 동일합니다(나머지 항목은 쿼터당 평균 유지)',
@@ -3532,7 +3564,7 @@ const CHANGELOG = [
   { date: '2026-11-26', tag: '기능', items: [
     '<b>🤝 짝꿍 승률 계산기</b> 추가 — 회원·게스트 1~7명 선택 시 조합 예상 승률·표본 경기 수·포지션 구성 요약(모든 회차 통합)',
     '5인 조합 자동 랭킹(최고·최저 각 5) — 동반 경기 표본 조건 + <b>포지션 균형(가드 2~3·포워드 2~3)</b> 적용, 토글로 해제 가능',
-    '게스트 포함(기본 ON)·가상 선수(가정값) 시뮬레이션 — 실제 기록·랭킹은 오염되지 않습니다',
+    '게스트 포함(기본 ON)·게스트(첫출전)(가정값) 시뮬레이션 — 실제 기록·랭킹은 오염되지 않습니다',
   ] },
   { date: '2026-11-26', tag: '기능', items: [
     '개인 상세정보에 <b>플레이 장점·단점(선택)</b> 입력 추가 — 카드와 카톡 양식에 함께 반영',
@@ -3671,8 +3703,9 @@ function showGuests() { const el = $('#pGuest'); return !el || el.checked; }
 function pickPool() {
   const reg = ((DATA && DATA.members) || []).map(function (m) { return { name: m.name, kind: 'member' }; });
   const out = ((DATA && DATA.outsiders) || []).map(function (m) { return { name: m.name, kind: 'member' }; });
-  /* 출전 기록이 없는 게스트(로스터만 등록)는 계산 표본이 없어 목록에서 뺩니다 */
-  const gst = ((DATA && DATA.guests) || []).filter(function (g) { return !g.absent; })
+  /* 출전 기록이 없는 게스트(로스터만 등록)는 계산 표본이 없어 목록에서 뺩니다 —
+     단 `게스트(첫출전)`은 이번에 뛰는 사람이라 고를 수 있게 넣습니다 */
+  const gst = ((DATA && DATA.guests) || []).filter(function (g) { return !g.absent || g.first; })
     .map(function (g) { return { name: g.name, kind: 'guest' }; });
   return reg.concat(out, showGuests() ? gst : []);
 }
@@ -3832,7 +3865,8 @@ function chipHtml(name, kind) {
   let badge;
   if (kind === 'guest') {
     const g = personTotals(name).g;
-    badge = '<span class="pb gt" title="게스트 — 정규 순위·자동 랭킹 제외">게스트</span>'
+    const first = mpIsFirstGuest(name);
+    badge = '<span class="pb ' + (first ? 'fb' : 'gt') + '" title="' + (first ? '첫 출전 게스트 — 실제 경기 기록 없음' : '게스트 — 정규 순위·자동 랭킹 제외') + '">' + (first ? '게스트(첫출전)' : '게스트') + '</span>'
       + (g < P_RANK_MIN_PAIRS ? '<span class="pb nb" title="표본 적음 — 동반 8경기 미만">적음</span>' : '');
   } else {
     badge = t.length ? '<span class="pb">' + esc(t.join('/')) + '</span>' : '<span class="pb nb">미등록</span>';
@@ -3852,25 +3886,25 @@ function pairChipsHtml() {
   return (PQ || PFILTER) && picked.length ? '<div class="pempty pempty2" style="text-align:left;padding:6px 8px">선택 ' + PSEL.length + '명은 목록에서 빠져도 그대로 계산에 들어갑니다.</div>' + out : out;
 }
 function fakeChipsHtml() {
-  if (!FAKES.length) return '<div class="fempty">가상 선수를 추가하면 여기에 표시됩니다.</div>';
+  if (!FAKES.length) return '<div class="fempty">게스트(첫출전)를 추가하면 여기에 표시됩니다.</div>';
   return FAKES.map(function (f) {
     const on = PSEL.indexOf(f.name) >= 0, full = PSEL.length >= P_MAX && !on;
     const t = (f.pos || []);
     return '<div class="frow' + (on ? ' on' : '') + (full ? ' off' : '') + '">'
       + '<button type="button" class="fmain" data-pick2="' + esc(f.name) + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
-      + '<span class="pn">' + esc(f.name) + '</span><span class="pb fb">가상</span>'
+      + '<span class="pn">' + esc(f.name) + '</span><span class="pb fb">게스트(첫출전)</span>'
       + (t.length ? '<span class="pb">' + esc(t.join('/')) + '</span>' : '')
       + '<span class="frate">' + pct1(f.rate) + ' · ' + f.games + '경기</span>'
       + '</button>'
-      + '<button type="button" class="fico" data-fedit="' + esc(f.id) + '" aria-label="가상 선수 수정">✎</button>'
-      + '<button type="button" class="fico del" data-fdel="' + esc(f.id) + '" aria-label="가상 선수 삭제">🗑</button>'
+      + '<button type="button" class="fico" data-fedit="' + esc(f.id) + '" aria-label="게스트(첫출전) 수정">✎</button>'
+      + '<button type="button" class="fico del" data-fdel="' + esc(f.id) + '" aria-label="게스트(첫출전) 삭제">🗑</button>'
       + '</div>';
   }).join('');
 }
 function pairResultHtml() {
   if (!DATA) return '';
   const wks = DATA.period.weeks;
-  if (!PSEL.length) return '<div class="pempty">아래에서 회원·게스트 1~7명(또는 가상 선수)을 고르면<br>함께 출전한 기록으로 예상 승률이 바로 계산됩니다.<br><span>45회차 · 모든 회차 통합 기준</span></div>';
+  if (!PSEL.length) return '<div class="pempty">아래에서 회원·게스트 1~7명(또는 게스트(첫출전))을 고르면<br>함께 출전한 기록으로 예상 승률이 바로 계산됩니다.<br><span>45회차 · 모든 회차 통합 기준</span></div>';
   const gset = guestSet();
   const hasFake = PSEL.some(isFake);
   const hasGuest = PSEL.some(function (n) { return !isFake(n) && gset.has(n); });
@@ -3881,7 +3915,7 @@ function pairResultHtml() {
   const guidesHtml = guides.length ? '<div class="pguides">' + guides.map(function (g) { return '<span>' + esc(g) + '</span>'; }).join('') + '</div>' : '';
   const simBadge = hasFake ? '<span class="pbadge sim">시뮬레이션</span>' : '';
   const simNote = hasFake
-    ? '<div class="psim"><b>시뮬레이션</b> 가상 선수 포함 — 실제 경기 기록이 아닌 가정값 기준입니다. 가상 선수와의 모든 짝은 가정 승률·가정 표본 경기 수로 계산합니다.</div>'
+    ? '<div class="psim"><b>시뮬레이션</b> 게스트(첫출전) 포함 — 실제 경기 기록이 아닌 가정값 기준입니다. 게스트(첫출전)와의 모든 짝은 가정 승률·가정 표본 경기 수로 계산합니다.</div>'
     : '';
   const guestG = s.list.filter(function (p) { return gset.has(p.a) || gset.has(p.b); })
     .reduce(function (a, p) { return a + p.g; }, 0);
@@ -4251,7 +4285,7 @@ function pTogglePick(name) {
   /* ---- 이 사이트의 데이터 접근 ---- */
   function tRegular() { var ms = (DATA && DATA.members) || [], os = (DATA && DATA.outsiders) || [];
     return ms.map(function (m) { return m.name; }).concat(os.map(function (m) { return m.name; })); }
-  function tGuests() { return ((DATA && DATA.guests) || []).filter(function (g) { return !g.absent; })
+  function tGuests() { return ((DATA && DATA.guests) || []).filter(function (g) { return !g.absent || g.first; })
       .map(function (g) { return g.name; }); }
   function tRate(n) { var p = personTotals(n);
     return { rate: p.g ? p.w / p.g * 100 : null, g: p.g }; }
@@ -4635,17 +4669,17 @@ function pTogglePick(name) {
      여기서 추가·수정·삭제하면 짝꿍 시트 목록도 함께 바뀌고, 반대도 마찬가지입니다. */
   var TFEDIT = null;
   function tFakeRowsHtml() {
-    if (!FAKES.length) return '<div class="fempty">아직 없습니다. 오른쪽 <b>+ 가상 선수 추가</b>로 이름·포지션·예상 승률을 넣으면 바로 참석 인원에 들어갑니다.</div>';
+    if (!FAKES.length) return '<div class="fempty">아직 없습니다. 오른쪽 <b>+ 게스트(첫출전) 추가</b>로 이름·포지션·예상 승률을 넣으면 바로 참석 인원에 들어갑니다.</div>';
     return FAKES.map(function (f) {
       var on = TSEL.indexOf(f.name) >= 0, full = TSEL.length >= T_MAX && !on, t = f.pos || [];
       return '<div class="frow' + (on ? ' on' : '') + (full ? ' off' : '') + '">'
         + '<button type="button" class="fmain" data-tpick="' + esc(f.name) + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
-        + '<span class="pn">' + esc(f.name) + '</span><span class="pb fb">가상</span>'
+        + '<span class="pn">' + esc(f.name) + '</span><span class="pb fb">게스트(첫출전)</span>'
         + (t.length ? '<span class="pb">' + esc(t.join('/')) + '</span>' : '')
         + '<span class="frate">' + tPct(f.rate) + ' · ' + f.games + '경기</span>'
         + '</button>'
-        + '<button type="button" class="fico" data-tfedit="' + esc(f.id) + '" aria-label="가상 선수 수정">✎</button>'
-        + '<button type="button" class="fico del" data-tfdel="' + esc(f.id) + '" aria-label="가상 선수 삭제">🗑</button>'
+        + '<button type="button" class="fico" data-tfedit="' + esc(f.id) + '" aria-label="게스트(첫출전) 수정">✎</button>'
+        + '<button type="button" class="fico del" data-tfdel="' + esc(f.id) + '" aria-label="게스트(첫출전) 삭제">🗑</button>'
         + '</div>';
     }).join('');
   }
@@ -4743,8 +4777,8 @@ function pTogglePick(name) {
       var on = TSEL.indexOf(p.name) >= 0;
       var full = TSEL.length >= T_MAX && !on;
       var toks = posTokens(p.name) || [];
-      var badge = p.kind === 'guest' ? '<span class="pb gt">게스트</span>'
-        : p.kind === 'fake' ? '<span class="pb fb">가상</span>'
+      var badge = mpBadgeText(p.name, p.kind)
+        ? '<span class="pb ' + (p.kind === 'fake' || mpIsFirstGuest(p.name) ? 'fb' : 'gt') + '">' + mpBadgeText(p.name, p.kind) + '</span>'
         : (toks.length ? '<span class="pb">' + esc(toks.join('/')) + '</span>' : '<span class="pb nb">미등록</span>');
       return '<button type="button" class="pchip' + (p.kind === 'guest' ? ' guest' : '') + (full ? ' off' : '')
         + '" data-tpick="' + esc(p.name) + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
@@ -5060,6 +5094,7 @@ let MP = { preview: null, previews: [], theme: 'dark', font: 'normal', att: '1' 
 const MP_ATT_LABEL = { 1: '1안 ✓', 2: '2안 배지', 3: '3안 테두리' };
 let MPED = null, MPED_SLOT = 0;
 let MPQ = '', MPPOS = '', MP_PICK = -1, MPDG = null, MPWL = null, MPFS = false, MPDG_AT = 0;
+let MPPL = null;   /* 휴식 알약 길게 누르기 상태 */
 let MP_NOTE = '';
 
 /* ---------- 저장 · 정규화 ---------- */
@@ -5173,7 +5208,7 @@ function mpPoolAll() {
   function add(name, kind) { if (!name || seen[name]) return; seen[name] = 1; out.push({ name: name, kind: kind }); }
   ((DATA && DATA.members) || []).forEach(function (m) { add(m.name, 'member'); });
   ((DATA && DATA.outsiders) || []).forEach(function (m) { add(m.name, 'member'); });
-  ((DATA && DATA.guests) || []).forEach(function (g) { if (!g.absent) add(g.name, 'guest'); });
+  ((DATA && DATA.guests) || []).forEach(function (g) { if (!g.absent || g.first) add(g.name, 'guest'); });
   (typeof FAKES !== 'undefined' && FAKES ? FAKES : []).forEach(function (f) { add(f.name, 'fake'); });
   return out;
 }
@@ -5561,7 +5596,7 @@ function mpPvCardHtml(o) {
         const fr = pl.fakeRate != null ? pl.fakeRate : (canon ? mpCanonFakeRate(pv, pl.name) : null);
         const r = fr != null ? { rate: fr } : mpRateOf(pl.name);
         return '<span class="chip mpn">' + esc(pl.name)
-          + (pl.kind === 'fake' ? '<i class="mpfk">가상</i>' : '')
+          + (mpIsFirstGuest(pl.name) ? '<i class="mpfk">게스트(첫출전)</i>' : '')
           + '<i class="mprt">'
           + (r == null ? '무출전' : pct(r.rate) + '%') + '</i></span>';
       }).join('')
@@ -5667,7 +5702,8 @@ function mpPoolHtml() {
   if (!list.length) return '<div class="pempty" style="grid-column:1/-1">조건에 맞는 선수가 없습니다.</div>';
   return list.map(function (x) {
     const on = !!assigned[x.name];
-    const b = x.kind === 'guest' ? '<span class="pb gt">게스트</span>' : x.kind === 'fake' ? '<span class="pb fb">가상</span>' : '';
+    const b = mpBadgeText(x.name, x.kind)
+      ? '<span class="pb ' + (x.kind === 'fake' || mpIsFirstGuest(x.name) ? 'fb' : 'gt') + '">' + mpBadgeText(x.name, x.kind) + '</span>' : '';
     return '<button type="button" class="pchip" data-mppick="' + esc(x.name) + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
       + '<span class="pn">' + esc(x.name) + '</span>' + b + '</button>';
   }).join('');
@@ -5696,7 +5732,8 @@ function mpRenderEditor() {
     const full = t.players.length >= lim.max;
     const lst = t.players.length
       ? t.players.map(function (pl) {
-        const k = pl.kind === 'guest' ? '<span class="k">G</span>' : pl.kind === 'fake' ? '<span class="k">가상</span>' : '';
+        const bt = mpBadgeText(pl.name, pl.kind);
+        const k = bt ? '<span class="k' + (bt === '게스트(첫출전)' ? ' fk' : '') + '">' + esc(bt) + '</span>' : '';
         return '<div class="who"><span class="n">' + esc(pl.name) + '</span>' + k
           + '<button type="button" class="rm" data-mprm="' + slot + '|' + esc(pl.name) + '" aria-label="' + esc(pl.name) + ' 빼기">✕</button></div>';
       }).join('')
@@ -6022,7 +6059,111 @@ function mpCellHtml(p, gi, qi) {
     + '<div class="cum" data-cum="' + gi + ':' + qi + '">' + mpCumText(p, gi, qi) + '</div>'
     + '</td>';
 }
-/* 명단 행 — 드래그 핸들 + 이름 + (3파전) 휴식 횟수 버튼 + (순서 지정 중) 번호 배지 */
+/* ── 출전 N / 휴식 M (2026-11-28) ─────────────────────────────────────────
+   N = 그 팀이 점수를 넣은 쿼터 수(그 팀이 뛴 경기 × 쿼터 칸 중 값이 있는 칸).
+   M = 휴식 횟수(알약을 누를 때마다 +1, N 에서 한 번 더 누르면 0 / 길게 누르면 -1).
+   출전 = N - M 이라 항상 `출전 + 휴식 = N` 입니다. 불참(✕)은 둘 다 제외(`–`). */
+function mpQuartersOf(p, slot) {
+  let n = 0;
+  p.gOrder.forEach(function (gi) {
+    const g = p.games[gi];
+    const side = g.a === slot ? 'a' : (g.b === slot ? 'b' : '');
+    if (!side) return;
+    p.qOrder.forEach(function (qi) {
+      const s = p.scores['g' + gi + 'q' + qi];
+      if (s && s[side] != null && String(s[side]) !== '') n++;
+    });
+  });
+  return n;
+}
+/* 2파전 — 아직 손대지 않은 선수는 `쉬는 순번` 자동 표기대로 휴식 횟수를 셉니다 */
+function mpRestAuto(p, slot, name) {
+  if (p.type !== '2') return 0;
+  const order = p.order[slot] || [];
+  const pos = order.indexOf(name) + 1;
+  if (pos < 1) return 0;
+  let n = 0;
+  p.gOrder.forEach(function (gi) {
+    const g = p.games[gi];
+    const side = g.a === slot ? 'a' : (g.b === slot ? 'b' : '');
+    if (!side) return;
+    p.qOrder.forEach(function (qi) {
+      const s = p.scores['g' + gi + 'q' + qi];
+      if (!s || s[side] == null || String(s[side]) === '') return;
+      if (mpRestNums(order.length, mpCellIndex(p, gi, qi)).indexOf(pos) >= 0) n++;
+    });
+  });
+  return n;
+}
+function mpRestInfo(p, slot, name) {
+  const max = mpQuartersOf(p, slot);
+  const att = (p.att[slot] || {})[name] || '';
+  const stored = (p.rest[slot] || {})[name];
+  let m = stored == null ? mpRestAuto(p, slot, name) : Number(stored) || 0;
+  m = Math.max(0, Math.min(max, m));
+  return { max: max, m: m, off: att === 'out' };
+}
+function mpPillText(o) {
+  return '<span class="ppl">출전<b>' + (o.off ? '–' : o.max - o.m) + '</b></span>'
+    + (o.one ? '' : '<span class="ppl pp2">휴식<b>' + (o.off ? '–' : o.m) + '</b></span>');
+}
+function mpPillAria(o, name) {
+  return o.one
+    ? name + ' 출전 ' + (o.off ? '제외' : o.max - o.m) + ' — 5명 이하 팀은 휴식이 없습니다'
+    : name + ' 출전 ' + (o.off ? '제외' : o.max - o.m) + ' 휴식 ' + (o.off ? '제외' : o.m)
+      + ' — 누르면 휴식 +1, 길게 누르면 -1';
+}
+/* 5명 이하 팀은 쉬는 사람이 없습니다 — 알약은 `출전 N` 1줄만(휴식 줄 없음), 누름도 무시 */
+function mpPillOneLine(p, slot) {
+  return !!(p.teams[slot] && p.teams[slot].players.length <= 5);
+}
+function mpPillHtml(p, slot, name) {
+  const o = mpRestInfo(p, slot, name);
+  const one = mpPillOneLine(p, slot);
+  o.one = one;
+  if (one) o.m = 0;
+  return '<button type="button" class="pgpill' + (one ? ' one' : '') + (o.off || !o.max ? ' off' : '') + (o.m && !o.off ? ' has' : '') + '"'
+    + ' data-rest="' + slot + '|' + esc(name) + '" data-n="' + o.max + '" data-m="' + (o.off ? 0 : o.m) + '"'
+    + ' aria-label="' + esc(mpPillAria(o, name)) + '" title="' + esc(mpPillAria(o, name)) + '">'
+    + mpPillText(o) + '</button>';
+}
+/* 점수가 바뀌면 알약만 다시 계산(전체를 다시 그리지 않아 입력 포커스가 유지됩니다) */
+function mpPaintPills() {
+  const p = MP.preview;
+  if (!p || !$('#mpBody')) return;
+  $$('#mpBody .pgpill').forEach(function (b) {
+    const v = String(b.getAttribute('data-rest') || '').split('|');
+    if (v.length < 2) return;
+    const o = mpRestInfo(p, Number(v[0]), v[1]);
+    const one = mpPillOneLine(p, Number(v[0]));
+    if (one) o.m = 0;
+    o.one = one;
+    b.innerHTML = mpPillText(o);
+    b.classList.toggle('one', one);
+    b.classList.toggle('off', o.off || !o.max);
+    b.classList.toggle('has', !!o.m && !o.off);
+    b.setAttribute('data-n', o.max);
+    b.setAttribute('data-m', o.off ? 0 : o.m);
+    b.setAttribute('aria-label', mpPillAria(o, v[1]));
+    b.title = mpPillAria(o, v[1]);
+  });
+}
+/* 배지 — 기록이 없는 첫 출전 게스트는 `게스트(첫출전)`, 기록이 있는 게스트는 `게스트` */
+function mpIsFirstGuest(name) {
+  try { if (isFake(name)) return true; } catch (e) { }
+  const g = ((DATA && DATA.guests) || []).filter(function (x) { return x.name === name; })[0];
+  if (g && g.first) return true;
+  const r = ((DATA && DATA.roster) || []).filter(function (x) { return x.name === name; })[0];
+  return !!(r && r.first);
+}
+function mpBadgeText(name, kind) {
+  if (kind === 'fake') return '게스트(첫출전)';
+  if (mpIsFirstGuest(name)) return '게스트(첫출전)';
+  if (kind === 'guest') return '게스트';
+  return '';
+}
+/* 명단 행 — 왼쪽 고정 슬롯(⠿ · 출석) + 이름/배지 + 오른쪽 고정 슬롯(출전·휴식 알약)
+   슬롯 폭이 고정이라 출석·배지·숫자가 바뀌어도 이름 크기와 위치가 변하지 않습니다. */
 function mpRosterCol(p, slot) {
   const t = p.teams[slot];
   const byName = {};
@@ -6031,23 +6172,21 @@ function mpRosterCol(p, slot) {
   const on = MP_PICK === slot;
   return ord.map(function (n, i) {
     const pl = byName[n] || { name: n };
-    const rc = p.type === '3' ? ((p.rest[slot] || {})[n] || 0) : 0;
     const pick = on ? (p.type === '3' ? ((p.restNo[slot] || {})[n] || 0) : i + 1) : 0;
-    const k = pl.kind === 'guest' ? '<span class="k">G</span>' : pl.kind === 'fake' ? '<span class="k">가상</span>' : '';
+    const bt = mpBadgeText(n, pl.kind);
     const atv = (p.att[slot] || {})[n] || '';
     return '<div class="pgrow" data-prow="' + slot + '|' + esc(n) + '"' + (atv ? ' data-att="' + atv + '"' : '')
       + ' title="' + esc(n) + (atv === 'in' ? ' · 출석' : atv === 'out' ? ' · 불참' : '') + ' — 짧게 탭: 출석 → 불참 → 기본">'
       + '<span class="pgdrag" data-dragp="' + slot + '|' + esc(n) + '" role="button" aria-label="명단 순서 드래그">⠿</span>'
       + '<span class="attb" aria-hidden="true"></span>'
-      + '<span class="pgnm">' + esc(n) + '</span>' + k
-      + (p.type === '3'
-        ? '<button type="button" class="pgrc' + (rc ? ' n' + rc : '') + '" data-rest="' + slot + '|' + esc(n) + '" aria-label="' + esc(n) + ' 휴식 횟수 ' + rc + '회" title="휴식 횟수 (누르면 0→1→2→3→0)">' + rc + '회</button>'
-        : '')
+      + '<span class="pgnmw"><span class="pgnm">' + esc(n) + '</span>'
+      + (bt ? '<span class="pgnk"><i>' + esc(bt) + '</i></span>' : '') + '</span>'
+      + mpPillHtml(p, slot, n)
       + (on ? '<span class="pgpick' + (pick ? ' on' : '') + '">' + (pick || '·') + '</span>' : '')
       + '</div>';
   }).join('');
 }
-/* 명단 — 종이 기록지형 표: 왼쪽 번 열 + 팀별 열, 카드에 드래그·이름·0회 버튼 (리버스 양식) */
+/* 명단 — 종이 기록지형 표: 왼쪽 번 열 + 팀별 열, 카드에 드래그·이름·출전/휴식 알약 (리버스 양식) */
 function mpRosterHtml(p) {
   const nT = p.tOrder.length;
   let maxN = 0;
@@ -6125,9 +6264,10 @@ function mpSetNoteText(p) {
     n.innerHTML = '큰 점수 칸에는 <b>누적 점수</b>를 넣고, 칸 아래에는 그 쿼터의 <b>쿼터점수</b>가 표시됩니다. 승·무·패·득실·우승팀은 <b>입력된 마지막 쿼터의 누적 점수</b>로 자동 계산됩니다. '
       + '매치업 머리글의 <b>⇄</b>는 세 경기의 좌우 팀을 한번에 바꾸고(점수도 함께), <b>⠿ 드래그</b>로 경기 열 순서를 바꿉니다. '
       + '명단은 <b>이름을 짧게 탭</b>하면 <b>출석 → 불참 → 기본</b>으로 바뀌고, <b>⠿ 드래그</b>로 순서를 바꿉니다. '
+      + '오른쪽 <b>출전 N / 휴식 M</b> 알약은 그 팀이 점수를 넣은 쿼터 수 <b>N</b> 을 자동으로 세고, 누를 때마다 <b>휴식 +1</b>(N 이면 다시 0)·<b>길게 누르면 -1</b>이라 <b>출전 + 휴식 = N</b> 이 항상 맞습니다. <b>5명 이하 팀</b>은 쉬는 사람이 없어 <b>출전 N 한 줄</b>만 나옵니다. 불참(✕)은 계산에서 빠집니다. '
       + (p.type === '3'
-        ? '왼쪽 위 <b>쿼터 ↻</b>를 누르면 <b>1·2·3경기 로테이션</b>이 한 칸씩 돌아가고(점수도 해당 매치업으로 이동), <b>0회</b> 버튼을 누르면 휴식 횟수가 0 → 1 → 2 → 3 → 0으로 바뀌며, <b>순서</b> 버튼으로 1번부터 번호를 붙입니다. '
-        : '2파전은 쿼터 칸 위에 그 쿼터에 <b>쉬는 번호</b>가 자동으로 표기됩니다. ')
+        ? '왼쪽 위 <b>쿼터 ↻</b>를 누르면 <b>1·2·3경기 로테이션</b>이 한 칸씩 돌아가고(점수도 해당 매치업으로 이동), <b>순서</b> 버튼으로 1번부터 번호를 붙입니다. '
+        : '2파전은 쿼터 칸 위에 그 쿼터에 <b>쉬는 번호</b>가 자동으로 표기되고, 알약의 <b>휴식</b>은 그 순번대로 자동으로 세어 줍니다(직접 누르면 그 선수는 손댄 값으로 유지). ')
       + '인원을 추가·삭제·수정하려면 <b>매치 프리뷰 수정</b>을 이용해 주세요.';
   }
   const sub = $('#mpSetSub');
@@ -6137,6 +6277,7 @@ function mpRender() {
   const p = MP.preview;
   if (!p) return;
   mpNormalize(p);
+  MPPL = null;
   const st = mpStandings(p);
   const title = $('#mpGameTitle');
   if (title) title.innerHTML = '🏀 <b>' + esc(p.date) + ' (' + wd(p.date) + ')</b> · ' + p.type + '파전 경기 진행';
@@ -6160,6 +6301,7 @@ function mpPaintTotals() {
     const v = String(el.getAttribute('data-cum')).split(':');
     el.textContent = mpCumText(p, Number(v[0]), Number(v[1]));
   });
+  mpPaintPills();
   mpRefitIfOverflow();
 }
 /* ---------------- 📱 화면 꽉 채우기 & 글씨 크기 3단계 ----------------
@@ -6308,13 +6450,13 @@ function mpTabFit(pg, body, p) {
     if (needEm > 0 && avail > 0) thFit = Math.min(thFit, avail / needEm);
   });
   /* 3) '크게'일 때의 최대 크기 — 이름은 행 높이·가로 폭, 점수는 칸 높이·가로 폭이 한계 */
-  const nameCap = Math.max(9, Math.min(rh ? rh * 0.34 : 999, wFit, 64));
+  const nameCap = Math.max(9, Math.min(rh ? rh * 0.38 : 999, wFit, 64));
   const scoreCap = Math.max(9, Math.min(ch ? ch * 0.40 : 999, cw ? cw * 0.92 / 4.4 : 999, 72));
   pg.style.setProperty('--pg-h-score', Math.round(ch ? Math.max(30, Math.min(ch * 0.55, 140)) : 0) + 'px');
   const cap = {
     name: nameCap,
     score: scoreCap,
-    q: Math.min(nameCap * 0.60, ch ? ch * 0.24 : 999, 34),
+    q: Math.min(nameCap * 0.54, ch ? ch * 0.24 : 999, 34),
     mpair: Math.min(nameCap * 0.82, 34),
     team: Math.min(nameCap * 0.62, thFit, 40),
     meta: Math.min(nameCap * 0.42, 24),
@@ -6387,6 +6529,43 @@ function mpTabFit(pg, body, p) {
     mpFsApply(pg, v);
     mpHeaderFit(pg);
   }
+  /* 6) 알약·출석·배지 자리 때문에 이름이 과하게 줄었으면, 실제로 들어가는 만큼 다시 키웁니다
+     (고정 슬롯을 두면서도 이름 크기가 예전과 같게 보이는 핵심 보정) */
+  const growCap = Math.max(cap.name, Math.min(rh ? rh * 0.38 : 999, 64));
+  if (v.name < growCap - 0.2) {
+    let cand = growCap;
+    $$('#mpScreen .pgnm').forEach(function (n) {
+      const cw2 = n.clientWidth;
+      if (!cw2) return;
+      const f = parseFloat(getComputedStyle(n).fontSize) || v.name;
+      const w = mpTextW(n);
+      if (w > 0) cand = Math.min(cand, f * (cw2 - 6) / w);
+    });
+    const grown = Math.max(v.name, Math.min(growCap, cand) * mult / 1.22);
+    if (grown > v.name + 0.2) {
+      const keep = v.name;
+      v.name = grown;
+      mpFsApply(pg, v);
+      mpHeaderFit(pg);
+      if (mpTabBad(mpTabIssues(pg))) { v.name = keep; mpFsApply(pg, v); mpHeaderFit(pg); }
+    }
+  }
+  /* 알약을 숨긴 팀(5명 이하)은 이름 칸이 넓습니다 — 그 열만 이름을 더 크게 씁니다 */
+  $$('#mpBody .pgrows').forEach(function (col) {
+    const slot = Number(col.getAttribute('data-rt'));
+    if (!p.teams[slot] || !mpPillOneLine(p, slot)) return;
+    let cand2 = growCap;
+    const ns = $$('.pgnm', col);
+    ns.forEach(function (n) {
+      const cw2 = n.clientWidth;
+      if (!cw2) return;
+      const f = parseFloat(getComputedStyle(n).fontSize) || v.name;
+      const w = mpTextW(n);
+      if (w > 0) cand2 = Math.min(cand2, f * (cw2 - 6) / w);
+    });
+    const fs = Math.min(growCap, cand2) * mult / 1.22;
+    if (fs > v.name + 0.2) ns.forEach(function (n) { n.style.fontSize = fs.toFixed(1) + 'px'; });
+  });
   mpHeaderFit(pg);
 }
 /* 폰트(이모지 포함)가 늦게 로드되어 글자 폭이 바뀌는 경우를 위해 한 번 더 맞춥니다 */
@@ -6509,6 +6688,7 @@ function mpCycleAtt(slot, name) {
     if (next) row.setAttribute('data-att', next); else row.removeAttribute('data-att');
     row.title = name + (next === 'in' ? ' · 출석' : next === 'out' ? ' · 불참' : '') + ' — 짧게 탭: 출석 → 불참 → 기본';
   }
+  mpPaintPills();
   try { if (navigator.vibrate) navigator.vibrate(next === 'out' ? 22 : next === 'in' ? 14 : 8); } catch (e) { }
 }
 function mpAttCount(p) {
@@ -6522,17 +6702,22 @@ function mpAttCount(p) {
   });
   return { inN: inN, outN: outN, any: inN + outN > 0 };
 }
-function mpCycleRest(slot, name) {
+/* 휴식 알약 — 누를 때마다 +1(N 에서 한 번 더 누르면 0), 길게 누르면 -1(0 에서는 N) */
+function mpCycleRest(slot, name, dir) {
   const p = MP.preview;
+  if (!p) return false;
+  if (mpPillOneLine(p, slot)) { mpToast('5명 이하 팀은 쉬는 사람이 없습니다.'); return false; }
+  const o = mpRestInfo(p, slot, name);
+  if (o.off) { mpToast(name + ' 님은 불참 — 출전·휴식에서 제외됩니다.'); return false; }
+  if (!o.max) { mpToast('쿼터 점수를 입력하면 출전·휴식이 자동으로 계산됩니다.'); return false; }
   const m = p.rest[slot] || (p.rest[slot] = {});
-  const cur = m[name] || 0;
-  m[name] = cur >= 3 ? 0 : cur + 1;
+  let next = o.m + (dir < 0 ? -1 : 1);
+  if (next > o.max) next = 0;
+  if (next < 0) next = o.max;
+  m[name] = next;
   mpSave();
-  const li = $('#mpBody [data-rest="' + slot + '|' + name + '"]');
-  const prev = $('#mpBody [data-prow="' + slot + '|' + name + '"]');
-  const rc = m[name];
-  if (li) { li.textContent = rc + '회'; li.className = 'pgrc' + (rc ? ' n' + rc : ''); }
-  else if (prev) { mpRender(); }
+  mpPaintPills();
+  return true;
 }
 function mpPickRest(slot) {
   const p = MP.preview;
@@ -6723,7 +6908,14 @@ function mpInit() {
     const qm = e.target.closest('[data-qmove]');
     if (qm) { const v = qm.getAttribute('data-qmove').split(':'); mpNudgeQuarter(Number(v[0]), Number(v[1])); return; }
     const rc = e.target.closest('[data-rest]');
-    if (rc) { const v = rc.getAttribute('data-rest').split('|'); mpCycleRest(Number(v[0]), v[1]); return; }
+    if (rc) {
+      const v = rc.getAttribute('data-rest').split('|');
+      /* 길게 누름 = 이미 -1 처리됨 → 따라오는 click 은 무시 */
+      if (MPPL && MPPL.fired && MPPL.name === v[1]) { MPPL = null; return; }
+      MPPL = null;
+      if (mpCycleRest(Number(v[0]), v[1], 1)) { try { if (navigator.vibrate) navigator.vibrate(12); } catch (err) { } }
+      return;
+    }
     const prd = e.target.closest('[data-prd]');
     if (prd) { mpPickRest(Number(prd.getAttribute('data-prd'))); return; }
     const pr = e.target.closest('[data-prow]');
@@ -6745,6 +6937,24 @@ function mpInit() {
     mpSave();
     mpPaintTotals();
   });
+  s.addEventListener('pointerdown', function (e) {
+    const pl = e.target.closest('#mpBody .pgpill');
+    if (!pl) return;
+    const v = String(pl.getAttribute('data-rest') || '').split('|');
+    const st = { slot: Number(v[0]), name: v[1], fired: false, timer: 0 };
+    st.timer = setTimeout(function () {
+      st.fired = true;
+      if (mpCycleRest(st.slot, st.name, -1)) {
+        mpToast('휴식 -1');
+        try { if (navigator.vibrate) navigator.vibrate(18); } catch (err) { }
+      }
+    }, 480);
+    MPPL = st;
+    setTimeout(function () { if (MPPL === st && !st.fired) { clearTimeout(st.timer); MPPL = null; } }, 1400);
+  }, { passive: true });
+  s.addEventListener('pointerup', function () { if (MPPL) clearTimeout(MPPL.timer); }, { passive: true });
+  s.addEventListener('pointercancel', function () { if (MPPL) { clearTimeout(MPPL.timer); MPPL = null; } }, { passive: true });
+  s.addEventListener('contextmenu', function (e) { if (e.target.closest('#mpBody .pgpill')) e.preventDefault(); });
   s.addEventListener('pointerdown', mpDragDown);
   document.addEventListener('pointermove', mpDragMove, { passive: true });
   document.addEventListener('pointerup', mpDragUp);

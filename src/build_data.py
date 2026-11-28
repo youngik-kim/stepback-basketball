@@ -112,7 +112,7 @@ for r in rows(gst.split("## 📊 게스트 누적 전적")[1])[1:]:
 guest_rows_played = len(guests)
 for nm in absent_guests:
     guests.append(dict(rank=guest_rows_played + 1 + absent_guests.index(nm), name=nm, weeks=0,
-                       w=0, d=0, l=0, rate=None, dates=[], absent=True))
+                       w=0, d=0, l=0, rate=None, dates=[], absent=True, first=False))
 
 # ---------------------------------------------------------------- 주간 로그
 log = rec.split("## 📅 주간 경기 로그")[1]
@@ -329,7 +329,8 @@ for r in rows(roster_block)[1:]:
     role = "게스트" if len(r) > 4 and "게스트" in clean(r[4]) else "정회원"
     roster.append(dict(name=nm, no=(None if no in ("-", "") else no),
                        height=(None if h in ("-", "") else int(h)), pos=pos,
-                       posMain=pos.split("/")[0], role=role))
+                       posMain=pos.split("/")[0], role=role,
+                       first=(len(r) > 4 and "첫출전" in clean(r[4]))))
 
 # 로스터의 구분(정회원/게스트)을 순위 표에도 붙인다
 ROLE = {r["name"]: r["role"] for r in roster}
@@ -338,11 +339,15 @@ for p in members + outsiders:
 
 guest_names = [r["name"] for r in roster if r["role"] == "게스트"]
 reg_names = [r["name"] for r in roster if r["role"] == "정회원"]
-if len(roster) != 21 or len(reg_names) != 17 or len(guest_names) != 4:
+# 첫 출전 게스트(기록 없이 로스터에만 등록) — 사이트에서는 `게스트(첫출전)` 배지
+FIRST_GUESTS = {r["name"] for r in roster if r.get("first")}
+for g in guests:
+    g["first"] = g["name"] in FIRST_GUESTS
+if len(roster) != 23 or len(reg_names) != 17 or len(guest_names) != 6:
     errors.append(f"로스터 구분 인원 이상: 전체 {len(roster)} · 정회원 {len(reg_names)} · 게스트 {len(guest_names)} ({', '.join(guest_names)})")
 # 게스트 표(출전 + 미출전)와 로스터 게스트가 일치하는지
-if len(guests) != 75 or len([g for g in guests if not g["absent"]]) != 74:
-    errors.append(f"게스트 인원 이상: 표 {len(guests)}명(미출전 {len(absent_guests)}) — 74 출전 + 1 미출전 기대")
+if len(guests) != 77 or len([g for g in guests if not g["absent"]]) != 74:
+    errors.append(f"게스트 인원 이상: 표 {len(guests)}명(미출전 {len(absent_guests)}) — 74 출전 + 3 미출전 기대")
 missing_guest = [n for n in guest_names if n not in {g["name"] for g in guests}]
 if missing_guest:
     errors.append("로스터 게스트가 게스트 표에 없음: " + ", ".join(missing_guest))
@@ -435,7 +440,7 @@ def parse_previews(text):
                 mode = None
             elif "**팀별 예상**" in s:
                 mode = "teams"
-            elif "**가상**" in s:
+            elif "**가상**" in s or "**게스트(첫출전)**" in s:
                 seg = re.split(r"[:：]", s, 1)[1] if re.search(r"[:：]", s) else ""
                 for tok in re.split(r"[,·]", seg):
                     mf = re.match(r"^\s*([^\s]+)\s+([\d.]+)\s*%?\s*$", tok.strip())
